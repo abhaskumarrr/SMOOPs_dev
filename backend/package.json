@@ -1,0 +1,29 @@
+{
+  "scripts": {
+    "prisma:migrate:dev": "prisma migrate dev --name init",
+    "prisma:migrate:deploy": "prisma migrate deploy",
+    "prisma:generate": "prisma generate",
+    "ci:migrate": "prisma migrate deploy && prisma generate",
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js"
+  },
+  "name": "backend",
+  "version": "1.0.0",
+  "main": "src/server.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@prisma/client": "^6.8.2",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.5.0",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "prisma": "^6.8.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

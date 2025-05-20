@@ -1,0 +1,43 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: neondb_owner
+          POSTGRES_PASSWORD: npg_L3VO2MvbJiWY
+          POSTGRES_DB: neondb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm install
+        working-directory: backend
+      - name: Set up .env
+        run: |
+          echo "DATABASE_URL=postgresql://neondb_owner:npg_L3VO2MvbJiWY@localhost:5432/neondb?schema=public" > backend/.env
+      - name: Run migrations and generate client
+        run: npm run ci:migrate
+        working-directory: backend
+      - name: Run tests
+        run: echo "Add your test command here"
+        working-directory: backend 

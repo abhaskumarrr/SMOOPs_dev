@@ -1,0 +1,14 @@
+{
+  "name": "SMOOPs_dev",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/abhaskumarrr/SMOOPs_dev",
+  "author": "Abhas Kumar <109647440+abhaskumarrr@users.noreply.github.com>",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend",
+    "ml"
+  ]
+}

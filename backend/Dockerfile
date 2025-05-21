@@ -1,11 +1,23 @@
 # syntax=docker/dockerfile:1
-FROM python:3.10-slim
+FROM node:20-alpine
 
 WORKDIR /app
 
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+# Install dependencies
+COPY package*.json ./
+RUN npm ci
 
+# Copy source code
 COPY . .
 
-CMD ["python", "main.py"]
+# Generate Prisma client
+RUN npx prisma generate
+
+# Build for production (if needed)
+# RUN npm run build
+
+# Expose API port
+EXPOSE 3001
+
+# Start the server
+CMD ["npm", "run", "dev"]

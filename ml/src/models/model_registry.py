@@ -13,6 +13,9 @@ import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Union, Tuple
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -155,7 +158,61 @@ class ModelRegistry:
                     except Exception as e:
                         logger.warning(f"Could not save artifact {name}: {str(e)}")
         
+        # Update versions index file
+        self._update_versions_index(symbol_name, version, metrics)
+        
         return version
+    
+    def _update_versions_index(self, symbol_name: str, version: str, metrics: Optional[Dict[str, float]] = None):
+        """
+        Update the versions index file for a symbol.
+        
+        Args:
+            symbol_name: Normalized symbol name
+            version: Version identifier
+            metrics: Optional performance metrics
+        """
+        # Path to versions index file
+        index_path = self.registry_path / symbol_name / "versions_index.json"
+        
+        # Initialize or load versions index
+        if index_path.exists():
+            with open(index_path, 'r') as f:
+                versions_index = json.load(f)
+        else:
+            versions_index = {"versions": []}
+        
+        # Get version metadata
+        metadata_path = self.registry_path / symbol_name / version / "metadata.json"
+        metadata = {}
+        if metadata_path.exists():
+            with open(metadata_path, 'r') as f:
+                metadata = json.load(f)
+        
+        # Create version entry
+        version_entry = {
+            "version": version,
+            "created_at": datetime.now().isoformat(),
+            "model_type": metadata.get("model_type", "unknown"),
+            "description": metadata.get("description", ""),
+        }
+        
+        # Add metrics if provided
+        if metrics is not None:
+            version_entry["metrics"] = metrics
+        
+        # Update versions list
+        versions_index["versions"].append(version_entry)
+        
+        # Sort versions by creation time (newest first)
+        versions_index["versions"].sort(
+            key=lambda v: v.get("created_at", ""),
+            reverse=True
+        )
+        
+        # Save updated index
+        with open(index_path, 'w') as f:
+            json.dump(versions_index, f, indent=2)
     
     def load_model(
         self,
@@ -190,7 +247,7 @@ class ModelRegistry:
         
         # Find the specific version or latest
         if version is None:
-            versions = [d.name for d in model_dir.iterdir() if d.is_dir()]
+            versions = [d.name for d in model_dir.iterdir() if d.is_dir() and d.name != "artifacts"]
             if not versions:
                 raise FileNotFoundError(f"No model versions found for {symbol}")
             version = sorted(versions)[-1]
@@ -282,7 +339,7 @@ class ModelRegistry:
             return []
         
         # Get versions
-        versions = [d.name for d in model_dir.iterdir() if d.is_dir()]
+        versions = [d.name for d in model_dir.iterdir() if d.is_dir() and d.name != "artifacts"]
         return sorted(versions)
     
     def get_symbols(self) -> List[str]:
@@ -323,7 +380,7 @@ class ModelRegistry:
         
         # Find the specific version or latest
         if version is None:
-            versions = [d.name for d in model_dir.iterdir() if d.is_dir()]
+            versions = [d.name for d in model_dir.iterdir() if d.is_dir() and d.name != "artifacts"]
             if not versions:
                 raise FileNotFoundError(f"No model versions found for {symbol}")
             version = sorted(versions)[-1]
@@ -340,94 +397,473 @@ class ModelRegistry:
         with open(metadata_path, 'r') as f:
             return json.load(f)
     
-    def delete_version(self, symbol: str, version: str, force: bool = False) -> bool:
+    def get_metrics(self, symbol: str, version: Optional[str] = None) -> Dict[str, float]:
+        """
+        Get performance metrics for a specific model version.
+        
+        Args:
+            symbol: Trading symbol or model identifier
+            version: Specific version to get metrics for (default: latest)
+            
+        Returns:
+            Model metrics
+        """
+        # Normalize symbol name for file paths
+        symbol_name = symbol.replace("/", "_")
+        
+        # Determine model directory
+        model_dir = self.registry_path / symbol_name
+        if not model_dir.exists():
+            raise FileNotFoundError(f"No models found for {symbol}")
+        
+        # Find the specific version or latest
+        if version is None:
+            versions = [d.name for d in model_dir.iterdir() if d.is_dir() and d.name != "artifacts"]
+            if not versions:
+                raise FileNotFoundError(f"No model versions found for {symbol}")
+            version = sorted(versions)[-1]
+        
+        version_dir = model_dir / version
+        if not version_dir.exists():
+            raise FileNotFoundError(f"Model version {version} not found for {symbol}")
+        
+        # Load metrics
+        metrics_path = version_dir / "metrics.json"
+        if not metrics_path.exists():
+            return {}
+        
+        with open(metrics_path, 'r') as f:
+            return json.load(f)
+    
+    def compare_models(
+        self, 
+        symbol: str, 
+        versions: Optional[List[str]] = None,
+        metrics: Optional[List[str]] = None,
+        output_path: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Compare multiple model versions for a given symbol.
+        
+        Args:
+            symbol: Trading symbol or model identifier
+            versions: List of versions to compare (default: all versions)
+            metrics: List of metric names to compare (default: all metrics)
+            output_path: Path to save comparison results (default: None)
+            
+        Returns:
+            Dictionary with comparison results
+        """
+        # Normalize symbol name for file paths
+        symbol_name = symbol.replace("/", "_")
+        
+        # Determine model directory
+        model_dir = self.registry_path / symbol_name
+        if not model_dir.exists():
+            raise FileNotFoundError(f"No models found for {symbol}")
+        
+        # Get all versions if not specified
+        if versions is None:
+            versions = self.get_versions(symbol)
+        
+        if not versions:
+            raise ValueError(f"No versions available for {symbol}")
+        
+        # Container for results
+        results = {
+            "symbol": symbol,
+            "versions": [],
+            "metrics_comparison": {},
+            "metadata_comparison": {}
+        }
+        
+        # Collect metrics and metadata for each version
+        for version in versions:
+            try:
+                # Get metrics
+                version_metrics = self.get_metrics(symbol, version)
+                
+                # Get metadata
+                version_metadata = self.get_metadata(symbol, version)
+                
+                # Store in results
+                version_data = {
+                    "version": version,
+                    "metrics": version_metrics,
+                    "metadata": {
+                        "model_type": version_metadata.get("model_type", "unknown"),
+                        "created_at": version_metadata.get("created_at", "unknown"),
+                        "description": version_metadata.get("description", "")
+                    }
+                }
+                
+                results["versions"].append(version_data)
+            except Exception as e:
+                logger.warning(f"Error loading data for version {version}: {str(e)}")
+        
+        # Filter metrics if specified
+        if metrics is not None:
+            for version_data in results["versions"]:
+                filtered_metrics = {}
+                for metric in metrics:
+                    if metric in version_data["metrics"]:
+                        filtered_metrics[metric] = version_data["metrics"][metric]
+                version_data["metrics"] = filtered_metrics
+        
+        # Create metrics comparison
+        all_metrics = set()
+        for version_data in results["versions"]:
+            all_metrics.update(version_data["metrics"].keys())
+        
+        # Compare each metric across versions
+        for metric in all_metrics:
+            metric_values = []
+            for version_data in results["versions"]:
+                if metric in version_data["metrics"]:
+                    metric_values.append({
+                        "version": version_data["version"],
+                        "value": version_data["metrics"][metric]
+                    })
+            
+            if metric_values:
+                # Sort by value (best first, assuming lower is better for most metrics)
+                sorted_values = sorted(metric_values, key=lambda x: x["value"])
+                
+                # Reverse sort order for metrics where higher is better
+                if any(metric.endswith(m) for m in ["accuracy", "r2", "sharpe_ratio", "directional_accuracy", "win_rate"]):
+                    sorted_values = sorted(metric_values, key=lambda x: x["value"], reverse=True)
+                
+                results["metrics_comparison"][metric] = sorted_values
+        
+        # Create visualizations if output path is provided
+        if output_path is not None:
+            output_dir = Path(output_path)
+            output_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Generate comparison report
+            self._generate_comparison_visualizations(results, output_dir)
+            
+            # Save JSON results
+            results_path = output_dir / "comparison_results.json"
+            with open(results_path, 'w') as f:
+                json.dump(results, f, indent=2)
+        
+        return results
+    
+    def _generate_comparison_visualizations(self, results: Dict[str, Any], output_dir: Path):
+        """
+        Generate visualizations for model comparison.
+        
+        Args:
+            results: Comparison results dictionary
+            output_dir: Directory to save visualizations
+        """
+        symbol = results["symbol"]
+        versions = [v["version"] for v in results["versions"]]
+        
+        # Create metrics comparison plots
+        for metric, values in results["metrics_comparison"].items():
+            # Create figure
+            plt.figure(figsize=(10, 6))
+            
+            # Extract data
+            metric_versions = [v["version"] for v in values]
+            metric_values = [v["value"] for v in values]
+            
+            # Create bar chart
+            bars = plt.bar(metric_versions, metric_values)
+            
+            # Add value labels on top of bars
+            for bar, value in zip(bars, metric_values):
+                plt.text(
+                    bar.get_x() + bar.get_width() / 2,
+                    bar.get_height() + 0.001,
+                    f'{value:.4f}',
+                    ha='center',
+                    va='bottom',
+                    rotation=45 if len(metric_versions) > 4 else 0,
+                    fontsize=8
+                )
+            
+            # Add labels and title
+            plt.xlabel('Model Version')
+            plt.ylabel(metric)
+            plt.title(f'{metric} Comparison for {symbol}')
+            
+            # Adjust layout and save
+            plt.xticks(rotation=45, ha='right')
+            plt.tight_layout()
+            plt.savefig(output_dir / f"{metric}_comparison.png", dpi=300)
+            plt.close()
+        
+        # Create metrics table
+        metrics_df = pd.DataFrame()
+        for version_data in results["versions"]:
+            version = version_data["version"]
+            metrics = version_data["metrics"]
+            
+            # Add to DataFrame
+            version_df = pd.DataFrame([metrics], index=[version])
+            metrics_df = pd.concat([metrics_df, version_df])
+        
+        # Save metrics table
+        if not metrics_df.empty:
+            # Save as CSV
+            metrics_df.to_csv(output_dir / "metrics_comparison.csv")
+            
+            # Create visualization of metrics table
+            plt.figure(figsize=(12, len(metrics_df) * 0.5 + 2))
+            
+            # Create table
+            table = plt.table(
+                cellText=metrics_df.values.round(4),
+                rowLabels=metrics_df.index,
+                colLabels=metrics_df.columns,
+                cellLoc='center',
+                loc='center'
+            )
+            
+            # Adjust table style
+            table.auto_set_font_size(False)
+            table.set_fontsize(10)
+            table.scale(1.2, 1.5)
+            
+            # Hide axes
+            plt.axis('off')
+            
+            # Add title
+            plt.title(f'Metrics Comparison for {symbol}')
+            
+            # Save figure
+            plt.tight_layout()
+            plt.savefig(output_dir / "metrics_table.png", dpi=300, bbox_inches='tight')
+            plt.close()
+    
+    def delete_version(self, symbol: str, version: str) -> bool:
         """
         Delete a specific model version.
         
         Args:
             symbol: Trading symbol or model identifier
-            version: Specific version to delete
-            force: Force deletion even if it's the only version
+            version: Version to delete
             
         Returns:
-            True if deletion was successful
+            True if successful, False otherwise
         """
         # Normalize symbol name for file paths
         symbol_name = symbol.replace("/", "_")
         
-        # Determine version directory
+        # Check if version exists
         version_dir = self.registry_path / symbol_name / version
         if not version_dir.exists():
-            logger.warning(f"Model version {version} not found for {symbol}")
+            logger.warning(f"Version {version} not found for {symbol}")
             return False
         
-        # Check if it's the only version
-        if not force:
-            versions = self.get_versions(symbol)
-            if len(versions) <= 1:
-                logger.warning(f"Cannot delete the only version for {symbol}. Use force=True to override.")
-                return False
-        
-        # Delete the directory
-        shutil.rmtree(version_dir)
-        logger.info(f"Deleted model version {version} for {symbol}")
-        return True
+        try:
+            # Delete version directory
+            shutil.rmtree(version_dir)
+            logger.info(f"Deleted version {version} for {symbol}")
+            
+            # Update versions index
+            index_path = self.registry_path / symbol_name / "versions_index.json"
+            if index_path.exists():
+                with open(index_path, 'r') as f:
+                    versions_index = json.load(f)
+                
+                # Remove version from index
+                versions_index["versions"] = [
+                    v for v in versions_index["versions"] 
+                    if v.get("version") != version
+                ]
+                
+                # Save updated index
+                with open(index_path, 'w') as f:
+                    json.dump(versions_index, f, indent=2)
+            
+            return True
+        except Exception as e:
+            logger.error(f"Error deleting version {version} for {symbol}: {str(e)}")
+            return False
     
-    def compare_versions(
+    def track_online_performance(
         self,
         symbol: str,
-        version1: str,
-        version2: str
-    ) -> Dict[str, Any]:
+        version: str,
+        timestamp: str,
+        metrics: Dict[str, float],
+        prediction_data: Optional[Dict[str, Any]] = None
+    ) -> bool:
         """
-        Compare two model versions.
+        Track online performance of a model version.
         
         Args:
             symbol: Trading symbol or model identifier
-            version1: First version to compare
-            version2: Second version to compare
+            version: Model version
+            timestamp: ISO-formatted timestamp for the performance record
+            metrics: Performance metrics
+            prediction_data: Optional prediction data for later analysis
             
         Returns:
-            Comparison results
+            True if successful, False otherwise
         """
-        # Load metrics for both versions
-        metadata1 = self.get_metadata(symbol, version1)
-        metadata2 = self.get_metadata(symbol, version2)
+        # Normalize symbol name for file paths
+        symbol_name = symbol.replace("/", "_")
         
-        # Load metrics
-        metrics1 = {}
-        metrics2 = {}
+        # Check if version exists
+        version_dir = self.registry_path / symbol_name / version
+        if not version_dir.exists():
+            logger.warning(f"Version {version} not found for {symbol}")
+            return False
         
-        metrics_path1 = self.registry_path / symbol.replace("/", "_") / version1 / "metrics.json"
-        metrics_path2 = self.registry_path / symbol.replace("/", "_") / version2 / "metrics.json"
+        try:
+            # Create performance directory if it doesn't exist
+            performance_dir = version_dir / "performance"
+            performance_dir.mkdir(exist_ok=True)
+            
+            # Create performance record file
+            record_file = performance_dir / "online_metrics.csv"
+            
+            # Initialize or append to record file
+            metrics_row = {"timestamp": timestamp, **metrics}
+            metrics_df = pd.DataFrame([metrics_row])
+            
+            if record_file.exists():
+                # Append to existing file
+                existing_df = pd.read_csv(record_file)
+                updated_df = pd.concat([existing_df, metrics_df], ignore_index=True)
+                updated_df.to_csv(record_file, index=False)
+            else:
+                # Create new file
+                metrics_df.to_csv(record_file, index=False)
+            
+            # Save prediction data if provided
+            if prediction_data is not None:
+                predictions_file = performance_dir / "predictions.csv"
+                pred_row = {"timestamp": timestamp, **prediction_data}
+                pred_df = pd.DataFrame([pred_row])
+                
+                if predictions_file.exists():
+                    # Append to existing file
+                    existing_df = pd.read_csv(predictions_file)
+                    updated_df = pd.concat([existing_df, pred_df], ignore_index=True)
+                    updated_df.to_csv(predictions_file, index=False)
+                else:
+                    # Create new file
+                    pred_df.to_csv(predictions_file, index=False)
+            
+            return True
+        except Exception as e:
+            logger.error(f"Error tracking performance for {symbol} version {version}: {str(e)}")
+            return False
+    
+    def generate_performance_report(
+        self,
+        symbol: str,
+        version: Optional[str] = None,
+        output_path: Optional[str] = None,
+        num_days: Optional[int] = None
+    ) -> Dict[str, Any]:
+        """
+        Generate a performance report for a model version.
         
-        if metrics_path1.exists():
-            with open(metrics_path1, 'r') as f:
-                metrics1 = json.load(f)
+        Args:
+            symbol: Trading symbol or model identifier
+            version: Model version (default: latest)
+            output_path: Path to save the report (default: None)
+            num_days: Number of days to include in the report (default: all)
+            
+        Returns:
+            Dictionary with performance report data
+        """
+        # Normalize symbol name for file paths
+        symbol_name = symbol.replace("/", "_")
         
-        if metrics_path2.exists():
-            with open(metrics_path2, 'r') as f:
-                metrics2 = json.load(f)
+        # Find version if not specified
+        if version is None:
+            versions = self.get_versions(symbol)
+            if not versions:
+                raise FileNotFoundError(f"No model versions found for {symbol}")
+            version = versions[-1]
         
-        # Prepare comparison results
-        comparison = {
-            "symbol": symbol,
-            "versions": {
-                "v1": version1,
-                "v2": version2
-            },
-            "metadata_diff": {
-                k: {"v1": metadata1.get(k), "v2": metadata2.get(k)}
-                for k in set(metadata1.keys()).union(set(metadata2.keys()))
-                if k in metadata1 and k in metadata2 and metadata1.get(k) != metadata2.get(k)
-            },
-            "metrics_diff": {
-                k: {"v1": metrics1.get(k), "v2": metrics2.get(k)}
-                for k in set(metrics1.keys()).union(set(metrics2.keys()))
+        # Check if version exists
+        version_dir = self.registry_path / symbol_name / version
+        if not version_dir.exists():
+            raise FileNotFoundError(f"Version {version} not found for {symbol}")
+        
+        # Check if performance data exists
+        performance_dir = version_dir / "performance"
+        if not performance_dir.exists() or not (performance_dir / "online_metrics.csv").exists():
+            logger.warning(f"No performance data found for {symbol} version {version}")
+            return {"error": "No performance data found"}
+        
+        try:
+            # Load performance data
+            metrics_file = performance_dir / "online_metrics.csv"
+            metrics_df = pd.read_csv(metrics_file)
+            
+            # Convert timestamps to datetime
+            metrics_df["timestamp"] = pd.to_datetime(metrics_df["timestamp"])
+            
+            # Filter by date if specified
+            if num_days is not None:
+                latest_date = metrics_df["timestamp"].max()
+                cutoff_date = latest_date - pd.Timedelta(days=num_days)
+                metrics_df = metrics_df[metrics_df["timestamp"] >= cutoff_date]
+            
+            # Sort by timestamp
+            metrics_df = metrics_df.sort_values("timestamp")
+            
+            # Create performance report
+            report = {
+                "symbol": symbol,
+                "version": version,
+                "data_points": len(metrics_df),
+                "date_range": {
+                    "start": metrics_df["timestamp"].min().isoformat(),
+                    "end": metrics_df["timestamp"].max().isoformat()
+                }
             }
-        }
-        
-        return comparison
+            
+            # Calculate aggregate metrics
+            numeric_cols = metrics_df.select_dtypes(include=np.number).columns
+            report["metrics"] = {
+                "mean": {col: metrics_df[col].mean() for col in numeric_cols},
+                "std": {col: metrics_df[col].std() for col in numeric_cols},
+                "min": {col: metrics_df[col].min() for col in numeric_cols},
+                "max": {col: metrics_df[col].max() for col in numeric_cols},
+                "latest": {col: metrics_df[col].iloc[-1] for col in numeric_cols}
+            }
+            
+            # Generate visualizations if output path is provided
+            if output_path is not None:
+                output_dir = Path(output_path)
+                output_dir.mkdir(parents=True, exist_ok=True)
+                
+                # Generate metric trend plots
+                for col in numeric_cols:
+                    if col == "timestamp":
+                        continue
+                    
+                    plt.figure(figsize=(10, 6))
+                    plt.plot(metrics_df["timestamp"], metrics_df[col])
+                    plt.xlabel("Time")
+                    plt.ylabel(col)
+                    plt.title(f"{col} Over Time for {symbol} (Version: {version})")
+                    plt.xticks(rotation=45)
+                    plt.grid(True, alpha=0.3)
+                    plt.tight_layout()
+                    plt.savefig(output_dir / f"{col}_trend.png", dpi=300)
+                    plt.close()
+                
+                # Save report as JSON
+                report_path = output_dir / "performance_report.json"
+                with open(report_path, 'w') as f:
+                    json.dump(report, f, indent=2)
+            
+            return report
+        except Exception as e:
+            logger.error(f"Error generating performance report: {str(e)}")
+            return {"error": str(e)}
 
 
 # Singleton instance of the registry

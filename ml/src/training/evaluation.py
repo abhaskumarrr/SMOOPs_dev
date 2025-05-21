@@ -25,6 +25,7 @@ def calculate_metrics(
     y_true: np.ndarray,
     y_pred: np.ndarray,
     prefix: str = "",
+    trading_info: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, float]:
     """
     Calculate regression metrics for model evaluation.
@@ -33,6 +34,7 @@ def calculate_metrics(
         y_true: True values
         y_pred: Predicted values
         prefix: Prefix for metric names (e.g., 'test_', 'val_')
+        trading_info: Additional trading data for calculating trading-specific metrics
         
     Returns:
         Dictionary of metrics
@@ -43,7 +45,7 @@ def calculate_metrics(
     if y_pred.ndim > 1 and y_pred.shape[1] == 1:
         y_pred = y_pred.flatten()
     
-    # Calculate metrics
+    # Calculate standard metrics
     mse = mean_squared_error(y_true, y_pred)
     rmse = np.sqrt(mse)
     mae = mean_absolute_error(y_true, y_pred)
@@ -60,8 +62,8 @@ def calculate_metrics(
     direction_pred = np.diff(y_pred, axis=0) > 0
     directional_accuracy = np.mean(direction_true == direction_pred)
     
-    # Return metrics with optional prefix
-    return {
+    # Initialize metrics dictionary with standard metrics
+    metrics = {
         f"{prefix}mse": mse,
         f"{prefix}rmse": rmse,
         f"{prefix}mae": mae,
@@ -69,6 +71,45 @@ def calculate_metrics(
         f"{prefix}mape": mape,
         f"{prefix}directional_accuracy": directional_accuracy,
     }
+    
+    # Calculate trading-specific metrics if trading info is provided
+    if trading_info is not None:
+        # Calculate Sharpe ratio
+        if 'returns' in trading_info:
+            returns = trading_info['returns']
+            # Calculate Sharpe ratio (risk-adjusted return)
+            sharpe_ratio = 0.0
+            if len(returns) > 0 and np.std(returns) > 0:
+                sharpe_ratio = np.mean(returns) / np.std(returns) * np.sqrt(252)  # Annualized
+            metrics[f"{prefix}sharpe_ratio"] = sharpe_ratio
+        
+        # Calculate maximum drawdown
+        if 'equity_curve' in trading_info:
+            equity = trading_info['equity_curve']
+            # Calculate maximum drawdown
+            peak = np.maximum.accumulate(equity)
+            drawdown = (peak - equity) / peak
+            max_drawdown = np.max(drawdown)
+            metrics[f"{prefix}max_drawdown"] = max_drawdown
+        
+        # Calculate profit factor
+        if 'profits' in trading_info and 'losses' in trading_info:
+            profits = trading_info['profits']
+            losses = trading_info['losses']
+            # Calculate profit factor (gross profit / gross loss)
+            profit_factor = 0.0
+            if np.sum(np.abs(losses)) > 0:
+                profit_factor = np.sum(profits) / np.sum(np.abs(losses))
+            metrics[f"{prefix}profit_factor"] = profit_factor
+        
+        # Calculate win rate
+        if 'trades' in trading_info:
+            trades = trading_info['trades']
+            # Calculate win rate (percentage of profitable trades)
+            win_rate = np.mean([t > 0 for t in trades]) if trades else 0.0
+            metrics[f"{prefix}win_rate"] = win_rate
+    
+    return metrics
 
 
 def evaluate_model(
@@ -76,6 +117,8 @@ def evaluate_model(
     dataloader: DataLoader,
     device: Optional[torch.device] = None,
     return_predictions: bool = False,
+    trading_simulation: bool = False,
+    fee_rate: float = 0.001,  # 0.1% trading fee
 ) -> Dict[str, Any]:
     """
     Evaluate a model on a dataset.
@@ -85,6 +128,8 @@ def evaluate_model(
         dataloader: DataLoader containing the evaluation data
         device: Device to use for evaluation (if None, use model's device)
         return_predictions: Whether to return predictions and true values
+        trading_simulation: Whether to simulate trading based on predictions
+        fee_rate: Trading fee rate for simulations (e.g., 0.001 for 0.1%)
         
     Returns:
         Dictionary containing evaluation metrics and optionally predictions
@@ -117,8 +162,15 @@ def evaluate_model(
     y_pred = np.vstack(all_predictions)
     y_true = np.vstack(all_targets)
     
+    # Initialize trading info
+    trading_info = None
+    
+    # Simulate trading if requested
+    if trading_simulation:
+        trading_info = simulate_trading(y_true, y_pred, fee_rate=fee_rate)
+    
     # Calculate metrics
-    metrics = calculate_metrics(y_true, y_pred)
+    metrics = calculate_metrics(y_true, y_pred, trading_info=trading_info)
     
     # Log metrics
     logger.info(f"Evaluation metrics:")
@@ -131,7 +183,104 @@ def evaluate_model(
         results["y_pred"] = y_pred
         results["y_true"] = y_true
     
+    if trading_simulation and trading_info is not None:
+        results["trading_simulation"] = trading_info
+    
     return results
+
+
+def simulate_trading(
+    y_true: np.ndarray, 
+    y_pred: np.ndarray, 
+    initial_capital: float = 10000.0,
+    fee_rate: float = 0.001,
+    position_size: float = 1.0,
+) -> Dict[str, Any]:
+    """
+    Simulate trading based on model predictions.
+    
+    Args:
+        y_true: True price values
+        y_pred: Predicted price values
+        initial_capital: Initial capital for the simulation
+        fee_rate: Trading fee rate (e.g., 0.001 for 0.1%)
+        position_size: Position size as a fraction of capital (0.0-1.0)
+        
+    Returns:
+        Dictionary with trading simulation results
+    """
+    # Ensure arrays are flattened
+    if y_true.ndim > 1 and y_true.shape[1] == 1:
+        y_true = y_true.flatten()
+    if y_pred.ndim > 1 and y_pred.shape[1] == 1:
+        y_pred = y_pred.flatten()
+    
+    # Initialize simulation variables
+    capital = initial_capital
+    position = 0  # 0: no position, 1: long, -1: short
+    equity_curve = [capital]
+    trades = []
+    profits = []
+    losses = []
+    
+    # Generate trading signals (price direction predictions)
+    signals = np.zeros(len(y_pred) - 1)
+    for i in range(len(signals)):
+        pred_direction = y_pred[i+1] > y_pred[i]
+        signals[i] = 1 if pred_direction else -1
+    
+    # Simulate trading based on signals
+    for i in range(len(signals)):
+        price = y_true[i]
+        next_price = y_true[i+1]
+        signal = signals[i]
+        
+        # Close existing position if signal changes direction
+        if position != 0 and position != signal:
+            # Calculate P&L from position
+            price_diff = (next_price - price) if position == 1 else (price - next_price)
+            position_value = capital * position_size
+            trade_pnl = position_value * (price_diff / price)
+            
+            # Apply trading fees
+            fees = position_value * fee_rate * 2  # Entry and exit
+            net_pnl = trade_pnl - fees
+            
+            # Update capital
+            capital += net_pnl
+            
+            # Record trade
+            trades.append(net_pnl)
+            if net_pnl > 0:
+                profits.append(net_pnl)
+            else:
+                losses.append(net_pnl)
+            
+            # Close position
+            position = 0
+        
+        # Open new position if no current position
+        if position == 0:
+            position = signal
+        
+        # Update equity curve
+        equity_curve.append(capital)
+    
+    # Calculate returns
+    returns = np.diff(equity_curve) / equity_curve[:-1]
+    
+    # Return trading simulation results
+    return {
+        'initial_capital': initial_capital,
+        'final_capital': capital,
+        'total_return': (capital / initial_capital) - 1,
+        'equity_curve': equity_curve,
+        'trades': trades,
+        'num_trades': len(trades),
+        'profits': profits,
+        'losses': losses,
+        'returns': returns,
+    }
 
 
 def plot_predictions(
@@ -177,11 +326,18 @@ def plot_predictions(
     
     # Calculate metrics for the plotted range
     metrics = calculate_metrics(y_true_plot, y_pred_plot)
+    
+    # Simulate trading for the plotted range
+    trading_info = simulate_trading(y_true_plot, y_pred_plot)
+    
+    # Create metrics text with traditional and trading metrics
     metric_text = (
         f"RMSE: {metrics['rmse']:.4f}\n"
         f"MAE: {metrics['mae']:.4f}\n"
         f"MAPE: {metrics['mape']:.2f}%\n"
-        f"Directional Accuracy: {metrics['directional_accuracy']:.2f}"
+        f"Directional Accuracy: {metrics['directional_accuracy']:.2f}\n"
+        f"Total Return: {trading_info['total_return']:.2%}\n"
+        f"# Trades: {trading_info['num_trades']}"
     )
     
     # Add metrics as text
@@ -204,84 +360,74 @@ def plot_predictions(
     return fig
 
 
-def plot_forecast(
-    input_sequence: np.ndarray,
-    true_future: np.ndarray,
-    predicted_future: np.ndarray,
-    feature_idx: int = 0,
+def plot_trading_simulation(
+    trading_results: Dict[str, Any],
     save_path: Optional[str] = None,
-    title: str = "Forecast vs Actual Values",
+    title: str = "Trading Simulation Results",
 ) -> plt.Figure:
     """
-    Plot a single forecast from a model.
+    Plot trading simulation results.
     
     Args:
-        input_sequence: Input sequence used for prediction
-        true_future: True future values
-        predicted_future: Predicted future values
-        feature_idx: Index of the feature to plot
+        trading_results: Dictionary with trading simulation results
         save_path: Path to save the plot (if None, plot is not saved)
         title: Title for the plot
         
     Returns:
         Matplotlib figure
     """
-    # Create figure
-    fig, ax = plt.subplots(figsize=(12, 6))
+    # Create figure with subplots
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 10), gridspec_kw={'height_ratios': [3, 1]})
     
-    # Extract the feature to plot
-    if input_sequence.ndim > 1 and input_sequence.shape[1] > 1:
-        input_sequence_plot = input_sequence[:, feature_idx]
-    else:
-        input_sequence_plot = input_sequence.flatten()
+    # Get equity curve and trades
+    equity_curve = trading_results['equity_curve']
+    trades = trading_results['trades']
     
-    if true_future.ndim > 1 and true_future.shape[1] > 1:
-        true_future_plot = true_future[:, feature_idx]
-        predicted_future_plot = predicted_future[:, feature_idx]
-    else:
-        true_future_plot = true_future.flatten()
-        predicted_future_plot = predicted_future.flatten()
+    # Plot equity curve
+    x_values = range(len(equity_curve))
+    ax1.plot(x_values, equity_curve, 'b-', label='Equity Curve')
     
-    # Create time indices
-    n_input = len(input_sequence_plot)
-    n_future = len(true_future_plot)
+    # Add horizontal line at initial capital
+    initial_capital = trading_results['initial_capital']
+    ax1.axhline(y=initial_capital, color='r', linestyle='--', label='Initial Capital')
     
-    input_indices = np.arange(0, n_input)
-    future_indices = np.arange(n_input, n_input + n_future)
+    # Add labels and legend for equity curve
+    ax1.set_title(title)
+    ax1.set_ylabel('Equity ($)')
+    ax1.legend(loc='best')
+    ax1.grid(True, alpha=0.3)
     
-    # Plot data
-    ax.plot(input_indices, input_sequence_plot, 'b-', label='Historical Data')
-    ax.plot(future_indices, true_future_plot, 'g-', label='True Future')
-    ax.plot(future_indices, predicted_future_plot, 'r--', label='Predicted Future')
+    # Plot trade results as bar chart
+    if trades:
+        trade_indices = range(len(trades))
+        colors = ['g' if t > 0 else 'r' for t in trades]
+        ax2.bar(trade_indices, trades, color=colors)
+        ax2.axhline(y=0, color='k', linestyle='-', alpha=0.3)
+        ax2.set_xlabel('Trade Number')
+        ax2.set_ylabel('Profit/Loss ($)')
+        ax2.grid(True, alpha=0.3)
     
-    # Add a vertical line separating input from prediction
-    ax.axvline(x=n_input-1, color='k', linestyle='--', alpha=0.5)
-    
-    # Calculate metrics for the forecast
-    metrics = calculate_metrics(true_future_plot, predicted_future_plot)
-    metric_text = (
-        f"RMSE: {metrics['rmse']:.4f}\n"
-        f"MAE: {metrics['mae']:.4f}\n"
-        f"MAPE: {metrics['mape']:.2f}%\n"
-        f"Directional Accuracy: {metrics['directional_accuracy']:.2f}"
+    # Add text with performance metrics
+    metrics_text = (
+        f"Initial Capital: ${trading_results['initial_capital']:.2f}\n"
+        f"Final Capital: ${trading_results['final_capital']:.2f}\n"
+        f"Total Return: {trading_results['total_return']:.2%}\n"
+        f"Number of Trades: {trading_results['num_trades']}\n"
+        f"Win Rate: {len(trading_results['profits']) / trading_results['num_trades']:.2%} if trading_results['num_trades'] > 0 else 0.0\n"
+        f"Profit Factor: {sum(trading_results['profits']) / abs(sum(trading_results['losses'])):.2f} if trading_results['losses'] and sum(trading_results['losses']) != 0 else 'N/A'"
     )
     
-    # Add metrics as text
-    ax.text(0.02, 0.95, metric_text, transform=ax.transAxes, 
-            verticalalignment='top', bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
+    ax1.text(0.02, 0.05, metrics_text, transform=ax1.transAxes, 
+             verticalalignment='bottom', bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
     
-    # Add labels and legend
-    ax.set_title(title)
-    ax.set_xlabel('Time Steps')
-    ax.set_ylabel('Values')
-    ax.legend(loc='best')
-    ax.grid(True, alpha=0.3)
+    # Adjust layout
+    plt.tight_layout()
     
     # Save the plot if a path is provided
     if save_path is not None:
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
-        logger.info(f"Plot saved to {save_path}")
+        logger.info(f"Trading simulation plot saved to {save_path}")
     
     return fig
 
@@ -291,6 +437,7 @@ def evaluate_forecasts(
     dataloader: DataLoader,
     n_forecasts: int = 5,
     output_dir: Optional[str] = None,
+    trading_simulation: bool = False,
 ) -> Dict[str, Any]:
     """
     Generate and evaluate multiple forecasts.
@@ -300,6 +447,7 @@ def evaluate_forecasts(
         dataloader: DataLoader containing the evaluation data
         n_forecasts: Number of forecasts to generate and evaluate
         output_dir: Directory to save forecast plots (if None, plots are not saved)
+        trading_simulation: Whether to simulate trading based on predictions
         
     Returns:
         Dictionary containing evaluation metrics and forecast data
@@ -318,60 +466,86 @@ def evaluate_forecasts(
     data_iter = iter(dataloader)
     samples_evaluated = 0
     
-    # Iterate through the first n_forecasts samples
-    while samples_evaluated < n_forecasts:
-        try:
-            X_batch, y_batch = next(data_iter)
-        except StopIteration:
-            # Restart iterator if we reach the end of the dataloader
-            data_iter = iter(dataloader)
-            X_batch, y_batch = next(data_iter)
-        
-        # For each sample in the batch
-        for i in range(min(X_batch.shape[0], n_forecasts - samples_evaluated)):
-            # Get a single sample
-            X = X_batch[i].unsqueeze(0).to(device)  # Add batch dimension
-            y_true = y_batch[i].numpy()
-            
-            # Generate forecast
-            with torch.no_grad():
-                y_pred = model(X).cpu().numpy()[0]
-            
-            # Store forecast data
-            forecast_data = {
-                "input_sequence": X_batch[i].numpy(),
-                "true_future": y_true,
-                "predicted_future": y_pred
-            }
-            forecasts.append(forecast_data)
-            
-            # Create forecast plot
-            if output_dir is not None:
-                save_path = os.path.join(output_dir, f"forecast_{samples_evaluated+1}.png")
-                plot_forecast(
-                    forecast_data["input_sequence"],
-                    forecast_data["true_future"],
-                    forecast_data["predicted_future"],
-                    save_path=save_path,
-                    title=f"Forecast {samples_evaluated+1}"
-                )
-            
-            samples_evaluated += 1
-            if samples_evaluated >= n_forecasts:
+    with torch.no_grad():
+        while samples_evaluated < n_forecasts:
+            try:
+                # Get next batch
+                X_batch, y_batch = next(data_iter)
+                
+                # Just use the first item in the batch
+                X = X_batch[0:1].to(device)
+                y_true = y_batch[0:1].numpy()
+                
+                # Generate prediction
+                y_pred = model(X).cpu().numpy()
+                
+                # Initialize trading info
+                trading_info = None
+                
+                # Simulate trading if requested
+                if trading_simulation:
+                    trading_info = simulate_trading(y_true.flatten(), y_pred.flatten())
+                
+                # Calculate metrics
+                metrics = calculate_metrics(y_true, y_pred, trading_info=trading_info)
+                
+                # Save forecast plots
+                if output_dir is not None:
+                    # Plot predictions
+                    plot_path = os.path.join(output_dir, f"forecast_{samples_evaluated+1}.png")
+                    plot_predictions(
+                        y_true=y_true.flatten(),
+                        y_pred=y_pred.flatten(),
+                        save_path=plot_path,
+                        title=f"Forecast {samples_evaluated+1}"
+                    )
+                    
+                    # Plot trading simulation if performed
+                    if trading_simulation and trading_info is not None:
+                        trading_plot_path = os.path.join(output_dir, f"trading_sim_{samples_evaluated+1}.png")
+                        plot_trading_simulation(
+                            trading_results=trading_info,
+                            save_path=trading_plot_path,
+                            title=f"Trading Simulation - Forecast {samples_evaluated+1}"
+                        )
+                
+                # Store forecast data
+                forecast_data = {
+                    "id": samples_evaluated + 1,
+                    "metrics": metrics,
+                    "y_true": y_true.tolist(),
+                    "y_pred": y_pred.tolist()
+                }
+                
+                if trading_simulation and trading_info is not None:
+                    # Add trading simulation results to forecast data
+                    forecast_data["trading_simulation"] = {
+                        "total_return": trading_info["total_return"],
+                        "num_trades": trading_info["num_trades"],
+                        "win_rate": len(trading_info["profits"]) / trading_info["num_trades"] if trading_info["num_trades"] > 0 else 0.0,
+                    }
+                
+                forecasts.append(forecast_data)
+                samples_evaluated += 1
+                
+            except StopIteration:
+                # If we run out of data, break the loop
                 break
     
-    # Calculate aggregate metrics across all forecasts
-    all_true = np.vstack([f["true_future"] for f in forecasts])
-    all_pred = np.vstack([f["predicted_future"] for f in forecasts])
-    metrics = calculate_metrics(all_true, all_pred)
+    # Calculate average metrics across all forecasts
+    avg_metrics = {}
+    metric_keys = list(forecasts[0]["metrics"].keys()) if forecasts else []
     
-    # Log metrics
-    logger.info(f"Forecast evaluation metrics (n={n_forecasts}):")
-    for name, value in metrics.items():
+    for key in metric_keys:
+        avg_metrics[f"avg_{key}"] = np.mean([f["metrics"][key] for f in forecasts])
+    
+    # Log average metrics
+    logger.info(f"Average metrics across {len(forecasts)} forecasts:")
+    for name, value in avg_metrics.items():
         logger.info(f"  {name}: {value:.6f}")
     
     return {
-        "metrics": metrics,
+        "metrics": avg_metrics,
         "forecasts": forecasts
     }
 
@@ -386,6 +560,8 @@ def evaluate_walk_forward(
     seq_len: int = 60,
     forecast_horizon: int = 5,
     device: Optional[str] = None,
+    trading_simulation: bool = False,
+    output_dir: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Evaluate a model using walk-forward validation.
@@ -400,6 +576,8 @@ def evaluate_walk_forward(
         seq_len: Length of input sequence
         forecast_horizon: Number of steps to forecast
         device: Device to use for evaluation
+        trading_simulation: Whether to simulate trading based on predictions
+        output_dir: Directory to save evaluation plots
         
     Returns:
         Dictionary containing evaluation metrics for each split
@@ -418,6 +596,11 @@ def evaluate_walk_forward(
     
     # Store metrics for each split
     all_metrics = []
+    all_trading_results = []
+    
+    # Create output directory if needed
+    if output_dir is not None:
+        os.makedirs(output_dir, exist_ok=True)
     
     # Evaluate each split
     for i, (train_idx, test_idx) in enumerate(tscv.split(data)):
@@ -450,23 +633,50 @@ def evaluate_walk_forward(
         trainer.train(num_epochs=5, early_stopping_patience=2)
         
         # Evaluate model
-        eval_results = evaluate_model(model, test_loader, return_predictions=True)
+        trading_sim = trading_simulation
+        eval_results = evaluate_model(model, test_loader, return_predictions=True, trading_simulation=trading_sim)
         
         # Add split index to metrics
         split_metrics = eval_results["metrics"]
         split_metrics["split"] = i
         all_metrics.append(split_metrics)
         
+        # Save trading results if simulation was performed
+        if trading_sim and "trading_simulation" in eval_results:
+            trading_results = eval_results["trading_simulation"]
+            trading_results["split"] = i
+            all_trading_results.append(trading_results)
+            
+            # Plot trading simulation results if output directory is provided
+            if output_dir is not None:
+                trading_plot_path = os.path.join(output_dir, f"trading_sim_split_{i+1}.png")
+                plot_trading_simulation(
+                    trading_results=trading_results,
+                    save_path=trading_plot_path,
+                    title=f"Trading Simulation - Split {i+1}/{n_splits}"
+                )
+        
+        # Plot predictions if output directory is provided
+        if output_dir is not None and "y_true" in eval_results and "y_pred" in eval_results:
+            plot_path = os.path.join(output_dir, f"predictions_split_{i+1}.png")
+            plot_predictions(
+                y_true=eval_results["y_true"],
+                y_pred=eval_results["y_pred"],
+                save_path=plot_path,
+                title=f"Predictions - Split {i+1}/{n_splits}",
+                n_samples=min(100, len(eval_results["y_true"]))
+            )
+        
         # Log metrics
         logger.info(f"Split {i+1} metrics:")
         for name, value in split_metrics.items():
-            if name != "split":
+            if name != "split" and isinstance(value, (int, float)):
                 logger.info(f"  {name}: {value:.6f}")
     
     # Calculate average metrics across all splits
     avg_metrics = {}
     for metric in all_metrics[0].keys():
-        if metric != "split":
+        if metric != "split" and isinstance(all_metrics[0][metric], (int, float)):
             avg_metrics[f"avg_{metric}"] = np.mean([m[metric] for m in all_metrics])
     
     # Log average metrics
@@ -474,7 +684,88 @@ def evaluate_walk_forward(
     for name, value in avg_metrics.items():
         logger.info(f"  {name}: {value:.6f}")
     
-    return {
+    results = {
         "metrics_by_split": all_metrics,
         "avg_metrics": avg_metrics
-    } 
+    }
+    
+    # Add trading results if simulations were performed
+    if all_trading_results:
+        results["trading_results_by_split"] = all_trading_results
+        
+        # Calculate average trading metrics
+        avg_trading_metrics = {}
+        for key in ["total_return", "num_trades"]:
+            if all([key in tr for tr in all_trading_results]):
+                avg_trading_metrics[f"avg_{key}"] = np.mean([tr[key] for tr in all_trading_results])
+        
+        results["avg_trading_metrics"] = avg_trading_metrics
+    
+    return results
+
+
+def calculate_trading_metrics(
+    predictions: np.ndarray,
+    actual_prices: np.ndarray,
+    initial_capital: float = 10000.0,
+    position_size: float = 1.0,
+    fee_rate: float = 0.001,
+) -> Dict[str, float]:
+    """
+    Calculate trading-specific metrics based on model predictions.
+    
+    Args:
+        predictions: Model's price predictions
+        actual_prices: Actual prices observed
+        initial_capital: Initial capital for simulation
+        position_size: Position size as fraction of capital (0.0-1.0)
+        fee_rate: Trading fee rate (e.g., 0.001 for 0.1%)
+        
+    Returns:
+        Dictionary of trading metrics
+    """
+    # Run trading simulation
+    sim_results = simulate_trading(
+        y_true=actual_prices,
+        y_pred=predictions,
+        initial_capital=initial_capital,
+        position_size=position_size,
+        fee_rate=fee_rate
+    )
+    
+    # Extract key metrics
+    metrics = {
+        "total_return": sim_results["total_return"],
+        "num_trades": sim_results["num_trades"],
+    }
+    
+    # Calculate additional metrics if we have trades
+    if sim_results["num_trades"] > 0:
+        metrics["win_rate"] = len(sim_results["profits"]) / sim_results["num_trades"]
+        
+        # Calculate profit factor if we have losses
+        if sim_results["losses"] and sum(abs(np.array(sim_results["losses"]))) > 0:
+            metrics["profit_factor"] = sum(sim_results["profits"]) / sum(abs(np.array(sim_results["losses"])))
+        else:
+            metrics["profit_factor"] = float('inf')  # No losses
+        
+        # Calculate maximum drawdown
+        equity_curve = np.array(sim_results["equity_curve"])
+        peak = np.maximum.accumulate(equity_curve)
+        drawdown = (peak - equity_curve) / peak
+        metrics["max_drawdown"] = np.max(drawdown)
+        
+        # Calculate Sharpe ratio (annualized)
+        returns = np.diff(equity_curve) / equity_curve[:-1]
+        if len(returns) > 0 and np.std(returns) > 0:
+            metrics["sharpe_ratio"] = np.mean(returns) / np.std(returns) * np.sqrt(252)
+        else:
+            metrics["sharpe_ratio"] = 0.0
+    else:
+        # No trades
+        metrics["win_rate"] = 0.0
+        metrics["profit_factor"] = 0.0
+        metrics["max_drawdown"] = 0.0
+        metrics["sharpe_ratio"] = 0.0
+    
+    return metrics 

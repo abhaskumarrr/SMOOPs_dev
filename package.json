@@ -1,6 +1,7 @@
 {
   "name": "SMOOPs_dev",
   "version": "1.0.0",
+  "description": "Smart Money Order Blocks Trading Bot",
   "main": "index.js",
   "repository": "https://github.com/abhaskumarrr/SMOOPs_dev",
   "author": "Abhas Kumar <109647440+abhaskumarrr@users.noreply.github.com>",
@@ -12,16 +13,33 @@
     "ml"
   ],
   "scripts": {
-    "dev": "concurrently \"yarn dev:backend\" \"yarn dev:frontend\" \"yarn dev:ml\"",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:ml\"",
     "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",
-    "dev:ml": "cd ml && python main.py",
-    "start": "concurrently \"yarn start:backend\" \"yarn start:frontend\" \"yarn start:ml\"",
+    "dev:ml": "cd ml && python -m ml.backend.src.scripts.server",
+    "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\" \"npm run start:ml\"",
     "start:backend": "cd backend && npm start",
     "start:frontend": "cd frontend && npm start",
-    "start:ml": "cd ml && python main.py"
+    "start:ml": "cd ml && python -m ml.backend.src.scripts.server",
+    "setup": "bash scripts/setup-env.sh",
+    "check-env": "node scripts/check-env.js",
+    "generate-key": "node scripts/generate-encryption-key.js",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:restart": "docker-compose restart",
+    "docker:build": "docker-compose build",
+    "db:migrate": "cd backend && npm run prisma:migrate:dev",
+    "db:generate": "cd backend && npm run prisma:generate",
+    "db:reset": "cd backend && npx prisma migrate reset --force"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "chalk": "^4.1.2",
+    "concurrently": "^8.2.2",
+    "dotenv": "^16.5.0",
+    "eslint": "^8.57.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

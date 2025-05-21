@@ -10,5 +10,18 @@
     "backend",
     "frontend",
     "ml"
-  ]
+  ],
+  "scripts": {
+    "dev": "concurrently \"yarn dev:backend\" \"yarn dev:frontend\" \"yarn dev:ml\"",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:ml": "cd ml && python main.py",
+    "start": "concurrently \"yarn start:backend\" \"yarn start:frontend\" \"yarn start:ml\"",
+    "start:backend": "cd backend && npm start",
+    "start:frontend": "cd frontend && npm start",
+    "start:ml": "cd ml && python main.py"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
 }

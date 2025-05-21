@@ -4,6 +4,7 @@
     "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:generate": "prisma generate",
     "ci:migrate": "prisma migrate deploy && prisma generate",
+    "ci:db-health": "node src/scripts/checkDbHealth.js",
     "dev": "nodemon src/server.js",
     "start": "node src/server.js"
   },
@@ -16,6 +17,7 @@
   "description": "",
   "dependencies": {
     "@prisma/client": "^6.8.2",
+    "axios": "^1.9.0",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
     "dotenv": "^16.5.0",

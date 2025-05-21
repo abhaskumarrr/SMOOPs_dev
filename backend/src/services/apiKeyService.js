@@ -3,10 +3,11 @@
  * Handles encryption, storage, and retrieval of Delta Exchange API keys
  */
 
-const { PrismaClient } = require('@prisma/client');
+const { PrismaClient } = require('../../generated/prisma');
 const encryption = require('../utils/encryption');
 const secureKey = require('../utils/secureKey');
 
+// Initialize PrismaClient with proper path based on project structure
 const prisma = new PrismaClient();
 
 /**

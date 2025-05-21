@@ -38,6 +38,9 @@ jobs:
       - name: Run migrations and generate client
         run: npm run ci:migrate
         working-directory: backend
+      - name: Run database health checks
+        run: npm run ci:db-health
+        working-directory: backend
       - name: Run tests
         run: echo "Add your test command here"
         working-directory: backend 

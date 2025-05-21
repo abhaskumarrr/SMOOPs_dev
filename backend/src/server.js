@@ -16,6 +16,8 @@ dotenv.config({
 
 // Import routes
 const apiKeyRoutes = require('./routes/apiKeyRoutes');
+const deltaApiRoutes = require('./routes/deltaApiRoutes');
+const healthRoutes = require('./routes/healthRoutes');
 
 // Create Express app
 const app = express();
@@ -27,38 +29,25 @@ app.use(cors()); // Enable CORS for frontend
 app.use(express.json()); // Parse JSON request bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 
-// Basic health check route
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
-});
-
-// API routes
+// Routes
+app.use('/health', healthRoutes);
 app.use('/api/keys', apiKeyRoutes);
+app.use('/api/delta', deltaApiRoutes);
 
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({ 
-    success: false, 
-    message: 'API endpoint not found' 
-  });
-});
-
-// Error handler
+// Global error handler
 app.use((err, req, res, next) => {
-  console.error('Server error:', err);
-  
+  console.error('Unhandled error:', err);
   res.status(500).json({
     success: false,
-    message: 'Internal server error',
-    error: process.env.NODE_ENV === 'production' ? 'An error occurred' : err.message
+    message: 'An unexpected error occurred',
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined
   });
 });
 
-// Start the server
+// Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log(`Health check available at http://localhost:${PORT}/health`);
 });
 
-module.exports = app; // For testing
+module.exports = app;
 

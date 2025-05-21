@@ -11,6 +11,13 @@ This project is an institutional-grade crypto trading bot that leverages advance
 - **Institutional-Grade Risk Management:** Advanced position sizing, drawdown protection, and performance monitoring
 - **Secure API Key Management:** Advanced encryption system for safely storing and retrieving exchange API credentials
 
+## Documentation
+
+- **[Development Guide](docs/DEVELOPMENT.md)** - Comprehensive setup and development workflow
+- **[Deployment Guide](docs/deployment-guide.md)** - Deployment options and procedures
+- **[Environment Setup](docs/environment-setup.md)** - Environment configuration details
+- **[Project Structure](docs/project-structure.md)** - Detailed breakdown of the codebase
+
 ## Project Structure
 ```
 SMOOPs_dev/
@@ -55,25 +62,21 @@ SMOOPs_dev/
 - Docker and Docker Compose (for containerized setup)
 - Delta Exchange API credentials (testnet/real net)
 
-### Setup Steps
+### Quick Setup
+The fastest way to get started is using our automated setup script:
 
-#### 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/SMOOPs_dev.git
+# Clone the repository
+git clone https://github.com/abhaskumarrr/SMOOPs_dev.git
 cd SMOOPs_dev
+
+# Run the development setup script
+npm run dev:setup
 ```
 
-#### 2. Set up environment variables
-Copy the example environment file and update with your credentials:
-```bash
-cp example.env .env
-```
-Edit the `.env` file with your:
-- Delta Exchange API keys
-- Database connection information
-- Other configuration options
+For detailed setup instructions, see the [Development Guide](docs/DEVELOPMENT.md).
 
-#### 3. Docker Setup (Recommended)
+### Docker Setup (Recommended)
 The easiest way to run the project is using Docker Compose:
 ```bash
 docker-compose up -d
@@ -85,21 +88,16 @@ This will start all services:
 - Frontend dashboard (available at http://localhost:3000)
 - ML service (available at http://localhost:3002)
 
-#### 4. Manual Setup (Alternative)
-For development without Docker:
+### Development Tools
+
+SMOOPs includes several helpful development tools:
 
 ```bash
-# Install dependencies for all services
-npm install
+# Run common development tasks
+npm run dev:tasks
 
-# Set up the database
-cd backend
-npx prisma migrate dev --name init
-npx prisma generate
-cd ..
-
-# Start all services
-npm run dev
+# View specific development task options
+npm run dev:tasks help
 ```
 
 ## Usage

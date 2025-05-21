@@ -22,6 +22,8 @@
     "start:frontend": "cd frontend && npm start",
     "start:ml": "cd ml && python -m ml.backend.src.scripts.server",
     "setup": "bash scripts/setup-env.sh",
+    "dev:setup": "bash scripts/dev-setup.sh",
+    "dev:tasks": "bash scripts/dev-tasks.sh",
     "check-env": "node scripts/check-env.js",
     "generate-key": "node scripts/generate-encryption-key.js",
     "docker:up": "docker-compose up -d",
@@ -31,7 +33,14 @@
     "docker:build": "docker-compose build",
     "db:migrate": "cd backend && npm run prisma:migrate:dev",
     "db:generate": "cd backend && npm run prisma:generate",
-    "db:reset": "cd backend && npx prisma migrate reset --force"
+    "db:reset": "cd backend && npx prisma migrate reset --force",
+    "test": "bash scripts/dev-tasks.sh test",
+    "test:backend": "bash scripts/dev-tasks.sh test:backend",
+    "test:frontend": "bash scripts/dev-tasks.sh test:frontend",
+    "test:ml": "bash scripts/dev-tasks.sh test:ml",
+    "lint": "bash scripts/dev-tasks.sh lint",
+    "lint:fix": "bash scripts/dev-tasks.sh lint:fix",
+    "clean": "bash scripts/dev-tasks.sh clean"
   },
   "devDependencies": {
     "chalk": "^4.1.2",

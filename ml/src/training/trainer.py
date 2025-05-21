@@ -1,55 +1,320 @@
 """
-Model Training Pipeline
-
-This module implements a training pipeline for cryptocurrency price prediction models
-with TensorBoard integration for monitoring and Apple Silicon optimization.
+Comprehensive ML Training Pipeline for Smart Money Concepts trading models
 """
 
 import os
-import time
-import torch
-import torch.nn as nn
-import torch.optim as optim
-from torch.utils.data import DataLoader, TensorDataset
-from torch.utils.tensorboard import SummaryWriter
-import numpy as np
 import logging
-from typing import Dict, List, Optional, Union, Tuple, Any, Callable
-from pathlib import Path
-from datetime import datetime
+import numpy as np
+import pandas as pd
 import json
+import time
+import datetime
+from typing import Dict, List, Tuple, Optional, Union, Any, Type
+import tensorflow as tf
+from tensorflow.keras.callbacks import (
+    EarlyStopping, ModelCheckpoint, ReduceLROnPlateau, TensorBoard,
+    CSVLogger, LambdaCallback
+)
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
-# Import modules from the project
-from ..models import BaseModel, ModelFactory, DirectionalLoss
-from ..data.preprocessor import EnhancedPreprocessor
+# Import models
+from ..models.base_model import BaseModel
+from ..models.lstm_model import LSTMModel
+from ..models.gru_model import GRUModel
+from ..models.transformer_model import TransformerModel
+from ..models.cnn_lstm_model import CNNLSTMModel
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+# Setup logging
 logger = logging.getLogger(__name__)
 
-
-class Trainer:
-    """Model trainer with TensorBoard integration and MPS (Apple Silicon) support"""
+class ModelTrainer:
+    """
+    Comprehensive model trainer for Smart Money Concepts trading models.
+    
+    This class handles the complete training process including:
+    - Data preprocessing
+    - Model initialization
+    - Training with callbacks
+    - Evaluation metrics
+    - Model saving and experiment tracking
+    - Visualization of results
+    """
     
     def __init__(
         self,
-        model: BaseModel,
-        train_dataloader: DataLoader,
-        val_dataloader: Optional[DataLoader] = None,
-        optimizer_cls: Callable = optim.Adam,
-        optimizer_kwargs: Dict[str, Any] = None,
-        loss_fn: nn.Module = None,
-        lr_scheduler_cls: Optional[Callable] = None,
-        lr_scheduler_kwargs: Dict[str, Any] = None,
-        log_dir: Optional[str] = None,
-        checkpoints_dir: Optional[str] = None,
+        model_type: str,
+        input_shape: Tuple[int, int],
+        output_units: int = 1,
+        batch_size: int = 32,
+        epochs: int = 100,
+        patience: int = 10, 
+        learning_rate: float = 0.001,
+        validation_split: float = 0.2,
+        model_dir: str = 'models',
+        log_dir: str = 'logs',
         experiment_name: Optional[str] = None,
-        mixed_precision: bool = True,
+        random_state: int = 42,
+        **model_params
     ):
         """
         Initialize the trainer.
         
         Args:
+            model_type: Type of model ('lstm', 'gru', 'transformer', 'cnn_lstm')
+            input_shape: Shape of input data (sequence_length, features)
+            output_units: Number of output units (1 for binary classification)
+            batch_size: Batch size for training
+            epochs: Maximum number of training epochs
+            patience: Patience for early stopping
+            learning_rate: Learning rate for optimizer
+            validation_split: Fraction of data to use for validation
+            model_dir: Directory to save models
+            log_dir: Directory to save logs
+            experiment_name: Name of the experiment (if None, generate automatically)
+            random_state: Random seed for reproducibility
+            **model_params: Additional parameters for model initialization
+        """
+        self.model_type = model_type.lower()
+        self.input_shape = input_shape
+        self.output_units = output_units
+        self.batch_size = batch_size
+        self.epochs = epochs
+        self.patience = patience
+        self.learning_rate = learning_rate
+        self.validation_split = validation_split
+        self.model_params = model_params
+        self.random_state = random_state
+        
+        # Set random seeds for reproducibility
+        np.random.seed(random_state)
+        tf.random.set_seed(random_state)
+        
+        # Generate experiment name if not provided
+        if experiment_name is None:
+            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            self.experiment_name = f"{self.model_type}_{timestamp}"
+        else:
+            self.experiment_name = experiment_name
+        
+        # Create directories
+        self.model_dir = os.path.join(model_dir, self.experiment_name)
+        self.log_dir = os.path.join(log_dir, self.experiment_name)
+        self.checkpoint_dir = os.path.join(self.model_dir, 'checkpoints')
+        
+        os.makedirs(self.model_dir, exist_ok=True)
+        os.makedirs(self.log_dir, exist_ok=True)
+        os.makedirs(self.checkpoint_dir, exist_ok=True)
+        
+        # Initialize metrics tracking
+        self.history = None
+        self.metrics = {}
+        self.best_epoch = 0
+        
+        # Initialize data preprocessors
+        self.feature_scaler = None
+        self.target_scaler = None
+        
+        # Initialize model
+        self.model = self._create_model()
+        
+        # Log initialization
+        logger.info(f"Initialized {self.model_type.upper()} trainer - Experiment: {self.experiment_name}")
+        logger.info(f"Input shape: {input_shape}, Output units: {output_units}")
+    
+    def _create_model(self) -> BaseModel:
+        """
+        Create model based on specified type.
+        
+        Returns:
+            Initialized model
+        """
+        # Common parameters
+        common_params = {
+            'input_shape': self.input_shape,
+            'output_units': self.output_units,
+            'learning_rate': self.learning_rate,
+            **self.model_params
+        }
+        
+        # Create model based on type
+        if self.model_type == 'lstm':
+            model = LSTMModel(**common_params)
+        elif self.model_type == 'gru':
+            model = GRUModel(**common_params)
+        elif self.model_type == 'transformer':
+            model = TransformerModel(**common_params)
+        elif self.model_type == 'cnn_lstm':
+            model = CNNLSTMModel(**common_params)
+        else:
+            raise ValueError(f"Unsupported model type: {self.model_type}")
+        
+        return model
+    
+    def preprocess_data(
+        self,
+        X: np.ndarray,
+        y: np.ndarray,
+        scaling_method: str = 'standard',
+        target_scaling: bool = False,
+        test_size: Optional[float] = None,
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        """
+        Preprocess data for training.
+        
+        Args:
+            X: Input features
+            y: Target values
+            scaling_method: Scaling method ('standard', 'minmax', 'none')
+            target_scaling: Whether to scale targets
+            test_size: Size of test split (if None, use validation_split)
+            
+        Returns:
+            Tuple of (X_train, X_val, y_train, y_val)
+        """
+        # Use validation split as test size if not specified
+        if test_size is None:
+            test_size = self.validation_split
+            
+        # Split data
+        X_train, X_val, y_train, y_val = train_test_split(
+            X, y, test_size=test_size, random_state=self.random_state
+        )
+        
+        # Apply feature scaling
+        if scaling_method.lower() != 'none':
+            # Scale each feature independently across samples and time
+            orig_shape = X_train.shape
+            
+            # Reshape to 2D for scaling: (samples*time, features)
+            X_train_2d = X_train.reshape(-1, X_train.shape[2])
+            X_val_2d = X_val.reshape(-1, X_val.shape[2])
+            
+            if scaling_method.lower() == 'standard':
+                self.feature_scaler = StandardScaler()
+            elif scaling_method.lower() == 'minmax':
+                self.feature_scaler = MinMaxScaler()
+            else:
+                raise ValueError(f"Unsupported scaling method: {scaling_method}")
+            
+            # Fit scaler on training data only
+            X_train_2d = self.feature_scaler.fit_transform(X_train_2d)
+            X_val_2d = self.feature_scaler.transform(X_val_2d)
+            
+            # Reshape back to original shape
+            X_train = X_train_2d.reshape(orig_shape)
+            X_val = X_val_2d.reshape(X_val.shape)
+            
+            logger.info(f"Applied {scaling_method} scaling to features")
+        
+        # Apply target scaling for regression problems
+        if target_scaling and self.output_units == 1 and len(y_train.shape) == 2:
+            if scaling_method.lower() == 'standard':
+                self.target_scaler = StandardScaler()
+            elif scaling_method.lower() == 'minmax':
+                self.target_scaler = MinMaxScaler()
+                
+            # Reshape if needed
+            y_train_2d = y_train.reshape(-1, 1) if len(y_train.shape) == 1 else y_train
+            y_val_2d = y_val.reshape(-1, 1) if len(y_val.shape) == 1 else y_val
+            
+            # Fit scaler on training data only
+            y_train = self.target_scaler.fit_transform(y_train_2d)
+            y_val = self.target_scaler.transform(y_val_2d)
+            
+            logger.info(f"Applied {scaling_method} scaling to targets")
+        
+        return X_train, X_val, y_train, y_val
+    
+    def create_callbacks(self) -> List[tf.keras.callbacks.Callback]:
+        """
+        Create callbacks for training.
+        
+        Returns:
+            List of Keras callbacks
+        """
+        callbacks = []
+        
+        # Early stopping
+        early_stopping = EarlyStopping(
+            monitor='val_loss',
+            patience=self.patience,
+            restore_best_weights=True,
+            verbose=1
+        )
+        callbacks.append(early_stopping)
+        
+        # Learning rate reduction
+        reduce_lr = ReduceLROnPlateau(
+            monitor='val_loss',
+            factor=0.2,
+            patience=self.patience // 2,
+            min_lr=1e-6,
+            verbose=1
+        )
+        callbacks.append(reduce_lr)
+        
+        # Model checkpoints
+        checkpoint_path = os.path.join(
+            self.checkpoint_dir, 
+            f"{self.model_type}_" + "{epoch:02d}_{val_loss:.4f}.h5"
+        )
+        checkpoint = ModelCheckpoint(
+            checkpoint_path,
+            monitor='val_loss',
+            save_best_weights_only=True,
+            save_weights_only=True,
+            verbose=1
+        )
+        callbacks.append(checkpoint)
+        
+        # TensorBoard logging
+        tensorboard = TensorBoard(
+            log_dir=self.log_dir,
+            histogram_freq=1,
+            write_graph=True,
+            profile_batch=0
+        )
+        callbacks.append(tensorboard)
+        
+        # CSV Logger
+        csv_logger = CSVLogger(
+            os.path.join(self.log_dir, 'training_log.csv'),
+            separator=',',
+            append=False
+        )
+        callbacks.append(csv_logger)
+        
+        # Custom epoch end callback for saving the best epoch
+        def on_epoch_end(epoch, logs):
+            # Save current epoch metrics
+            self.metrics[epoch] = {k: float(v) for k, v in logs.items()}
+            
+            # Update best epoch if val_loss improved
+            if epoch > 0 and 'val_loss' in logs:
+                best_val_loss = min([m.get('val_loss', float('inf')) for e, m in self.metrics.items() if e < epoch])
+                if logs['val_loss'] < best_val_loss:
+                    self.best_epoch = epoch
+        
+        epoch_end_callback = LambdaCallback(on_epoch_end=on_epoch_end)
+        callbacks.append(epoch_end_callback)
+        
+        return callbacks
+    
+    def train(
+        self,
+        X_train: np.ndarray,
+        y_train: np.ndarray,
+        X_val: np.ndarray,
+        y_val: np.ndarray,
+        class_weights: Optional[Dict[int, float]] = None,
+    ) -> Dict[str, List[float]]:
+        """
+        Train the model.
+        
+        Args:
+            X_train: Training data
             model: The model to train
             train_dataloader: DataLoader for training data
             val_dataloader: Optional DataLoader for validation data

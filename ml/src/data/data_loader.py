@@ -14,6 +14,7 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Union, Tuple, Any
 import logging
 from pathlib import Path
+import ccxt
 
 from ..api.delta_client import get_delta_client, DeltaExchangeClient
 from ..utils.config import DATA_CONFIG
@@ -22,437 +23,394 @@ from ..utils.config import DATA_CONFIG
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-class CryptoDataLoader:
-    """Data loader for crypto market data from API or CSV files"""
+class MarketDataLoader:
+    """
+    Data loader for cryptocurrency market data with support for Smart Money Concepts (SMC) features.
+    """
     
-    def __init__(self, client: Optional[DeltaExchangeClient] = None):
+    def __init__(self, 
+                 data_dir: str = os.path.join('data', 'raw'),
+                 processed_dir: str = os.path.join('data', 'processed'),
+                 timeframe: str = '1h',
+                 symbols: List[str] = None):
         """
-        Initialize the data loader
+        Initialize the data loader.
         
         Args:
-            client: Delta Exchange API client (uses default if None)
+            data_dir: Directory for raw data
+            processed_dir: Directory for processed data
+            timeframe: Timeframe for data ('1m', '5m', '15m', '1h', '4h', '1d')
+            symbols: List of cryptocurrency symbols to load
         """
-        self.client = client or get_delta_client()
+        self.data_dir = data_dir
+        self.processed_dir = processed_dir
+        self.timeframe = timeframe
+        self.symbols = symbols or ['BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'BNB/USDT']
         
-        # Ensure data directories exist
-        self.raw_data_dir = Path(DATA_CONFIG["raw_data_dir"])
-        self.processed_data_dir = Path(DATA_CONFIG["processed_data_dir"])
+        # Create directories if they don't exist
+        os.makedirs(data_dir, exist_ok=True)
+        os.makedirs(processed_dir, exist_ok=True)
         
-        os.makedirs(self.raw_data_dir, exist_ok=True)
-        os.makedirs(self.processed_data_dir, exist_ok=True)
-    
-    def get_ohlcv_from_api(
-        self, 
-        symbol: str, 
-        interval: str = "1h",
-        days_back: int = 30,
-        end_time: Optional[Union[int, datetime]] = None
-    ) -> pd.DataFrame:
-        """
-        Get OHLCV data from Delta Exchange API
-        
-        Args:
-            symbol: Trading symbol (e.g., 'BTCUSD')
-            interval: Timeframe ('1m', '5m', '1h', '4h', '1d', etc.)
-            days_back: Number of days to look back
-            end_time: End time for data fetching (defaults to now)
-            
-        Returns:
-            DataFrame: OHLCV data with timestamp as index
-        """
-        logger.info(f"Fetching {symbol} {interval} data for the past {days_back} days from API")
-        
-        candles = self.client.get_historical_ohlcv(
-            symbol=symbol,
-            interval=interval,
-            days_back=days_back,
-            end_time=end_time
-        )
-        
-        # Convert to DataFrame
-        df = pd.DataFrame(candles)
-        
-        # Use timestamp as index
-        if 'timestamp' in df.columns:
-            df['datetime'] = pd.to_datetime(df['timestamp'], unit='ms')
-            df.set_index('datetime', inplace=True)
-            df.sort_index(inplace=True)
-        
-        return df
-    
-    def get_ohlcv_from_csv(self, filepath: str) -> pd.DataFrame:
-        """
-        Load OHLCV data from a CSV file
-        
-        Args:
-            filepath: Path to the CSV file
-            
-        Returns:
-            DataFrame: OHLCV data with timestamp as index
-        """
-        logger.info(f"Loading OHLCV data from CSV: {filepath}")
-        
-        df = pd.read_csv(filepath)
-        
-        # Convert timestamp to datetime index if it exists
-        if 'timestamp' in df.columns:
-            if df['timestamp'].iloc[0].isdigit():  # Check if timestamp is numeric
-                df['datetime'] = pd.to_datetime(df['timestamp'].astype(float), unit='ms')
-            else:
-                # Try to parse as ISO date
-                df['datetime'] = pd.to_datetime(df['timestamp'])
-                
-            df.set_index('datetime', inplace=True)
-            df.sort_index(inplace=True)
-        
-        return df
-    
-    def save_to_csv(self, df: pd.DataFrame, symbol: str, interval: str) -> str:
-        """
-        Save OHLCV data to a CSV file
-        
-        Args:
-            df: DataFrame with OHLCV data
-            symbol: Trading symbol (e.g., 'BTCUSD')
-            interval: Timeframe ('1h', '4h', '1d', etc.)
-            
-        Returns:
-            str: Path to the saved CSV file
-        """
-        # Create filename with current date
-        date_str = datetime.now().strftime("%Y%m%d")
-        filename = f"{symbol}_{interval}_{date_str}.csv"
-        filepath = self.raw_data_dir / filename
-        
-        # Reset index to include datetime as a column
-        df_to_save = df.reset_index()
-        
-        # Ensure we have a timestamp column (milliseconds since epoch)
-        if 'timestamp' not in df_to_save.columns and 'datetime' in df_to_save.columns:
-            df_to_save['timestamp'] = df_to_save['datetime'].astype(int) // 10**6
-        
-        logger.info(f"Saving OHLCV data to {filepath}")
-        df_to_save.to_csv(filepath, index=False)
-        
-        return str(filepath)
-    
-    def get_data(
-        self, 
-        symbol: str, 
-        interval: str = "1h",
-        days_back: int = 30,
-        use_cache: bool = True,
-        save_csv: bool = True
-    ) -> pd.DataFrame:
-        """
-        Get OHLCV data with caching support
-        
-        This method first tries to load data from a cached CSV file if it exists and is recent.
-        If no cache is available or it's too old, it fetches data from the API.
-        
-        Args:
-            symbol: Trading symbol (e.g., 'BTCUSD')
-            interval: Timeframe ('1h', '4h', '1d', etc.)
-            days_back: Number of days to look back
-            use_cache: Whether to use cached data if available
-            save_csv: Whether to save fetched data to CSV
-            
-        Returns:
-            DataFrame: OHLCV data with timestamp as index
-        """
-        # If caching is enabled, try to find a recent CSV file
-        if use_cache:
-            # List all files in the raw data directory
-            files = os.listdir(self.raw_data_dir)
-            
-            # Filter files for this symbol and interval
-            matching_files = [
-                f for f in files 
-                if f.startswith(f"{symbol}_{interval}") and f.endswith(".csv")
-            ]
-            
-            if matching_files:
-                # Sort by modification time (most recent first)
-                matching_files.sort(
-                    key=lambda f: os.path.getmtime(os.path.join(self.raw_data_dir, f)),
-                    reverse=True
-                )
-                
-                most_recent = matching_files[0]
-                file_path = os.path.join(self.raw_data_dir, most_recent)
-                file_age_days = (datetime.now() - datetime.fromtimestamp(os.path.getmtime(file_path))).days
-                
-                # If the file is recent enough (less than 1 day old for intervals <= 1h, otherwise 7 days)
-                max_age = 1 if interval.endswith(('m', 'h')) and int(interval[:-1]) <= 1 else 7
-                
-                if file_age_days < max_age:
-                    logger.info(f"Using cached data from {most_recent} (age: {file_age_days} days)")
-                    return self.get_ohlcv_from_csv(file_path)
-                else:
-                    logger.info(f"Cached data is too old ({file_age_days} days), fetching from API")
-        
-        # If no cache or cache is disabled/outdated, fetch from API
-        df = self.get_ohlcv_from_api(symbol, interval, days_back)
-        
-        # Save to CSV if requested
-        if save_csv and not df.empty:
-            self.save_to_csv(df, symbol, interval)
-        
-        return df
-    
-    def preprocess_data(
-        self, 
-        df: pd.DataFrame, 
-        add_features: bool = True,
-        normalize: bool = True,
-        target_column: str = 'close',
-        sequence_length: int = 48,
-        train_split: float = 0.8
-    ) -> Dict[str, Union[pd.DataFrame, np.ndarray]]:
-        """
-        Preprocess OHLCV data for model training
-        
-        Args:
-            df: DataFrame with OHLCV data
-            add_features: Whether to add technical indicators
-            normalize: Whether to normalize the data
-            target_column: Column to use as prediction target
-            sequence_length: Number of time steps for each sample
-            train_split: Proportion of data to use for training
-            
-        Returns:
-            Dict containing preprocessed data and metadata:
-                - X_train: Training features
-                - y_train: Training targets
-                - X_val: Validation features
-                - y_val: Validation targets
-                - feature_columns: List of feature columns
-                - target_column: Target column name
-                - scaler_params: Parameters for reversing normalization
-        """
-        # Make a copy to avoid modifying the original DataFrame
-        data = df.copy()
-        
-        # Verify required columns exist
-        required_columns = ['open', 'high', 'low', 'close', 'volume']
-        missing_columns = [col for col in required_columns if col not in data.columns]
-        
-        if missing_columns:
-            raise ValueError(f"Missing required columns in data: {missing_columns}")
-        
-        # Add technical indicators as features if requested
-        if add_features:
-            data = self.add_technical_indicators(data)
-        
-        # Drop rows with NaN values (e.g., from technical indicators)
-        data.dropna(inplace=True)
-        
-        # Select feature columns - exclude the timestamp if it's in columns
-        feature_columns = [col for col in data.columns if col != 'timestamp']
-        
-        # Prepare normalization parameters
-        scaler_params = {}
-        
-        # Normalize if requested
-        if normalize:
-            data, scaler_params = self.normalize_data(data[feature_columns])
-        else:
-            data = data[feature_columns].values
-        
-        # Create sequences for time-series prediction
-        X, y = self.create_sequences(
-            data=data,
-            target_idx=feature_columns.index(target_column),
-            sequence_length=sequence_length
-        )
-        
-        # Split into training and validation sets
-        split_idx = int(len(X) * train_split)
-        
-        X_train, X_val = X[:split_idx], X[split_idx:]
-        y_train, y_val = y[:split_idx], y[split_idx:]
-        
-        return {
-            'X_train': X_train, 
-            'y_train': y_train,
-            'X_val': X_val, 
-            'y_val': y_val,
-            'feature_columns': feature_columns,
-            'target_column': target_column,
-            'scaler_params': scaler_params
+        # Available exchange handlers
+        self.exchange_handlers = {
+            'binance': ccxt.binance,
+            'kucoin': ccxt.kucoin,
+            'coinbase': ccxt.coinbasepro,
+            'ftx': ccxt.ftx,
         }
     
-    def add_technical_indicators(self, df: pd.DataFrame) -> pd.DataFrame:
+    def fetch_historical_data(self, 
+                             exchange: str = 'binance',
+                             start_date: str = None,
+                             end_date: str = None,
+                             limit: int = 1000) -> Dict[str, pd.DataFrame]:
         """
-        Add technical indicators to OHLCV data
+        Fetch historical OHLCV data from exchange.
+        
+        Args:
+            exchange: Exchange to fetch data from
+            start_date: Start date in format 'YYYY-MM-DD'
+            end_date: End date in format 'YYYY-MM-DD'
+            limit: Maximum number of candles per request
+            
+        Returns:
+            Dictionary of DataFrames with OHLCV data for each symbol
+        """
+        if exchange not in self.exchange_handlers:
+            raise ValueError(f"Unsupported exchange: {exchange}. Available: {list(self.exchange_handlers.keys())}")
+        
+        # Set default dates if not provided
+        if not end_date:
+            end_date = datetime.now().strftime('%Y-%m-%d')
+        if not start_date:
+            start_date = (datetime.strptime(end_date, '%Y-%m-%d') - timedelta(days=30)).strftime('%Y-%m-%d')
+        
+        # Convert dates to timestamps
+        since = int(datetime.strptime(start_date, '%Y-%m-%d').timestamp() * 1000)
+        until = int(datetime.strptime(end_date, '%Y-%m-%d').timestamp() * 1000)
+        
+        logger.info(f"Fetching data from {exchange} for {self.symbols} from {start_date} to {end_date}")
+        
+        # Initialize exchange
+        try:
+            exchange_class = self.exchange_handlers[exchange]()
+            exchange_class.load_markets()
+        except Exception as e:
+            logger.error(f"Failed to initialize {exchange}: {e}")
+            raise
+        
+        data = {}
+        for symbol in self.symbols:
+            try:
+                logger.info(f"Fetching {symbol} data...")
+                ohlcv = []
+                current_since = since
+                
+                while current_since < until:
+                    batch = exchange_class.fetch_ohlcv(symbol, self.timeframe, current_since, limit)
+                    if not batch:
+                        break
+                    
+                    ohlcv.extend(batch)
+                    # Update timestamp for next iteration
+                    current_since = batch[-1][0] + 1
+                    
+                if ohlcv:
+                    # Convert to DataFrame
+                    df = pd.DataFrame(ohlcv, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
+                    df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
+                    df.set_index('timestamp', inplace=True)
+                    data[symbol] = df
+                    
+                    # Save raw data
+                    filename = f"{symbol.replace('/', '_')}_{self.timeframe}_{start_date}_{end_date}.csv"
+                    df.to_csv(os.path.join(self.data_dir, filename))
+                    logger.info(f"Saved {len(df)} records for {symbol}")
+                    
+            except Exception as e:
+                logger.error(f"Error fetching {symbol}: {e}")
+                continue
+                
+        return data
+    
+    def load_from_csv(self, 
+                     symbol: str = None, 
+                     file_path: str = None,
+                     start_date: str = None,
+                     end_date: str = None) -> pd.DataFrame:
+        """
+        Load OHLCV data from CSV file.
+        
+        Args:
+            symbol: Symbol to load (used to construct filename if file_path not provided)
+            file_path: Path to CSV file
+            start_date: Filter data starting from this date
+            end_date: Filter data ending at this date
+            
+        Returns:
+            DataFrame with OHLCV data
+        """
+        if file_path is None and symbol is None:
+            raise ValueError("Either file_path or symbol must be provided")
+            
+        if file_path is None:
+            # Find latest file for this symbol
+            symbol_str = symbol.replace('/', '_')
+            files = [f for f in os.listdir(self.data_dir) if f.startswith(symbol_str)]
+            if not files:
+                raise FileNotFoundError(f"No files found for {symbol}")
+            
+            files.sort(reverse=True)  # Most recent first
+            file_path = os.path.join(self.data_dir, files[0])
+        
+        # Load data
+        df = pd.read_csv(file_path)
+        if 'timestamp' in df.columns:
+            df['timestamp'] = pd.to_datetime(df['timestamp'])
+            df.set_index('timestamp', inplace=True)
+        
+        # Filter by date if specified
+        if start_date:
+            df = df[df.index >= start_date]
+        if end_date:
+            df = df[df.index <= end_date]
+            
+        return df
+    
+    def preprocess_for_smc(self, df: pd.DataFrame, window_size: int = 20) -> pd.DataFrame:
+        """
+        Add Smart Money Concepts features to the DataFrame.
         
         Args:
             df: DataFrame with OHLCV data
+            window_size: Window size for identifying swings and order blocks
             
         Returns:
-            DataFrame with added technical indicators
+            DataFrame with SMC features
         """
-        data = df.copy()
+        # Copy the DataFrame to avoid modifying the original
+        df_smc = df.copy()
         
-        # Moving Averages
-        data['ma7'] = data['close'].rolling(window=7).mean()
-        data['ma14'] = data['close'].rolling(window=14).mean()
-        data['ma30'] = data['close'].rolling(window=30).mean()
+        # 1. Identify swing highs and lows
+        df_smc['swing_high'] = df_smc['high'].rolling(window=window_size, center=True).apply(
+            lambda x: 1 if x.iloc[window_size//2] == max(x) else 0, raw=False
+        )
+        df_smc['swing_low'] = df_smc['low'].rolling(window=window_size, center=True).apply(
+            lambda x: 1 if x.iloc[window_size//2] == min(x) else 0, raw=False
+        )
         
-        # Exponential Moving Average
-        data['ema12'] = data['close'].ewm(span=12, adjust=False).mean()
-        data['ema26'] = data['close'].ewm(span=26, adjust=False).mean()
+        # 2. Calculate Fair Value Gaps (imbalances)
+        df_smc['bullish_fvg'] = (
+            (df_smc['low'].shift(1) > df_smc['high'].shift(-1)) & 
+            (df_smc['close'].shift(1) < df_smc['open'].shift(1)) &  # Bearish candle before gap
+            (df_smc['close'].shift(-1) > df_smc['open'].shift(-1))  # Bullish candle after gap
+        ).astype(int)
         
-        # MACD (Moving Average Convergence Divergence)
-        data['macd'] = data['ema12'] - data['ema26']
-        data['macd_signal'] = data['macd'].ewm(span=9, adjust=False).mean()
+        df_smc['bearish_fvg'] = (
+            (df_smc['high'].shift(1) < df_smc['low'].shift(-1)) & 
+            (df_smc['close'].shift(1) > df_smc['open'].shift(1)) &  # Bullish candle before gap
+            (df_smc['close'].shift(-1) < df_smc['open'].shift(-1))  # Bearish candle after gap
+        ).astype(int)
         
-        # Bollinger Bands
-        window = 20
-        std_dev = 2
-        rolling_mean = data['close'].rolling(window=window).mean()
-        rolling_std = data['close'].rolling(window=window).std()
-        data['bb_upper'] = rolling_mean + (rolling_std * std_dev)
-        data['bb_lower'] = rolling_mean - (rolling_std * std_dev)
-        data['bb_width'] = (data['bb_upper'] - data['bb_lower']) / rolling_mean
+        # 3. Identify potential order blocks
+        # Bullish order block: Last bearish candle before a bullish move
+        # Bearish order block: Last bullish candle before a bearish move
+        df_smc['price_change'] = df_smc['close'].pct_change(5)  # 5-period change
+        df_smc['bullish_ob'] = (
+            (df_smc['close'] < df_smc['open']) &  # Bearish candle
+            (df_smc['price_change'].shift(-1) > 0.02)  # Followed by strong bullish move
+        ).astype(int)
         
-        # RSI (Relative Strength Index)
-        delta = data['close'].diff()
+        df_smc['bearish_ob'] = (
+            (df_smc['close'] > df_smc['open']) &  # Bullish candle
+            (df_smc['price_change'].shift(-1) < -0.02)  # Followed by strong bearish move
+        ).astype(int)
+        
+        # 4. Calculate liquidity levels (previous swing highs/lows)
+        df_smc['buy_liquidity'] = df_smc['swing_high'].rolling(window=10).max().fillna(0)
+        df_smc['sell_liquidity'] = df_smc['swing_low'].rolling(window=10).max().fillna(0)
+        
+        # 5. Calculate technical indicators
+        # RSI
+        delta = df_smc['close'].diff()
         gain = delta.where(delta > 0, 0)
         loss = -delta.where(delta < 0, 0)
         avg_gain = gain.rolling(window=14).mean()
         avg_loss = loss.rolling(window=14).mean()
-        
-        # Calculate first RSIs
         rs = avg_gain / avg_loss
-        data['rsi'] = 100 - (100 / (1 + rs))
+        df_smc['rsi'] = 100 - (100 / (1 + rs))
         
-        # Price change percentages
-        data['pct_change_1d'] = data['close'].pct_change(periods=1)
-        data['pct_change_3d'] = data['close'].pct_change(periods=3)
-        data['pct_change_7d'] = data['close'].pct_change(periods=7)
+        # Add moving averages
+        for ma_period in [20, 50, 200]:
+            df_smc[f'sma_{ma_period}'] = df_smc['close'].rolling(window=ma_period).mean()
+            
+        # MACD
+        df_smc['ema_12'] = df_smc['close'].ewm(span=12, adjust=False).mean()
+        df_smc['ema_26'] = df_smc['close'].ewm(span=26, adjust=False).mean()
+        df_smc['macd'] = df_smc['ema_12'] - df_smc['ema_26']
+        df_smc['macd_signal'] = df_smc['macd'].ewm(span=9, adjust=False).mean()
+        df_smc['macd_hist'] = df_smc['macd'] - df_smc['macd_signal']
         
-        # Volume indicators
-        data['volume_ma7'] = data['volume'].rolling(window=7).mean()
-        data['volume_change'] = data['volume'].pct_change()
+        # Fill NaN values
+        df_smc = df_smc.fillna(0)
         
-        return data
+        return df_smc
     
-    def normalize_data(self, df: pd.DataFrame) -> Tuple[np.ndarray, Dict]:
+    def create_features(self, df: pd.DataFrame, target_column: str = 'close') -> Tuple[pd.DataFrame, pd.Series]:
         """
-        Normalize data using min-max scaling
+        Create feature matrix and target variable for machine learning.
         
         Args:
-            df: DataFrame with feature data
+            df: DataFrame with OHLCV and SMC features
+            target_column: Column to use as target
             
         Returns:
-            Tuple containing:
-                - Normalized data as numpy array
-                - Dictionary with scaling parameters for each column
+            Tuple of (features DataFrame, target Series)
         """
-        # Store min and max values for each column to denormalize later
-        scaler_params = {
-            'min': {},
-            'max': {}
-        }
+        # Define the forecast horizon (e.g., price after n periods)
+        horizon = 24 if self.timeframe == '1h' else 5
         
-        normalized_data = np.zeros_like(df.values, dtype=np.float32)
+        # Create target variable (future price change %)
+        df['target'] = df[target_column].pct_change(periods=horizon).shift(-horizon)
         
-        for i, col_name in enumerate(df.columns):
-            col_data = df[col_name].values
-            col_min = np.min(col_data)
-            col_max = np.max(col_data)
-            
-            # Store params for denormalization
-            scaler_params['min'][col_name] = float(col_min)
-            scaler_params['max'][col_name] = float(col_max)
-            
-            # Apply min-max scaling
-            if col_max > col_min:
-                normalized_data[:, i] = (col_data - col_min) / (col_max - col_min)
-            else:
-                # If min equals max, set to 0.5 to avoid division by zero
-                normalized_data[:, i] = 0.5
+        # Binary target for classification (1 for price increase, 0 for decrease)
+        df['target_binary'] = (df['target'] > 0).astype(int)
         
-        return normalized_data, scaler_params
+        # Drop rows with NaN target
+        df_ml = df.dropna(subset=['target', 'target_binary'])
+        
+        # Select features
+        feature_columns = [
+            'open', 'high', 'low', 'close', 'volume',
+            'swing_high', 'swing_low', 
+            'bullish_fvg', 'bearish_fvg',
+            'bullish_ob', 'bearish_ob',
+            'buy_liquidity', 'sell_liquidity',
+            'rsi', 'macd', 'macd_signal', 'macd_hist'
+        ]
+        
+        # Add SMA columns
+        feature_columns.extend([f'sma_{period}' for period in [20, 50, 200]])
+        
+        # Create lag features (last n values)
+        for col in ['close', 'volume', 'rsi', 'macd']:
+            for lag in range(1, 6):
+                df_ml[f'{col}_lag_{lag}'] = df_ml[col].shift(lag)
+                feature_columns.append(f'{col}_lag_{lag}')
+        
+        # Drop rows with NaN features
+        df_ml = df_ml.dropna()
+        
+        # Return features and target
+        X = df_ml[feature_columns]
+        y = df_ml['target_binary']  # Use binary target for classification
+        
+        return X, y
     
-    def denormalize(self, data: np.ndarray, column_idx: int, scaler_params: Dict, column_name: str) -> np.ndarray:
+    def split_data(self, X: pd.DataFrame, y: pd.Series, 
+                  train_size: float = 0.7, 
+                  val_size: float = 0.15) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """
-        Denormalize data from a specific column
+        Split data into training, validation and test sets.
         
         Args:
-            data: Normalized data
-            column_idx: Index of the column to denormalize
-            scaler_params: Scaling parameters
-            column_name: Name of the column
+            X: Feature matrix
+            y: Target variable
+            train_size: Proportion of data for training
+            val_size: Proportion of data for validation
             
         Returns:
-            Denormalized data
+            Tuple of (X_train, X_val, X_test, y_train, y_val, y_test)
         """
-        col_min = scaler_params['min'][column_name]
-        col_max = scaler_params['max'][column_name]
+        # Time series split (no random shuffling)
+        train_end = int(len(X) * train_size)
+        val_end = train_end + int(len(X) * val_size)
         
-        return data * (col_max - col_min) + col_min
+        X_train = X.iloc[:train_end].values
+        X_val = X.iloc[train_end:val_end].values
+        X_test = X.iloc[val_end:].values
+        
+        y_train = y.iloc[:train_end].values
+        y_val = y.iloc[train_end:val_end].values
+        y_test = y.iloc[val_end:].values
+        
+        return X_train, X_val, X_test, y_train, y_val, y_test
     
-    def create_sequences(
-        self, 
-        data: np.ndarray, 
-        target_idx: int,
-        sequence_length: int,
-        forecast_horizon: int = 1
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    def prepare_sequence_data(self, X: pd.DataFrame, y: pd.Series, sequence_length: int = 60) -> Tuple[np.ndarray, np.ndarray]:
         """
-        Create sequences for time-series prediction
+        Prepare sequential data for LSTM/GRU models.
         
         Args:
-            data: Input data as numpy array
-            target_idx: Index of the target column
-            sequence_length: Number of time steps for each sequence
-            forecast_horizon: Number of steps ahead to predict
+            X: Feature matrix
+            y: Target variable
+            sequence_length: Number of timesteps in each sequence
             
         Returns:
-            Tuple containing sequences of features (X) and targets (y)
+            Tuple of (X_seq, y_seq) where X_seq has shape (samples, sequence_length, features)
         """
-        X, y = [], []
+        X_array = X.values
+        y_array = y.values
         
-        for i in range(len(data) - sequence_length - forecast_horizon + 1):
-            # Sequence of historical data
-            X.append(data[i:(i + sequence_length)])
+        X_seq = []
+        y_seq = []
+        
+        for i in range(len(X_array) - sequence_length):
+            X_seq.append(X_array[i:i+sequence_length])
+            y_seq.append(y_array[i+sequence_length])
             
-            # Target value (next time step or further in the future)
-            y.append(data[i + sequence_length + forecast_horizon - 1, target_idx])
-        
-        return np.array(X), np.array(y)
-    
-    def load_multiple_symbols(
-        self, 
-        symbols: List[str], 
-        interval: str = "1h",
-        days_back: int = 30,
-        use_cache: bool = True
-    ) -> Dict[str, pd.DataFrame]:
+        return np.array(X_seq), np.array(y_seq)
+
+    def create_image_data(self, df: pd.DataFrame, window_size: int = 60, 
+                         features: List[str] = None) -> Tuple[np.ndarray, np.ndarray]:
         """
-        Load data for multiple trading symbols
+        Create image-like data for CNN models by stacking multiple features into channels.
         
         Args:
-            symbols: List of trading symbols
-            interval: Timeframe for the data
-            days_back: Number of days to look back
-            use_cache: Whether to use cached data
+            df: DataFrame with features
+            window_size: Size of the window (height and width of the image)
+            features: List of features to use as channels
             
         Returns:
-            Dictionary mapping symbols to their respective DataFrames
+            Tuple of (X_images, y_labels) where X_images has shape (samples, height, width, channels)
         """
-        result = {}
+        if features is None:
+            features = ['close', 'volume', 'rsi', 'macd']
+            
+        # Normalize each feature
+        df_norm = df.copy()
+        for feature in features:
+            df_norm[feature] = (df[feature] - df[feature].min()) / (df[feature].max() - df[feature].min())
+            
+        X_images = []
+        y_labels = []
         
-        for symbol in symbols:
-            try:
-                df = self.get_data(symbol, interval, days_back, use_cache)
-                result[symbol] = df
-            except Exception as e:
-                logger.error(f"Error loading data for {symbol}: {str(e)}")
+        # Get future returns (target)
+        future_returns = df['close'].pct_change(5).shift(-5)
         
-        return result
+        for i in range(len(df_norm) - window_size - 5):  # -5 for future returns
+            # Create multi-channel image
+            image = np.zeros((window_size, window_size, len(features)))
+            
+            for j, feature in enumerate(features):
+                # Convert time series to 2D image-like array
+                feature_series = df_norm[feature].iloc[i:i+window_size].values
+                
+                # Method 1: Simple reshaping into a square
+                feature_matrix = np.reshape(feature_series, (int(window_size**0.5), -1))
+                
+                # Resize to window_size x window_size
+                from skimage.transform import resize
+                feature_matrix = resize(feature_matrix, (window_size, window_size), 
+                                      anti_aliasing=True, mode='reflect')
+                
+                image[:, :, j] = feature_matrix
+                
+            X_images.append(image)
+            
+            # Binary target: 1 if price increases, 0 if it decreases
+            y_labels.append(1 if future_returns.iloc[i+window_size] > 0 else 0)
+            
+        return np.array(X_images), np.array(y_labels)
 
 
 def load_data(
@@ -488,22 +446,34 @@ def load_data(
 
 if __name__ == "__main__":
     # Example usage
-    loader = CryptoDataLoader()
+    loader = MarketDataLoader(timeframe='1h', symbols=['BTC/USDT'])
     
-    # Load BTC/USD data and save to CSV
-    btc_data = loader.get_data(symbol="BTCUSD", interval="1h", days_back=30)
-    print(f"Loaded {len(btc_data)} rows of BTC/USD data")
-    
-    # Preprocess data for training
-    processed_data = loader.preprocess_data(
-        btc_data,
-        add_features=True,
-        normalize=True,
-        target_column='close',
-        sequence_length=24,  # 24 hours of history
-        train_split=0.8
-    )
-    
-    print(f"Training data shape: {processed_data['X_train'].shape}")
-    print(f"Validation data shape: {processed_data['X_val'].shape}")
-    print(f"Feature columns: {processed_data['feature_columns']}") 
+    try:
+        # Fetch data (uncomment to fetch new data)
+        # data = loader.fetch_historical_data(start_date='2023-01-01', end_date='2023-03-01')
+        
+        # Or load existing data
+        df = loader.load_from_csv(symbol='BTC/USDT')
+        
+        # Preprocess for SMC features
+        df_smc = loader.preprocess_for_smc(df)
+        
+        # Create features and target
+        X, y = loader.create_features(df_smc)
+        
+        # Split data
+        X_train, X_val, X_test, y_train, y_val, y_test = loader.split_data(X, y)
+        
+        # Create sequence data for LSTM/GRU
+        X_seq, y_seq = loader.prepare_sequence_data(X, y)
+        
+        # Create image data for CNN
+        X_img, y_img = loader.create_image_data(df_smc)
+        
+        # Print shapes
+        print(f"Regular data shapes: X_train {X_train.shape}, y_train {y_train.shape}")
+        print(f"Sequence data shapes: X_seq {X_seq.shape}, y_seq {y_seq.shape}")
+        print(f"Image data shapes: X_img {X_img.shape}, y_img {y_img.shape}")
+        
+    except Exception as e:
+        logger.error(f"Error: {e}") 

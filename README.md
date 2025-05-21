@@ -10,6 +10,8 @@ This project is an institutional-grade crypto trading bot that leverages advance
 - **Real-time Dashboard:** TradingView-style charts with live indicators, signals, and trade execution
 - **Institutional-Grade Risk Management:** Advanced position sizing, drawdown protection, and performance monitoring
 - **Secure API Key Management:** Advanced encryption system for safely storing and retrieving exchange API credentials
+- **Real-Time Trading Analytics:** Computes and stores trading metrics (PnL, Sharpe ratio, drawdown, win rate, etc.) on trade/position events.
+- **Automated Compliance Reporting:** Automated script generates compliance reports, aggregating audit logs, erasure/export requests, and encryption status.
 
 ## Documentation
 
@@ -133,6 +135,25 @@ The ML service exposes endpoints for model training and prediction:
 - `POST /ml/train` - Train a new model or update existing one
 - `GET /ml/predict/:symbol` - Get prediction for a symbol
 - `GET /ml/models` - List available models and their performance
+
+### Real-Time Analytics
+
+- **Backend**: Emits `analytics_update` events via Socket.IO when trades are executed.
+- **Frontend**: Subscribe to `analytics_update` events to display live trading metrics and alerts.
+- **Example**: Emit a `trade_executed` event to the backend to trigger analytics computation.
+
+### Compliance Automation
+
+- **Generate Compliance Report**:
+  - Run: `npm run compliance:report`
+  - Output: `compliance_report.json` (includes access logs, erasure requests, encryption status)
+  - Schedule with cron for regular reporting.
+
+- **GDPR Endpoints**:
+  - `POST /api/compliance/export` with `{ userId }` to export user data.
+  - `POST /api/compliance/erase` with `{ userId }` to soft-delete user data.
+
+- **Checklist**: See `backend/prisma/SECURITY_COMPLIANCE.md` for compliance automation status and best practices.
 
 ## System Architecture
 

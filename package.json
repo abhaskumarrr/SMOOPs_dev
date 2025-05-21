@@ -40,7 +40,8 @@
     "test:ml": "bash scripts/dev-tasks.sh test:ml",
     "lint": "bash scripts/dev-tasks.sh lint",
     "lint:fix": "bash scripts/dev-tasks.sh lint:fix",
-    "clean": "bash scripts/dev-tasks.sh clean"
+    "clean": "bash scripts/dev-tasks.sh clean",
+    "compliance:report": "node backend/scripts/compliance_report.js"
   },
   "devDependencies": {
     "chalk": "^4.1.2",

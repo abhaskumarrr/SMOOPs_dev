@@ -1,139 +1,121 @@
 """
-Base Model for Time Series Prediction
-
-This module defines the base model class that all model architectures will extend.
-It implements common functionality like device handling, saving/loading, etc.
+Base Model for all model implementations
+Provides common functionality and interface
 """
 
-import os
-import torch
-import torch.nn as nn
-import logging
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Optional, Union, Tuple
+import logging
+from typing import Dict, Any, Optional, Tuple, List, Union
+import numpy as np
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-class BaseModel(nn.Module, ABC):
-    """Base class for all time series forecasting models"""
+class BaseModel(ABC):
+    """
+    Abstract base class for all models.
+    Enforces a consistent interface for all models.
+    """
     
-    def __init__(
-        self, 
-        input_dim: int,
-        output_dim: int,
-        seq_len: int,
-        forecast_horizon: int,
-        device: Optional[str] = None
-    ):
+    def __init__(self, model_path: Optional[str] = None):
         """
         Initialize the base model.
         
         Args:
-            input_dim: Number of input features
-            output_dim: Number of output features
-            seq_len: Length of input sequences
-            forecast_horizon: Number of steps to forecast
-            device: Device to use for computation ('cpu', 'cuda', 'mps', or None for auto-detection)
+            model_path: Path to a saved model file (if loading a pre-trained model)
         """
-        super().__init__()
-        self.input_dim = input_dim
-        self.output_dim = output_dim
-        self.seq_len = seq_len
-        self.forecast_horizon = forecast_horizon
-        
-        # Auto-detect device if none is provided
-        if device is None:
-            if torch.backends.mps.is_available():
-                device = 'mps'  # Apple Silicon GPU
-                logger.info("Using MPS (Apple Silicon) device")
-            elif torch.cuda.is_available():
-                device = 'cuda'
-                logger.info("Using CUDA device")
-            else:
-                device = 'cpu'
-                logger.info("Using CPU device")
-        
-        self.device = torch.device(device)
-        logger.info(f"Model initialized on device: {self.device}")
-    
-    def to_device(self):
-        """Move model to the specified device"""
-        return self.to(self.device)
+        self.model = None
     
     @abstractmethod
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def _build_model(self):
         """
-        Forward pass through the model
-        
-        Args:
-            x: Input tensor of shape (batch_size, seq_len, input_dim)
-            
-        Returns:
-            Predicted values tensor of shape (batch_size, forecast_horizon, output_dim)
+        Build the model architecture.
+        To be implemented by subclasses.
         """
         pass
     
-    def save(self, path: str):
+    @abstractmethod
+    def train(
+        self,
+        X_train: np.ndarray,
+        y_train: np.ndarray,
+        X_val: np.ndarray,
+        y_val: np.ndarray,
+        batch_size: int,
+        epochs: int,
+        patience: int,
+        log_dir: Optional[str],
+        checkpoint_dir: Optional[str],
+    ) -> Dict[str, Any]:
         """
-        Save model to disk
+        Train the model.
         
         Args:
-            path: Path to save the model
-        """
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        torch.save({
-            'model_state_dict': self.state_dict(),
-            'model_config': {
-                'input_dim': self.input_dim,
-                'output_dim': self.output_dim,
-                'seq_len': self.seq_len,
-                'forecast_horizon': self.forecast_horizon,
-                'model_type': self.__class__.__name__
-            }
-        }, path)
-        logger.info(f"Model saved to {path}")
-    
-    @classmethod
-    def load(cls, path: str, device: Optional[str] = None):
-        """
-        Load model from disk
-        
-        Args:
-            path: Path to load the model from
-            device: Device to load the model to
+            X_train: Training data
+            y_train: Training labels
+            X_val: Validation data
+            y_val: Validation labels
+            batch_size: Batch size for training
+            epochs: Maximum number of epochs
+            patience: Patience for early stopping
+            log_dir: Directory for TensorBoard logs
+            checkpoint_dir: Directory for model checkpoints
             
         Returns:
-            Loaded model instance
+            Dictionary with training history
         """
-        checkpoint = torch.load(path, map_location=torch.device('cpu'))
-        config = checkpoint['model_config']
+        pass
+    
+    @abstractmethod
+    def predict(self, X: np.ndarray) -> np.ndarray:
+        """
+        Make predictions with the model.
         
-        # Instantiate the correct model class based on saved type
-        model_type = config.pop('model_type', cls.__name__)
+        Args:
+            X: Input data
+            
+        Returns:
+            Predictions
+        """
+        pass
+    
+    @abstractmethod
+    def evaluate(self, X: np.ndarray, y: np.ndarray) -> Dict[str, float]:
+        """
+        Evaluate the model performance.
         
-        # Import all model classes 
-        from .lstm_model import LSTMModel
-        from .gru_model import GRUModel
-        from .transformer_model import TransformerModel
-        from .cnn_lstm_model import CNNLSTMModel
+        Args:
+            X: Input data
+            y: True labels
+            
+        Returns:
+            Dictionary with evaluation metrics
+        """
+        pass
+    
+    @abstractmethod
+    def save(self, model_path: str) -> None:
+        """
+        Save the model.
         
-        # Get the class by name
-        model_class = {
-            'LSTMModel': LSTMModel,
-            'GRUModel': GRUModel,
-            'TransformerModel': TransformerModel, 
-            'CNNLSTMModel': CNNLSTMModel,
-            'BaseModel': cls
-        }.get(model_type, cls)
+        Args:
+            model_path: Path to save the model
+        """
+        pass
+    
+    @classmethod
+    @abstractmethod
+    def load(cls, model_path: str, **kwargs):
+        """
+        Load a pre-trained model.
         
-        # Create model instance
-        model = model_class(**config, device=device)
-        model.load_state_dict(checkpoint['model_state_dict'])
-        model.to_device()
-        model.eval()
-        return model
+        Args:
+            model_path: Path to the saved model
+            **kwargs: Additional arguments for model initialization
+            
+        Returns:
+            Loaded model
+        """
+        pass
 
 
 class DirectionalLoss(nn.Module):

@@ -41,6 +41,7 @@ jobs:
       - name: Run database health checks
         run: npm run ci:db-health
         working-directory: backend
-      - name: Run tests
-        run: echo "Add your test command here"
-        working-directory: backend 
+      # Skipping tests for now until they are implemented
+      # - name: Run tests
+      #   run: npm test
+      #   working-directory: backend 

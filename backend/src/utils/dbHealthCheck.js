@@ -1,93 +1,99 @@
+/**
+ * Database Health Check Utility
+ * Functions for checking database connectivity and health
+ */
+
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 /**
- * Performs a health check on the database connection
- * @returns {Promise<{isHealthy: boolean, message: string, error?: any}>}
+ * Checks the database connection health
+ * @returns {Promise<Object>} The health check result
  */
-async function checkDatabaseConnection() {
+async function checkDbConnection() {
+  const startTime = Date.now();
+  
   try {
-    // Try to run a simple query against the database
+    // Execute a simple query to verify database connection
     await prisma.$queryRaw`SELECT 1`;
+    
+    // Calculate query execution time
+    const responseTime = Date.now() - startTime;
+    
     return {
-      isHealthy: true,
-      message: 'Database connection is healthy'
+      success: true,
+      message: 'Database connection is healthy',
+      responseTime: `${responseTime}ms`
     };
   } catch (error) {
     return {
-      isHealthy: false,
+      success: false,
       message: 'Database connection failed',
-      error
+      error: error.message,
+      responseTime: `${Date.now() - startTime}ms`
     };
   }
 }
 
 /**
- * Verifies that all expected tables exist in the database
- * @returns {Promise<{isHealthy: boolean, message: string, missingTables?: string[], error?: any}>}
+ * Performs a comprehensive database health check
+ * @returns {Promise<Object>} Detailed health check result
  */
-async function checkSchemaState() {
+async function performDatabaseHealthCheck() {
   try {
-    // Get a list of all tables that should exist based on our Prisma schema
-    const expectedTables = ['User', 'ApiKey', 'TradeLog', 'Metric'];
+    // Check connection
+    const connectionStatus = await checkDbConnection();
     
-    // Get actual tables from the database
-    const tables = await prisma.$queryRaw`
-      SELECT table_name 
-      FROM information_schema.tables 
-      WHERE table_schema = 'public'
-    `;
-    
-    // Extract table names from the result
-    const existingTables = tables.map(t => t.table_name.toLowerCase());
-    
-    // Check if all expected tables exist
-    const missingTables = expectedTables.filter(
-      table => !existingTables.includes(table.toLowerCase())
-    );
-    
-    if (missingTables.length > 0) {
+    // If connection failed, return early
+    if (!connectionStatus.success) {
       return {
-        isHealthy: false,
-        message: 'Database schema is incomplete',
-        missingTables
+        success: false,
+        connection: connectionStatus,
+        tables: null,
+        migrations: null
+      };
+    }
+    
+    // Check tables (users)
+    let userTableStatus = { success: true };
+    try {
+      await prisma.user.findFirst();
+    } catch (error) {
+      userTableStatus = {
+        success: false,
+        error: error.message
+      };
+    }
+    
+    // Check migrations table
+    let migrationsStatus = { success: true };
+    try {
+      await prisma.$queryRaw`SELECT * FROM "_prisma_migrations" LIMIT 1`;
+    } catch (error) {
+      migrationsStatus = {
+        success: false,
+        error: error.message
       };
     }
     
     return {
-      isHealthy: true,
-      message: 'Database schema is complete'
+      success: connectionStatus.success && userTableStatus.success && migrationsStatus.success,
+      connection: connectionStatus,
+      tables: {
+        users: userTableStatus
+      },
+      migrations: migrationsStatus
     };
   } catch (error) {
     return {
-      isHealthy: false,
-      message: 'Schema check failed',
-      error
+      success: false,
+      message: 'Comprehensive health check failed',
+      error: error.message
     };
   }
 }
 
-/**
- * Performs a comprehensive health check on the database
- * @returns {Promise<{isHealthy: boolean, connection: Object, schema: Object}>}
- */
-async function performHealthCheck() {
-  const connection = await checkDatabaseConnection();
-  
-  // Only check schema if connection is healthy
-  const schema = connection.isHealthy ? 
-    await checkSchemaState() : 
-    { isHealthy: false, message: 'Skipped due to connection failure' };
-  
-  return {
-    isHealthy: connection.isHealthy && schema.isHealthy,
-    connection,
-    schema
-  };
-}
-
 module.exports = {
-  checkDatabaseConnection,
-  checkSchemaState,
-  performHealthCheck
+  checkDbConnection,
+  performDatabaseHealthCheck
 }; 

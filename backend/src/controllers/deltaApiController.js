@@ -1,297 +1,477 @@
 /**
  * Delta Exchange API Controller
- * Handles HTTP requests related to Delta Exchange API operations
+ * Handles Delta Exchange API interactions
  */
 
-const DeltaExchangeAPI = require('../services/deltaApiService');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+const { decrypt } = require('../utils/encryption');
+const axios = require('axios');
+const crypto = require('crypto');
+
+// Delta API service class
+class DeltaApiService {
+  constructor(apiKey, apiSecret, isTestnet = false) {
+    this.apiKey = apiKey;
+    this.apiSecret = apiSecret;
+    this.baseUrl = isTestnet 
+      ? 'https://testnet.delta.exchange/api/v2' 
+      : 'https://api.delta.exchange/v2';
+  }
+
+  /**
+   * Sign a request with HMAC signature
+   * @param {string} method - HTTP method
+   * @param {string} path - Endpoint path
+   * @param {Object} params - Query params or body data
+   * @returns {Object} - Headers with signature
+   */
+  createSignedHeaders(method, path, params = {}) {
+    const timestamp = Math.floor(Date.now() / 1000);
+    let message = timestamp + method + path;
+    
+    // Add query params or body params if present
+    if (Object.keys(params).length > 0) {
+      const sortedParams = Object.keys(params).sort().reduce((acc, key) => {
+        acc[key] = params[key];
+        return acc;
+      }, {});
+      const paramString = new URLSearchParams(sortedParams).toString();
+      message += paramString;
+    }
+    
+    // Create HMAC signature
+    const signature = crypto
+      .createHmac('sha256', this.apiSecret)
+      .update(message)
+      .digest('hex');
+    
+    return {
+      'api-key': this.apiKey,
+      'timestamp': timestamp.toString(),
+      'signature': signature
+    };
+  }
+
+  /**
+   * Execute a request to Delta Exchange API
+   * @param {string} method - HTTP method
+   * @param {string} endpoint - API endpoint
+   * @param {Object} params - Query params or body data
+   * @returns {Promise<Object>} - API response
+   */
+  async request(method, endpoint, params = {}) {
+    try {
+      const url = `${this.baseUrl}${endpoint}`;
+      const headers = this.createSignedHeaders(method, endpoint, params);
+      const config = { 
+        method, 
+        url, 
+        headers
+      };
+      
+      // Add params as query or body depending on method
+      if (method === 'GET' && Object.keys(params).length > 0) {
+        config.params = params;
+      } else if (Object.keys(params).length > 0) {
+        config.data = params;
+      }
+      
+      const response = await axios(config);
+      return response.data;
+    } catch (error) {
+      if (error.response) {
+        throw new Error(
+          JSON.stringify({
+            status: error.response.status,
+            message: error.response.data.message || 'API error',
+            data: error.response.data
+          })
+        );
+      }
+      throw error;
+    }
+  }
+
+  // Market data methods
+  async getProducts() {
+    return this.request('GET', '/products');
+  }
+
+  async getOrderBook(productId) {
+    return this.request('GET', `/orderbooks/${productId}`);
+  }
+
+  async getRecentTrades(productId, limit = 100) {
+    return this.request('GET', `/trades`, { 
+      product_id: productId, 
+      limit 
+    });
+  }
+
+  // Account methods
+  async getWalletBalance() {
+    return this.request('GET', '/wallet/balances');
+  }
+
+  async getPositions() {
+    return this.request('GET', '/positions');
+  }
+
+  // Order methods
+  async getOrders(status = 'live') {
+    return this.request('GET', '/orders', { status });
+  }
+
+  async createOrder(orderData) {
+    return this.request('POST', '/orders', orderData);
+  }
+
+  async cancelOrder(orderId) {
+    return this.request('DELETE', `/orders/${orderId}`);
+  }
+}
 
 /**
- * Gets market data
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
+ * Helper function to get Delta API service for authenticated user
+ * @param {Object} user - User object from request
+ * @returns {Promise<DeltaApiService>} - DeltaApiService instance
  */
-async function getMarketData(req, res) {
+async function getDeltaApiService(user) {
+  // Get the most recent API key for user
+  const apiKeyRecord = await prisma.apiKey.findFirst({
+    where: { userId: user.id },
+    orderBy: { createdAt: 'desc' }
+  });
+
+  if (!apiKeyRecord) {
+    throw new Error('No API key found for user');
+  }
+
+  // Decrypt API key data
+  const apiKeyData = decrypt(apiKeyRecord.encryptedData);
+  
+  // Return Delta API service instance
+  return new DeltaApiService(
+    apiKeyData.apiKey,
+    apiKeyData.apiSecret,
+    apiKeyData.testnet
+  );
+}
+
+/**
+ * Get available products
+ * @route GET /api/delta/products
+ * @access Private
+ */
+const getProducts = async (req, res) => {
   try {
-    const { symbol } = req.params;
-    const userId = req.user.id; // From auth middleware
+    const deltaApi = await getDeltaApiService(req.user);
+    const data = await deltaApi.getProducts();
     
-    if (!symbol) {
+    res.status(200).json({
+      success: true,
+      data
+    });
+  } catch (error) {
+    console.error('Get products error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching products',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+/**
+ * Get order book for a product
+ * @route GET /api/delta/products/:id/orderbook
+ * @access Private
+ */
+const getOrderBook = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deltaApi = await getDeltaApiService(req.user);
+    const data = await deltaApi.getOrderBook(id);
+    
+    res.status(200).json({
+      success: true,
+      data
+    });
+  } catch (error) {
+    console.error('Get order book error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching order book',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+/**
+ * Get recent trades for a product
+ * @route GET /api/delta/products/:id/trades
+ * @access Private
+ */
+const getRecentTrades = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { limit } = req.query;
+    const deltaApi = await getDeltaApiService(req.user);
+    const data = await deltaApi.getRecentTrades(id, limit);
+    
+    res.status(200).json({
+      success: true,
+      data
+    });
+  } catch (error) {
+    console.error('Get recent trades error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching recent trades',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+/**
+ * Get account balance
+ * @route GET /api/delta/balance
+ * @access Private
+ */
+const getAccountBalance = async (req, res) => {
+  try {
+    const deltaApi = await getDeltaApiService(req.user);
+    const data = await deltaApi.getWalletBalance();
+    
+    res.status(200).json({
+      success: true,
+      data
+    });
+  } catch (error) {
+    console.error('Get account balance error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching account balance',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+/**
+ * Get positions
+ * @route GET /api/delta/positions
+ * @access Private
+ */
+const getPositions = async (req, res) => {
+  try {
+    const deltaApi = await getDeltaApiService(req.user);
+    const data = await deltaApi.getPositions();
+    
+    res.status(200).json({
+      success: true,
+      data
+    });
+  } catch (error) {
+    console.error('Get positions error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching positions',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+/**
+ * Get orders
+ * @route GET /api/delta/orders
+ * @access Private
+ */
+const getOrders = async (req, res) => {
+  try {
+    const { status } = req.query;
+    const deltaApi = await getDeltaApiService(req.user);
+    const data = await deltaApi.getOrders(status || 'live');
+    
+    res.status(200).json({
+      success: true,
+      data
+    });
+  } catch (error) {
+    console.error('Get orders error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching orders',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+/**
+ * Create order
+ * @route POST /api/delta/orders
+ * @access Private
+ */
+const createOrder = async (req, res) => {
+  try {
+    const orderData = req.body;
+    
+    // Validate order data
+    if (!orderData.product_id || !orderData.size || !orderData.side || !orderData.order_type) {
       return res.status(400).json({
         success: false,
-        message: 'Symbol is required'
+        message: 'Missing required order parameters'
       });
     }
     
-    // Create and initialize API client
-    const deltaApi = new DeltaExchangeAPI({ 
-      userId,
-      testnet: process.env.DELTA_EXCHANGE_TESTNET === 'true'
+    const deltaApi = await getDeltaApiService(req.user);
+    const data = await deltaApi.createOrder(orderData);
+    
+    // Log trade to database
+    try {
+      await prisma.tradeLog.create({
+        data: {
+          userId: req.user.id,
+          instrument: orderData.product_id.toString(),
+          amount: parseFloat(orderData.size),
+          price: parseFloat(orderData.limit_price || '0'),
+          timestamp: new Date()
+        }
+      });
+    } catch (logError) {
+      console.error('Error logging trade:', logError);
+    }
+    
+    res.status(201).json({
+      success: true,
+      data
     });
+  } catch (error) {
+    console.error('Create order error:', error);
     
-    await deltaApi.initialize();
+    // Try to parse error from Delta API
+    let errorMessage = 'Error creating order';
+    let errorData = {};
     
-    // Get market data
-    const marketData = await deltaApi.getMarketData(symbol);
+    try {
+      const parsedError = JSON.parse(error.message);
+      errorMessage = parsedError.message;
+      errorData = parsedError.data;
+    } catch (e) {
+      // Use original error if parsing fails
+    }
     
-    return res.status(200).json({
+    res.status(400).json({
+      success: false,
+      message: errorMessage,
+      error: process.env.NODE_ENV === 'development' 
+        ? { original: error.message, data: errorData } 
+        : undefined
+    });
+  }
+};
+
+/**
+ * Cancel order
+ * @route DELETE /api/delta/orders/:id
+ * @access Private
+ */
+const cancelOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deltaApi = await getDeltaApiService(req.user);
+    const data = await deltaApi.cancelOrder(id);
+    
+    res.status(200).json({
+      success: true,
+      data
+    });
+  } catch (error) {
+    console.error('Cancel order error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error cancelling order',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+/**
+ * Get market data
+ * @route GET /api/delta/market-data
+ * @access Private
+ */
+const getMarketData = async (req, res) => {
+  try {
+    // This is a custom endpoint that combines multiple Delta API calls
+    // to provide comprehensive market data in a single request
+    const { symbols } = req.query;
+    
+    if (!symbols) {
+      return res.status(400).json({
+        success: false,
+        message: 'Symbols parameter is required'
+      });
+    }
+    
+    const symbolArray = symbols.split(',');
+    const deltaApi = await getDeltaApiService(req.user);
+    
+    // Get products
+    const products = await deltaApi.getProducts();
+    
+    // Filter products by symbols
+    const filteredProducts = products.result.filter(
+      product => symbolArray.includes(product.symbol)
+    );
+    
+    // Get order books and recent trades for each product
+    const marketData = await Promise.all(
+      filteredProducts.map(async (product) => {
+        try {
+          const [orderBook, recentTrades] = await Promise.all([
+            deltaApi.getOrderBook(product.id),
+            deltaApi.getRecentTrades(product.id, 10)
+          ]);
+          
+          return {
+            product,
+            orderBook: orderBook.result,
+            recentTrades: recentTrades.result
+          };
+        } catch (error) {
+          console.error(`Error fetching market data for ${product.symbol}:`, error);
+          return {
+            product,
+            orderBook: { asks: [], bids: [] },
+            recentTrades: []
+          };
+        }
+      })
+    );
+    
+    res.status(200).json({
       success: true,
       data: marketData
     });
   } catch (error) {
-    console.error('Error getting market data:', error.message);
-    return res.status(500).json({
+    console.error('Get market data error:', error);
+    res.status(500).json({
       success: false,
-      message: 'Failed to fetch market data',
-      error: error.message
+      message: 'Error fetching market data',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
-}
-
-/**
- * Gets all available markets
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- */
-async function getMarkets(req, res) {
-  try {
-    // Create API client (doesn't need authentication for public endpoints)
-    const deltaApi = new DeltaExchangeAPI({ 
-      testnet: process.env.DELTA_EXCHANGE_TESTNET === 'true'
-    });
-    
-    await deltaApi.initialize();
-    
-    // Get markets with any query parameters
-    const markets = await deltaApi.getMarkets(req.query);
-    
-    return res.status(200).json({
-      success: true,
-      data: markets
-    });
-  } catch (error) {
-    console.error('Error getting markets:', error.message);
-    return res.status(500).json({
-      success: false,
-      message: 'Failed to fetch markets',
-      error: error.message
-    });
-  }
-}
-
-/**
- * Places an order
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- */
-async function placeOrder(req, res) {
-  try {
-    const { symbol, side, type, size, price, timeInForce, reduceOnly, postOnly, clientOrderId } = req.body;
-    const userId = req.user.id; // From auth middleware
-    
-    // Validate required fields
-    if (!symbol || !side || !size) {
-      return res.status(400).json({
-        success: false,
-        message: 'Symbol, side, and size are required'
-      });
-    }
-    
-    // Validate limit orders must have price
-    if ((type === 'limit' || !type) && !price) {
-      return res.status(400).json({
-        success: false,
-        message: 'Price is required for limit orders'
-      });
-    }
-    
-    // Create and initialize API client
-    const deltaApi = new DeltaExchangeAPI({ 
-      userId,
-      testnet: process.env.DELTA_EXCHANGE_TESTNET === 'true'
-    });
-    
-    await deltaApi.initialize();
-    
-    // Prepare order object
-    const order = {
-      symbol,
-      side,
-      type,
-      size,
-      price,
-      timeInForce,
-      reduceOnly,
-      postOnly,
-      clientOrderId
-    };
-    
-    // Place order
-    const result = await deltaApi.placeOrder(order);
-    
-    return res.status(201).json({
-      success: true,
-      data: result
-    });
-  } catch (error) {
-    console.error('Error placing order:', error.message);
-    return res.status(500).json({
-      success: false,
-      message: 'Failed to place order',
-      error: error.message
-    });
-  }
-}
-
-/**
- * Cancels an order
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- */
-async function cancelOrder(req, res) {
-  try {
-    const { orderId } = req.params;
-    const userId = req.user.id; // From auth middleware
-    
-    if (!orderId) {
-      return res.status(400).json({
-        success: false,
-        message: 'Order ID is required'
-      });
-    }
-    
-    // Create and initialize API client
-    const deltaApi = new DeltaExchangeAPI({ 
-      userId,
-      testnet: process.env.DELTA_EXCHANGE_TESTNET === 'true'
-    });
-    
-    await deltaApi.initialize();
-    
-    // Cancel order
-    const result = await deltaApi.cancelOrder(orderId);
-    
-    return res.status(200).json({
-      success: true,
-      data: result
-    });
-  } catch (error) {
-    console.error('Error canceling order:', error.message);
-    return res.status(500).json({
-      success: false,
-      message: 'Failed to cancel order',
-      error: error.message
-    });
-  }
-}
-
-/**
- * Gets active orders
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- */
-async function getActiveOrders(req, res) {
-  try {
-    const userId = req.user.id; // From auth middleware
-    
-    // Create and initialize API client
-    const deltaApi = new DeltaExchangeAPI({ 
-      userId,
-      testnet: process.env.DELTA_EXCHANGE_TESTNET === 'true'
-    });
-    
-    await deltaApi.initialize();
-    
-    // Get active orders with any query parameters
-    const orders = await deltaApi.getActiveOrders(req.query);
-    
-    return res.status(200).json({
-      success: true,
-      data: orders
-    });
-  } catch (error) {
-    console.error('Error getting active orders:', error.message);
-    return res.status(500).json({
-      success: false,
-      message: 'Failed to fetch active orders',
-      error: error.message
-    });
-  }
-}
-
-/**
- * Gets user wallet balances
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- */
-async function getWalletBalances(req, res) {
-  try {
-    const userId = req.user.id; // From auth middleware
-    
-    // Create and initialize API client
-    const deltaApi = new DeltaExchangeAPI({ 
-      userId,
-      testnet: process.env.DELTA_EXCHANGE_TESTNET === 'true'
-    });
-    
-    await deltaApi.initialize();
-    
-    // Get wallet balances
-    const balances = await deltaApi.getWalletBalances();
-    
-    return res.status(200).json({
-      success: true,
-      data: balances
-    });
-  } catch (error) {
-    console.error('Error getting wallet balances:', error.message);
-    return res.status(500).json({
-      success: false,
-      message: 'Failed to fetch wallet balances',
-      error: error.message
-    });
-  }
-}
-
-/**
- * Gets user positions
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- */
-async function getPositions(req, res) {
-  try {
-    const userId = req.user.id; // From auth middleware
-    
-    // Create and initialize API client
-    const deltaApi = new DeltaExchangeAPI({ 
-      userId,
-      testnet: process.env.DELTA_EXCHANGE_TESTNET === 'true'
-    });
-    
-    await deltaApi.initialize();
-    
-    // Get positions
-    const positions = await deltaApi.getPositions();
-    
-    return res.status(200).json({
-      success: true,
-      data: positions
-    });
-  } catch (error) {
-    console.error('Error getting positions:', error.message);
-    return res.status(500).json({
-      success: false,
-      message: 'Failed to fetch positions',
-      error: error.message
-    });
-  }
-}
+};
 
 module.exports = {
-  getMarketData,
-  getMarkets,
-  placeOrder,
+  getProducts,
+  getOrderBook,
+  getRecentTrades,
+  getAccountBalance,
+  getPositions,
+  getOrders,
+  createOrder,
   cancelOrder,
-  getActiveOrders,
-  getWalletBalances,
-  getPositions
+  getMarketData
 }; 

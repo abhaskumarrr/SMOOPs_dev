@@ -5,8 +5,9 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
-  output   = "../generated/prisma"
+  provider        = "prisma-client-js"
+  output          = "../generated/prisma"
+  previewFeatures = ["prismaSchemaFolder"] // Enable multi-file schema support
 }
 
 datasource db {
@@ -15,34 +16,94 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(uuid())
+  id        String     @id @default(uuid())
   name      String
-  email     String    @unique
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  email     String     @unique
+  password  String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
   apiKeys   ApiKey[]
   tradeLogs TradeLog[]
+  bots      Bot[]
+  positions Position[]
+
+  @@index([email]) // Add index on email for faster lookups
 }
 
 model ApiKey {
-  id           String   @id @default(uuid())
-  key          String   @unique
+  id            String   @id @default(uuid())
+  key           String   @unique
   encryptedData String   @db.Text
-  user         User     @relation(fields: [userId], references: [id])
-  userId       String
-  scopes       String
-  expiry       DateTime
-  createdAt    DateTime @default(now())
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String
+  scopes        String
+  expiry        DateTime
+  createdAt     DateTime @default(now())
+  isRevoked     Boolean  @default(false) // Add field to track revoked keys
+
+  @@index([userId]) // Add index for faster lookups by user
+  @@index([key])    // Add index for faster lookups by key
 }
 
 model TradeLog {
   id         String   @id @default(uuid())
-  user       User     @relation(fields: [userId], references: [id])
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId     String
   instrument String
   amount     Float
   price      Float
   timestamp  DateTime @default(now())
+  orderId    String?  // Optional field to link to exchange order ID
+  type       String   // Buy or sell
+  status     String   // Success, Failed, Pending
+
+  @@index([userId, timestamp(sort: Desc)]) // Add compound index for user's trades chronologically
+  @@index([instrument, timestamp(sort: Desc)]) // Add index for instrument-specific queries
+}
+
+model Bot {
+  id         String     @id @default(uuid())
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  name       String
+  symbol     String
+  strategy   String
+  timeframe  String
+  parameters Json       @default("{}")
+  isActive   Boolean    @default(false)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  positions  Position[]
+
+  @@index([userId]) // Add index for faster lookups by user
+  @@index([symbol]) // Add index for faster lookups by trading symbol
+  @@index([isActive]) // Add index for active bots
+}
+
+model Position {
+  id            String    @id @default(uuid())
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String
+  bot           Bot?      @relation(fields: [botId], references: [id], onDelete: SetNull)
+  botId         String?
+  symbol        String
+  side          String    // Long or Short
+  entryPrice    Float
+  currentPrice  Float?
+  amount        Float
+  leverage      Float     @default(1.0)
+  takeProfitPrice Float?
+  stopLossPrice Float?
+  status        String    // Open, Closed, Liquidated
+  pnl           Float?    // Profit and Loss (calculated)
+  openedAt      DateTime  @default(now())
+  closedAt      DateTime?
+  metadata      Json?     // Additional data like exchange-specific information
+
+  @@index([userId]) // Add index for faster lookups by user
+  @@index([botId]) // Add index for faster lookups by bot
+  @@index([symbol]) // Add index for faster lookups by trading symbol
+  @@index([status]) // Add index for filtering by status
 }
 
 model Metric {
@@ -50,4 +111,7 @@ model Metric {
   name       String
   value      Float
   recordedAt DateTime @default(now())
+  tags       Json?    // Add tags for better categorization
+
+  @@index([name, recordedAt(sort: Desc)]) // Add compound index for time-series queries
 }

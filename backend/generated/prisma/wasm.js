@@ -124,6 +124,7 @@ exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
   name: 'name',
   email: 'email',
+  password: 'password',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -135,7 +136,8 @@ exports.Prisma.ApiKeyScalarFieldEnum = {
   userId: 'userId',
   scopes: 'scopes',
   expiry: 'expiry',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  isRevoked: 'isRevoked'
 };
 
 exports.Prisma.TradeLogScalarFieldEnum = {
@@ -144,14 +146,50 @@ exports.Prisma.TradeLogScalarFieldEnum = {
   instrument: 'instrument',
   amount: 'amount',
   price: 'price',
-  timestamp: 'timestamp'
+  timestamp: 'timestamp',
+  orderId: 'orderId',
+  type: 'type',
+  status: 'status'
+};
+
+exports.Prisma.BotScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  name: 'name',
+  symbol: 'symbol',
+  strategy: 'strategy',
+  timeframe: 'timeframe',
+  parameters: 'parameters',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PositionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  botId: 'botId',
+  symbol: 'symbol',
+  side: 'side',
+  entryPrice: 'entryPrice',
+  currentPrice: 'currentPrice',
+  amount: 'amount',
+  leverage: 'leverage',
+  takeProfitPrice: 'takeProfitPrice',
+  stopLossPrice: 'stopLossPrice',
+  status: 'status',
+  pnl: 'pnl',
+  openedAt: 'openedAt',
+  closedAt: 'closedAt',
+  metadata: 'metadata'
 };
 
 exports.Prisma.MetricScalarFieldEnum = {
   id: 'id',
   name: 'name',
   value: 'value',
-  recordedAt: 'recordedAt'
+  recordedAt: 'recordedAt',
+  tags: 'tags'
 };
 
 exports.Prisma.SortOrder = {
@@ -159,9 +197,29 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
+exports.Prisma.JsonNullValueInput = {
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
+};
+
 exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
+};
+
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
+
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
 };
 
 
@@ -169,6 +227,8 @@ exports.Prisma.ModelName = {
   User: 'User',
   ApiKey: 'ApiKey',
   TradeLog: 'TradeLog',
+  Bot: 'Bot',
+  Position: 'Position',
   Metric: 'Metric'
 };
 

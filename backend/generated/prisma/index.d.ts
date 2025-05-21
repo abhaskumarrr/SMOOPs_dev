@@ -29,6 +29,16 @@ export type ApiKey = $Result.DefaultSelection<Prisma.$ApiKeyPayload>
  */
 export type TradeLog = $Result.DefaultSelection<Prisma.$TradeLogPayload>
 /**
+ * Model Bot
+ * 
+ */
+export type Bot = $Result.DefaultSelection<Prisma.$BotPayload>
+/**
+ * Model Position
+ * 
+ */
+export type Position = $Result.DefaultSelection<Prisma.$PositionPayload>
+/**
  * Model Metric
  * 
  */
@@ -188,6 +198,26 @@ export class PrismaClient<
     * ```
     */
   get tradeLog(): Prisma.TradeLogDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.bot`: Exposes CRUD operations for the **Bot** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Bots
+    * const bots = await prisma.bot.findMany()
+    * ```
+    */
+  get bot(): Prisma.BotDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.position`: Exposes CRUD operations for the **Position** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Positions
+    * const positions = await prisma.position.findMany()
+    * ```
+    */
+  get position(): Prisma.PositionDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.metric`: Exposes CRUD operations for the **Metric** model.
@@ -641,6 +671,8 @@ export namespace Prisma {
     User: 'User',
     ApiKey: 'ApiKey',
     TradeLog: 'TradeLog',
+    Bot: 'Bot',
+    Position: 'Position',
     Metric: 'Metric'
   };
 
@@ -660,7 +692,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "apiKey" | "tradeLog" | "metric"
+      modelProps: "user" | "apiKey" | "tradeLog" | "bot" | "position" | "metric"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -886,6 +918,154 @@ export namespace Prisma {
           }
         }
       }
+      Bot: {
+        payload: Prisma.$BotPayload<ExtArgs>
+        fields: Prisma.BotFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.BotFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BotPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.BotFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BotPayload>
+          }
+          findFirst: {
+            args: Prisma.BotFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BotPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.BotFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BotPayload>
+          }
+          findMany: {
+            args: Prisma.BotFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BotPayload>[]
+          }
+          create: {
+            args: Prisma.BotCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BotPayload>
+          }
+          createMany: {
+            args: Prisma.BotCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.BotCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BotPayload>[]
+          }
+          delete: {
+            args: Prisma.BotDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BotPayload>
+          }
+          update: {
+            args: Prisma.BotUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BotPayload>
+          }
+          deleteMany: {
+            args: Prisma.BotDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.BotUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.BotUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BotPayload>[]
+          }
+          upsert: {
+            args: Prisma.BotUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BotPayload>
+          }
+          aggregate: {
+            args: Prisma.BotAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateBot>
+          }
+          groupBy: {
+            args: Prisma.BotGroupByArgs<ExtArgs>
+            result: $Utils.Optional<BotGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.BotCountArgs<ExtArgs>
+            result: $Utils.Optional<BotCountAggregateOutputType> | number
+          }
+        }
+      }
+      Position: {
+        payload: Prisma.$PositionPayload<ExtArgs>
+        fields: Prisma.PositionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PositionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PositionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PositionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PositionPayload>
+          }
+          findFirst: {
+            args: Prisma.PositionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PositionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PositionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PositionPayload>
+          }
+          findMany: {
+            args: Prisma.PositionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PositionPayload>[]
+          }
+          create: {
+            args: Prisma.PositionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PositionPayload>
+          }
+          createMany: {
+            args: Prisma.PositionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.PositionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PositionPayload>[]
+          }
+          delete: {
+            args: Prisma.PositionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PositionPayload>
+          }
+          update: {
+            args: Prisma.PositionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PositionPayload>
+          }
+          deleteMany: {
+            args: Prisma.PositionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PositionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.PositionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PositionPayload>[]
+          }
+          upsert: {
+            args: Prisma.PositionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PositionPayload>
+          }
+          aggregate: {
+            args: Prisma.PositionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePosition>
+          }
+          groupBy: {
+            args: Prisma.PositionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PositionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PositionCountArgs<ExtArgs>
+            result: $Utils.Optional<PositionCountAggregateOutputType> | number
+          }
+        }
+      }
       Metric: {
         payload: Prisma.$MetricPayload<ExtArgs>
         fields: Prisma.MetricFieldRefs
@@ -1047,6 +1227,8 @@ export namespace Prisma {
     user?: UserOmit
     apiKey?: ApiKeyOmit
     tradeLog?: TradeLogOmit
+    bot?: BotOmit
+    position?: PositionOmit
     metric?: MetricOmit
   }
 
@@ -1144,11 +1326,15 @@ export namespace Prisma {
   export type UserCountOutputType = {
     apiKeys: number
     tradeLogs: number
+    bots: number
+    positions: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     apiKeys?: boolean | UserCountOutputTypeCountApiKeysArgs
     tradeLogs?: boolean | UserCountOutputTypeCountTradeLogsArgs
+    bots?: boolean | UserCountOutputTypeCountBotsArgs
+    positions?: boolean | UserCountOutputTypeCountPositionsArgs
   }
 
   // Custom InputTypes
@@ -1176,6 +1362,51 @@ export namespace Prisma {
     where?: TradeLogWhereInput
   }
 
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountBotsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BotWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountPositionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PositionWhereInput
+  }
+
+
+  /**
+   * Count Type BotCountOutputType
+   */
+
+  export type BotCountOutputType = {
+    positions: number
+  }
+
+  export type BotCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    positions?: boolean | BotCountOutputTypeCountPositionsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * BotCountOutputType without action
+   */
+  export type BotCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BotCountOutputType
+     */
+    select?: BotCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * BotCountOutputType without action
+   */
+  export type BotCountOutputTypeCountPositionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PositionWhereInput
+  }
+
 
   /**
    * Models
@@ -1195,6 +1426,7 @@ export namespace Prisma {
     id: string | null
     name: string | null
     email: string | null
+    password: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -1203,6 +1435,7 @@ export namespace Prisma {
     id: string | null
     name: string | null
     email: string | null
+    password: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -1211,6 +1444,7 @@ export namespace Prisma {
     id: number
     name: number
     email: number
+    password: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -1221,6 +1455,7 @@ export namespace Prisma {
     id?: true
     name?: true
     email?: true
+    password?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -1229,6 +1464,7 @@ export namespace Prisma {
     id?: true
     name?: true
     email?: true
+    password?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -1237,6 +1473,7 @@ export namespace Prisma {
     id?: true
     name?: true
     email?: true
+    password?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -1318,6 +1555,7 @@ export namespace Prisma {
     id: string
     name: string
     email: string
+    password: string
     createdAt: Date
     updatedAt: Date
     _count: UserCountAggregateOutputType | null
@@ -1343,10 +1581,13 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     email?: boolean
+    password?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     apiKeys?: boolean | User$apiKeysArgs<ExtArgs>
     tradeLogs?: boolean | User$tradeLogsArgs<ExtArgs>
+    bots?: boolean | User$botsArgs<ExtArgs>
+    positions?: boolean | User$positionsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -1354,6 +1595,7 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     email?: boolean
+    password?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["user"]>
@@ -1362,6 +1604,7 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     email?: boolean
+    password?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["user"]>
@@ -1370,14 +1613,17 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     email?: boolean
+    password?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "password" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     apiKeys?: boolean | User$apiKeysArgs<ExtArgs>
     tradeLogs?: boolean | User$tradeLogsArgs<ExtArgs>
+    bots?: boolean | User$botsArgs<ExtArgs>
+    positions?: boolean | User$positionsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -1388,11 +1634,14 @@ export namespace Prisma {
     objects: {
       apiKeys: Prisma.$ApiKeyPayload<ExtArgs>[]
       tradeLogs: Prisma.$TradeLogPayload<ExtArgs>[]
+      bots: Prisma.$BotPayload<ExtArgs>[]
+      positions: Prisma.$PositionPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       name: string
       email: string
+      password: string
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["user"]>
@@ -1791,6 +2040,8 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     apiKeys<T extends User$apiKeysArgs<ExtArgs> = {}>(args?: Subset<T, User$apiKeysArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ApiKeyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     tradeLogs<T extends User$tradeLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$tradeLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TradeLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    bots<T extends User$botsArgs<ExtArgs> = {}>(args?: Subset<T, User$botsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    positions<T extends User$positionsArgs<ExtArgs> = {}>(args?: Subset<T, User$positionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PositionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1823,6 +2074,7 @@ export namespace Prisma {
     readonly id: FieldRef<"User", 'String'>
     readonly name: FieldRef<"User", 'String'>
     readonly email: FieldRef<"User", 'String'>
+    readonly password: FieldRef<"User", 'String'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
     readonly updatedAt: FieldRef<"User", 'DateTime'>
   }
@@ -2261,6 +2513,54 @@ export namespace Prisma {
   }
 
   /**
+   * User.bots
+   */
+  export type User$botsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Bot
+     */
+    select?: BotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Bot
+     */
+    omit?: BotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BotInclude<ExtArgs> | null
+    where?: BotWhereInput
+    orderBy?: BotOrderByWithRelationInput | BotOrderByWithRelationInput[]
+    cursor?: BotWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BotScalarFieldEnum | BotScalarFieldEnum[]
+  }
+
+  /**
+   * User.positions
+   */
+  export type User$positionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Position
+     */
+    select?: PositionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Position
+     */
+    omit?: PositionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PositionInclude<ExtArgs> | null
+    where?: PositionWhereInput
+    orderBy?: PositionOrderByWithRelationInput | PositionOrderByWithRelationInput[]
+    cursor?: PositionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PositionScalarFieldEnum | PositionScalarFieldEnum[]
+  }
+
+  /**
    * User without action
    */
   export type UserDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2297,6 +2597,7 @@ export namespace Prisma {
     scopes: string | null
     expiry: Date | null
     createdAt: Date | null
+    isRevoked: boolean | null
   }
 
   export type ApiKeyMaxAggregateOutputType = {
@@ -2307,6 +2608,7 @@ export namespace Prisma {
     scopes: string | null
     expiry: Date | null
     createdAt: Date | null
+    isRevoked: boolean | null
   }
 
   export type ApiKeyCountAggregateOutputType = {
@@ -2317,6 +2619,7 @@ export namespace Prisma {
     scopes: number
     expiry: number
     createdAt: number
+    isRevoked: number
     _all: number
   }
 
@@ -2329,6 +2632,7 @@ export namespace Prisma {
     scopes?: true
     expiry?: true
     createdAt?: true
+    isRevoked?: true
   }
 
   export type ApiKeyMaxAggregateInputType = {
@@ -2339,6 +2643,7 @@ export namespace Prisma {
     scopes?: true
     expiry?: true
     createdAt?: true
+    isRevoked?: true
   }
 
   export type ApiKeyCountAggregateInputType = {
@@ -2349,6 +2654,7 @@ export namespace Prisma {
     scopes?: true
     expiry?: true
     createdAt?: true
+    isRevoked?: true
     _all?: true
   }
 
@@ -2432,6 +2738,7 @@ export namespace Prisma {
     scopes: string
     expiry: Date
     createdAt: Date
+    isRevoked: boolean
     _count: ApiKeyCountAggregateOutputType | null
     _min: ApiKeyMinAggregateOutputType | null
     _max: ApiKeyMaxAggregateOutputType | null
@@ -2459,6 +2766,7 @@ export namespace Prisma {
     scopes?: boolean
     expiry?: boolean
     createdAt?: boolean
+    isRevoked?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["apiKey"]>
 
@@ -2470,6 +2778,7 @@ export namespace Prisma {
     scopes?: boolean
     expiry?: boolean
     createdAt?: boolean
+    isRevoked?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["apiKey"]>
 
@@ -2481,6 +2790,7 @@ export namespace Prisma {
     scopes?: boolean
     expiry?: boolean
     createdAt?: boolean
+    isRevoked?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["apiKey"]>
 
@@ -2492,9 +2802,10 @@ export namespace Prisma {
     scopes?: boolean
     expiry?: boolean
     createdAt?: boolean
+    isRevoked?: boolean
   }
 
-  export type ApiKeyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "key" | "encryptedData" | "userId" | "scopes" | "expiry" | "createdAt", ExtArgs["result"]["apiKey"]>
+  export type ApiKeyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "key" | "encryptedData" | "userId" | "scopes" | "expiry" | "createdAt" | "isRevoked", ExtArgs["result"]["apiKey"]>
   export type ApiKeyInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -2518,6 +2829,7 @@ export namespace Prisma {
       scopes: string
       expiry: Date
       createdAt: Date
+      isRevoked: boolean
     }, ExtArgs["result"]["apiKey"]>
     composites: {}
   }
@@ -2949,6 +3261,7 @@ export namespace Prisma {
     readonly scopes: FieldRef<"ApiKey", 'String'>
     readonly expiry: FieldRef<"ApiKey", 'DateTime'>
     readonly createdAt: FieldRef<"ApiKey", 'DateTime'>
+    readonly isRevoked: FieldRef<"ApiKey", 'Boolean'>
   }
     
 
@@ -3392,6 +3705,9 @@ export namespace Prisma {
     amount: number | null
     price: number | null
     timestamp: Date | null
+    orderId: string | null
+    type: string | null
+    status: string | null
   }
 
   export type TradeLogMaxAggregateOutputType = {
@@ -3401,6 +3717,9 @@ export namespace Prisma {
     amount: number | null
     price: number | null
     timestamp: Date | null
+    orderId: string | null
+    type: string | null
+    status: string | null
   }
 
   export type TradeLogCountAggregateOutputType = {
@@ -3410,6 +3729,9 @@ export namespace Prisma {
     amount: number
     price: number
     timestamp: number
+    orderId: number
+    type: number
+    status: number
     _all: number
   }
 
@@ -3431,6 +3753,9 @@ export namespace Prisma {
     amount?: true
     price?: true
     timestamp?: true
+    orderId?: true
+    type?: true
+    status?: true
   }
 
   export type TradeLogMaxAggregateInputType = {
@@ -3440,6 +3765,9 @@ export namespace Prisma {
     amount?: true
     price?: true
     timestamp?: true
+    orderId?: true
+    type?: true
+    status?: true
   }
 
   export type TradeLogCountAggregateInputType = {
@@ -3449,6 +3777,9 @@ export namespace Prisma {
     amount?: true
     price?: true
     timestamp?: true
+    orderId?: true
+    type?: true
+    status?: true
     _all?: true
   }
 
@@ -3545,6 +3876,9 @@ export namespace Prisma {
     amount: number
     price: number
     timestamp: Date
+    orderId: string | null
+    type: string
+    status: string
     _count: TradeLogCountAggregateOutputType | null
     _avg: TradeLogAvgAggregateOutputType | null
     _sum: TradeLogSumAggregateOutputType | null
@@ -3573,6 +3907,9 @@ export namespace Prisma {
     amount?: boolean
     price?: boolean
     timestamp?: boolean
+    orderId?: boolean
+    type?: boolean
+    status?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["tradeLog"]>
 
@@ -3583,6 +3920,9 @@ export namespace Prisma {
     amount?: boolean
     price?: boolean
     timestamp?: boolean
+    orderId?: boolean
+    type?: boolean
+    status?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["tradeLog"]>
 
@@ -3593,6 +3933,9 @@ export namespace Prisma {
     amount?: boolean
     price?: boolean
     timestamp?: boolean
+    orderId?: boolean
+    type?: boolean
+    status?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["tradeLog"]>
 
@@ -3603,9 +3946,12 @@ export namespace Prisma {
     amount?: boolean
     price?: boolean
     timestamp?: boolean
+    orderId?: boolean
+    type?: boolean
+    status?: boolean
   }
 
-  export type TradeLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "instrument" | "amount" | "price" | "timestamp", ExtArgs["result"]["tradeLog"]>
+  export type TradeLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "instrument" | "amount" | "price" | "timestamp" | "orderId" | "type" | "status", ExtArgs["result"]["tradeLog"]>
   export type TradeLogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -3628,6 +3974,9 @@ export namespace Prisma {
       amount: number
       price: number
       timestamp: Date
+      orderId: string | null
+      type: string
+      status: string
     }, ExtArgs["result"]["tradeLog"]>
     composites: {}
   }
@@ -4058,6 +4407,9 @@ export namespace Prisma {
     readonly amount: FieldRef<"TradeLog", 'Float'>
     readonly price: FieldRef<"TradeLog", 'Float'>
     readonly timestamp: FieldRef<"TradeLog", 'DateTime'>
+    readonly orderId: FieldRef<"TradeLog", 'String'>
+    readonly type: FieldRef<"TradeLog", 'String'>
+    readonly status: FieldRef<"TradeLog", 'String'>
   }
     
 
@@ -4473,6 +4825,2437 @@ export namespace Prisma {
 
 
   /**
+   * Model Bot
+   */
+
+  export type AggregateBot = {
+    _count: BotCountAggregateOutputType | null
+    _min: BotMinAggregateOutputType | null
+    _max: BotMaxAggregateOutputType | null
+  }
+
+  export type BotMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    name: string | null
+    symbol: string | null
+    strategy: string | null
+    timeframe: string | null
+    isActive: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type BotMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    name: string | null
+    symbol: string | null
+    strategy: string | null
+    timeframe: string | null
+    isActive: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type BotCountAggregateOutputType = {
+    id: number
+    userId: number
+    name: number
+    symbol: number
+    strategy: number
+    timeframe: number
+    parameters: number
+    isActive: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type BotMinAggregateInputType = {
+    id?: true
+    userId?: true
+    name?: true
+    symbol?: true
+    strategy?: true
+    timeframe?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type BotMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    name?: true
+    symbol?: true
+    strategy?: true
+    timeframe?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type BotCountAggregateInputType = {
+    id?: true
+    userId?: true
+    name?: true
+    symbol?: true
+    strategy?: true
+    timeframe?: true
+    parameters?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type BotAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Bot to aggregate.
+     */
+    where?: BotWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Bots to fetch.
+     */
+    orderBy?: BotOrderByWithRelationInput | BotOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: BotWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Bots from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Bots.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Bots
+    **/
+    _count?: true | BotCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: BotMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: BotMaxAggregateInputType
+  }
+
+  export type GetBotAggregateType<T extends BotAggregateArgs> = {
+        [P in keyof T & keyof AggregateBot]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateBot[P]>
+      : GetScalarType<T[P], AggregateBot[P]>
+  }
+
+
+
+
+  export type BotGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BotWhereInput
+    orderBy?: BotOrderByWithAggregationInput | BotOrderByWithAggregationInput[]
+    by: BotScalarFieldEnum[] | BotScalarFieldEnum
+    having?: BotScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: BotCountAggregateInputType | true
+    _min?: BotMinAggregateInputType
+    _max?: BotMaxAggregateInputType
+  }
+
+  export type BotGroupByOutputType = {
+    id: string
+    userId: string
+    name: string
+    symbol: string
+    strategy: string
+    timeframe: string
+    parameters: JsonValue
+    isActive: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: BotCountAggregateOutputType | null
+    _min: BotMinAggregateOutputType | null
+    _max: BotMaxAggregateOutputType | null
+  }
+
+  type GetBotGroupByPayload<T extends BotGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<BotGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof BotGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], BotGroupByOutputType[P]>
+            : GetScalarType<T[P], BotGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type BotSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    name?: boolean
+    symbol?: boolean
+    strategy?: boolean
+    timeframe?: boolean
+    parameters?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    positions?: boolean | Bot$positionsArgs<ExtArgs>
+    _count?: boolean | BotCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["bot"]>
+
+  export type BotSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    name?: boolean
+    symbol?: boolean
+    strategy?: boolean
+    timeframe?: boolean
+    parameters?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["bot"]>
+
+  export type BotSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    name?: boolean
+    symbol?: boolean
+    strategy?: boolean
+    timeframe?: boolean
+    parameters?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["bot"]>
+
+  export type BotSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    name?: boolean
+    symbol?: boolean
+    strategy?: boolean
+    timeframe?: boolean
+    parameters?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type BotOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "name" | "symbol" | "strategy" | "timeframe" | "parameters" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["bot"]>
+  export type BotInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    positions?: boolean | Bot$positionsArgs<ExtArgs>
+    _count?: boolean | BotCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type BotIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type BotIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $BotPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Bot"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+      positions: Prisma.$PositionPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      name: string
+      symbol: string
+      strategy: string
+      timeframe: string
+      parameters: Prisma.JsonValue
+      isActive: boolean
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["bot"]>
+    composites: {}
+  }
+
+  type BotGetPayload<S extends boolean | null | undefined | BotDefaultArgs> = $Result.GetResult<Prisma.$BotPayload, S>
+
+  type BotCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<BotFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: BotCountAggregateInputType | true
+    }
+
+  export interface BotDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Bot'], meta: { name: 'Bot' } }
+    /**
+     * Find zero or one Bot that matches the filter.
+     * @param {BotFindUniqueArgs} args - Arguments to find a Bot
+     * @example
+     * // Get one Bot
+     * const bot = await prisma.bot.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends BotFindUniqueArgs>(args: SelectSubset<T, BotFindUniqueArgs<ExtArgs>>): Prisma__BotClient<$Result.GetResult<Prisma.$BotPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Bot that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {BotFindUniqueOrThrowArgs} args - Arguments to find a Bot
+     * @example
+     * // Get one Bot
+     * const bot = await prisma.bot.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends BotFindUniqueOrThrowArgs>(args: SelectSubset<T, BotFindUniqueOrThrowArgs<ExtArgs>>): Prisma__BotClient<$Result.GetResult<Prisma.$BotPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Bot that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BotFindFirstArgs} args - Arguments to find a Bot
+     * @example
+     * // Get one Bot
+     * const bot = await prisma.bot.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends BotFindFirstArgs>(args?: SelectSubset<T, BotFindFirstArgs<ExtArgs>>): Prisma__BotClient<$Result.GetResult<Prisma.$BotPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Bot that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BotFindFirstOrThrowArgs} args - Arguments to find a Bot
+     * @example
+     * // Get one Bot
+     * const bot = await prisma.bot.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends BotFindFirstOrThrowArgs>(args?: SelectSubset<T, BotFindFirstOrThrowArgs<ExtArgs>>): Prisma__BotClient<$Result.GetResult<Prisma.$BotPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Bots that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BotFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Bots
+     * const bots = await prisma.bot.findMany()
+     * 
+     * // Get first 10 Bots
+     * const bots = await prisma.bot.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const botWithIdOnly = await prisma.bot.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends BotFindManyArgs>(args?: SelectSubset<T, BotFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Bot.
+     * @param {BotCreateArgs} args - Arguments to create a Bot.
+     * @example
+     * // Create one Bot
+     * const Bot = await prisma.bot.create({
+     *   data: {
+     *     // ... data to create a Bot
+     *   }
+     * })
+     * 
+     */
+    create<T extends BotCreateArgs>(args: SelectSubset<T, BotCreateArgs<ExtArgs>>): Prisma__BotClient<$Result.GetResult<Prisma.$BotPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Bots.
+     * @param {BotCreateManyArgs} args - Arguments to create many Bots.
+     * @example
+     * // Create many Bots
+     * const bot = await prisma.bot.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends BotCreateManyArgs>(args?: SelectSubset<T, BotCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Bots and returns the data saved in the database.
+     * @param {BotCreateManyAndReturnArgs} args - Arguments to create many Bots.
+     * @example
+     * // Create many Bots
+     * const bot = await prisma.bot.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Bots and only return the `id`
+     * const botWithIdOnly = await prisma.bot.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends BotCreateManyAndReturnArgs>(args?: SelectSubset<T, BotCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BotPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Bot.
+     * @param {BotDeleteArgs} args - Arguments to delete one Bot.
+     * @example
+     * // Delete one Bot
+     * const Bot = await prisma.bot.delete({
+     *   where: {
+     *     // ... filter to delete one Bot
+     *   }
+     * })
+     * 
+     */
+    delete<T extends BotDeleteArgs>(args: SelectSubset<T, BotDeleteArgs<ExtArgs>>): Prisma__BotClient<$Result.GetResult<Prisma.$BotPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Bot.
+     * @param {BotUpdateArgs} args - Arguments to update one Bot.
+     * @example
+     * // Update one Bot
+     * const bot = await prisma.bot.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends BotUpdateArgs>(args: SelectSubset<T, BotUpdateArgs<ExtArgs>>): Prisma__BotClient<$Result.GetResult<Prisma.$BotPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Bots.
+     * @param {BotDeleteManyArgs} args - Arguments to filter Bots to delete.
+     * @example
+     * // Delete a few Bots
+     * const { count } = await prisma.bot.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends BotDeleteManyArgs>(args?: SelectSubset<T, BotDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Bots.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BotUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Bots
+     * const bot = await prisma.bot.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends BotUpdateManyArgs>(args: SelectSubset<T, BotUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Bots and returns the data updated in the database.
+     * @param {BotUpdateManyAndReturnArgs} args - Arguments to update many Bots.
+     * @example
+     * // Update many Bots
+     * const bot = await prisma.bot.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Bots and only return the `id`
+     * const botWithIdOnly = await prisma.bot.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends BotUpdateManyAndReturnArgs>(args: SelectSubset<T, BotUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BotPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Bot.
+     * @param {BotUpsertArgs} args - Arguments to update or create a Bot.
+     * @example
+     * // Update or create a Bot
+     * const bot = await prisma.bot.upsert({
+     *   create: {
+     *     // ... data to create a Bot
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Bot we want to update
+     *   }
+     * })
+     */
+    upsert<T extends BotUpsertArgs>(args: SelectSubset<T, BotUpsertArgs<ExtArgs>>): Prisma__BotClient<$Result.GetResult<Prisma.$BotPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Bots.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BotCountArgs} args - Arguments to filter Bots to count.
+     * @example
+     * // Count the number of Bots
+     * const count = await prisma.bot.count({
+     *   where: {
+     *     // ... the filter for the Bots we want to count
+     *   }
+     * })
+    **/
+    count<T extends BotCountArgs>(
+      args?: Subset<T, BotCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], BotCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Bot.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BotAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends BotAggregateArgs>(args: Subset<T, BotAggregateArgs>): Prisma.PrismaPromise<GetBotAggregateType<T>>
+
+    /**
+     * Group by Bot.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BotGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends BotGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: BotGroupByArgs['orderBy'] }
+        : { orderBy?: BotGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, BotGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetBotGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Bot model
+   */
+  readonly fields: BotFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Bot.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__BotClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    positions<T extends Bot$positionsArgs<ExtArgs> = {}>(args?: Subset<T, Bot$positionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PositionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Bot model
+   */
+  interface BotFieldRefs {
+    readonly id: FieldRef<"Bot", 'String'>
+    readonly userId: FieldRef<"Bot", 'String'>
+    readonly name: FieldRef<"Bot", 'String'>
+    readonly symbol: FieldRef<"Bot", 'String'>
+    readonly strategy: FieldRef<"Bot", 'String'>
+    readonly timeframe: FieldRef<"Bot", 'String'>
+    readonly parameters: FieldRef<"Bot", 'Json'>
+    readonly isActive: FieldRef<"Bot", 'Boolean'>
+    readonly createdAt: FieldRef<"Bot", 'DateTime'>
+    readonly updatedAt: FieldRef<"Bot", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Bot findUnique
+   */
+  export type BotFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Bot
+     */
+    select?: BotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Bot
+     */
+    omit?: BotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BotInclude<ExtArgs> | null
+    /**
+     * Filter, which Bot to fetch.
+     */
+    where: BotWhereUniqueInput
+  }
+
+  /**
+   * Bot findUniqueOrThrow
+   */
+  export type BotFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Bot
+     */
+    select?: BotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Bot
+     */
+    omit?: BotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BotInclude<ExtArgs> | null
+    /**
+     * Filter, which Bot to fetch.
+     */
+    where: BotWhereUniqueInput
+  }
+
+  /**
+   * Bot findFirst
+   */
+  export type BotFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Bot
+     */
+    select?: BotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Bot
+     */
+    omit?: BotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BotInclude<ExtArgs> | null
+    /**
+     * Filter, which Bot to fetch.
+     */
+    where?: BotWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Bots to fetch.
+     */
+    orderBy?: BotOrderByWithRelationInput | BotOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Bots.
+     */
+    cursor?: BotWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Bots from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Bots.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Bots.
+     */
+    distinct?: BotScalarFieldEnum | BotScalarFieldEnum[]
+  }
+
+  /**
+   * Bot findFirstOrThrow
+   */
+  export type BotFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Bot
+     */
+    select?: BotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Bot
+     */
+    omit?: BotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BotInclude<ExtArgs> | null
+    /**
+     * Filter, which Bot to fetch.
+     */
+    where?: BotWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Bots to fetch.
+     */
+    orderBy?: BotOrderByWithRelationInput | BotOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Bots.
+     */
+    cursor?: BotWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Bots from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Bots.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Bots.
+     */
+    distinct?: BotScalarFieldEnum | BotScalarFieldEnum[]
+  }
+
+  /**
+   * Bot findMany
+   */
+  export type BotFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Bot
+     */
+    select?: BotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Bot
+     */
+    omit?: BotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BotInclude<ExtArgs> | null
+    /**
+     * Filter, which Bots to fetch.
+     */
+    where?: BotWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Bots to fetch.
+     */
+    orderBy?: BotOrderByWithRelationInput | BotOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Bots.
+     */
+    cursor?: BotWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Bots from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Bots.
+     */
+    skip?: number
+    distinct?: BotScalarFieldEnum | BotScalarFieldEnum[]
+  }
+
+  /**
+   * Bot create
+   */
+  export type BotCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Bot
+     */
+    select?: BotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Bot
+     */
+    omit?: BotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BotInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Bot.
+     */
+    data: XOR<BotCreateInput, BotUncheckedCreateInput>
+  }
+
+  /**
+   * Bot createMany
+   */
+  export type BotCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Bots.
+     */
+    data: BotCreateManyInput | BotCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Bot createManyAndReturn
+   */
+  export type BotCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Bot
+     */
+    select?: BotSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Bot
+     */
+    omit?: BotOmit<ExtArgs> | null
+    /**
+     * The data used to create many Bots.
+     */
+    data: BotCreateManyInput | BotCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BotIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Bot update
+   */
+  export type BotUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Bot
+     */
+    select?: BotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Bot
+     */
+    omit?: BotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BotInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Bot.
+     */
+    data: XOR<BotUpdateInput, BotUncheckedUpdateInput>
+    /**
+     * Choose, which Bot to update.
+     */
+    where: BotWhereUniqueInput
+  }
+
+  /**
+   * Bot updateMany
+   */
+  export type BotUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Bots.
+     */
+    data: XOR<BotUpdateManyMutationInput, BotUncheckedUpdateManyInput>
+    /**
+     * Filter which Bots to update
+     */
+    where?: BotWhereInput
+    /**
+     * Limit how many Bots to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Bot updateManyAndReturn
+   */
+  export type BotUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Bot
+     */
+    select?: BotSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Bot
+     */
+    omit?: BotOmit<ExtArgs> | null
+    /**
+     * The data used to update Bots.
+     */
+    data: XOR<BotUpdateManyMutationInput, BotUncheckedUpdateManyInput>
+    /**
+     * Filter which Bots to update
+     */
+    where?: BotWhereInput
+    /**
+     * Limit how many Bots to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BotIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Bot upsert
+   */
+  export type BotUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Bot
+     */
+    select?: BotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Bot
+     */
+    omit?: BotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BotInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Bot to update in case it exists.
+     */
+    where: BotWhereUniqueInput
+    /**
+     * In case the Bot found by the `where` argument doesn't exist, create a new Bot with this data.
+     */
+    create: XOR<BotCreateInput, BotUncheckedCreateInput>
+    /**
+     * In case the Bot was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<BotUpdateInput, BotUncheckedUpdateInput>
+  }
+
+  /**
+   * Bot delete
+   */
+  export type BotDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Bot
+     */
+    select?: BotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Bot
+     */
+    omit?: BotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BotInclude<ExtArgs> | null
+    /**
+     * Filter which Bot to delete.
+     */
+    where: BotWhereUniqueInput
+  }
+
+  /**
+   * Bot deleteMany
+   */
+  export type BotDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Bots to delete
+     */
+    where?: BotWhereInput
+    /**
+     * Limit how many Bots to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Bot.positions
+   */
+  export type Bot$positionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Position
+     */
+    select?: PositionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Position
+     */
+    omit?: PositionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PositionInclude<ExtArgs> | null
+    where?: PositionWhereInput
+    orderBy?: PositionOrderByWithRelationInput | PositionOrderByWithRelationInput[]
+    cursor?: PositionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PositionScalarFieldEnum | PositionScalarFieldEnum[]
+  }
+
+  /**
+   * Bot without action
+   */
+  export type BotDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Bot
+     */
+    select?: BotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Bot
+     */
+    omit?: BotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BotInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Position
+   */
+
+  export type AggregatePosition = {
+    _count: PositionCountAggregateOutputType | null
+    _avg: PositionAvgAggregateOutputType | null
+    _sum: PositionSumAggregateOutputType | null
+    _min: PositionMinAggregateOutputType | null
+    _max: PositionMaxAggregateOutputType | null
+  }
+
+  export type PositionAvgAggregateOutputType = {
+    entryPrice: number | null
+    currentPrice: number | null
+    amount: number | null
+    leverage: number | null
+    takeProfitPrice: number | null
+    stopLossPrice: number | null
+    pnl: number | null
+  }
+
+  export type PositionSumAggregateOutputType = {
+    entryPrice: number | null
+    currentPrice: number | null
+    amount: number | null
+    leverage: number | null
+    takeProfitPrice: number | null
+    stopLossPrice: number | null
+    pnl: number | null
+  }
+
+  export type PositionMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    botId: string | null
+    symbol: string | null
+    side: string | null
+    entryPrice: number | null
+    currentPrice: number | null
+    amount: number | null
+    leverage: number | null
+    takeProfitPrice: number | null
+    stopLossPrice: number | null
+    status: string | null
+    pnl: number | null
+    openedAt: Date | null
+    closedAt: Date | null
+  }
+
+  export type PositionMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    botId: string | null
+    symbol: string | null
+    side: string | null
+    entryPrice: number | null
+    currentPrice: number | null
+    amount: number | null
+    leverage: number | null
+    takeProfitPrice: number | null
+    stopLossPrice: number | null
+    status: string | null
+    pnl: number | null
+    openedAt: Date | null
+    closedAt: Date | null
+  }
+
+  export type PositionCountAggregateOutputType = {
+    id: number
+    userId: number
+    botId: number
+    symbol: number
+    side: number
+    entryPrice: number
+    currentPrice: number
+    amount: number
+    leverage: number
+    takeProfitPrice: number
+    stopLossPrice: number
+    status: number
+    pnl: number
+    openedAt: number
+    closedAt: number
+    metadata: number
+    _all: number
+  }
+
+
+  export type PositionAvgAggregateInputType = {
+    entryPrice?: true
+    currentPrice?: true
+    amount?: true
+    leverage?: true
+    takeProfitPrice?: true
+    stopLossPrice?: true
+    pnl?: true
+  }
+
+  export type PositionSumAggregateInputType = {
+    entryPrice?: true
+    currentPrice?: true
+    amount?: true
+    leverage?: true
+    takeProfitPrice?: true
+    stopLossPrice?: true
+    pnl?: true
+  }
+
+  export type PositionMinAggregateInputType = {
+    id?: true
+    userId?: true
+    botId?: true
+    symbol?: true
+    side?: true
+    entryPrice?: true
+    currentPrice?: true
+    amount?: true
+    leverage?: true
+    takeProfitPrice?: true
+    stopLossPrice?: true
+    status?: true
+    pnl?: true
+    openedAt?: true
+    closedAt?: true
+  }
+
+  export type PositionMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    botId?: true
+    symbol?: true
+    side?: true
+    entryPrice?: true
+    currentPrice?: true
+    amount?: true
+    leverage?: true
+    takeProfitPrice?: true
+    stopLossPrice?: true
+    status?: true
+    pnl?: true
+    openedAt?: true
+    closedAt?: true
+  }
+
+  export type PositionCountAggregateInputType = {
+    id?: true
+    userId?: true
+    botId?: true
+    symbol?: true
+    side?: true
+    entryPrice?: true
+    currentPrice?: true
+    amount?: true
+    leverage?: true
+    takeProfitPrice?: true
+    stopLossPrice?: true
+    status?: true
+    pnl?: true
+    openedAt?: true
+    closedAt?: true
+    metadata?: true
+    _all?: true
+  }
+
+  export type PositionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Position to aggregate.
+     */
+    where?: PositionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Positions to fetch.
+     */
+    orderBy?: PositionOrderByWithRelationInput | PositionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PositionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Positions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Positions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Positions
+    **/
+    _count?: true | PositionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: PositionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: PositionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PositionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PositionMaxAggregateInputType
+  }
+
+  export type GetPositionAggregateType<T extends PositionAggregateArgs> = {
+        [P in keyof T & keyof AggregatePosition]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePosition[P]>
+      : GetScalarType<T[P], AggregatePosition[P]>
+  }
+
+
+
+
+  export type PositionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PositionWhereInput
+    orderBy?: PositionOrderByWithAggregationInput | PositionOrderByWithAggregationInput[]
+    by: PositionScalarFieldEnum[] | PositionScalarFieldEnum
+    having?: PositionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PositionCountAggregateInputType | true
+    _avg?: PositionAvgAggregateInputType
+    _sum?: PositionSumAggregateInputType
+    _min?: PositionMinAggregateInputType
+    _max?: PositionMaxAggregateInputType
+  }
+
+  export type PositionGroupByOutputType = {
+    id: string
+    userId: string
+    botId: string | null
+    symbol: string
+    side: string
+    entryPrice: number
+    currentPrice: number | null
+    amount: number
+    leverage: number
+    takeProfitPrice: number | null
+    stopLossPrice: number | null
+    status: string
+    pnl: number | null
+    openedAt: Date
+    closedAt: Date | null
+    metadata: JsonValue | null
+    _count: PositionCountAggregateOutputType | null
+    _avg: PositionAvgAggregateOutputType | null
+    _sum: PositionSumAggregateOutputType | null
+    _min: PositionMinAggregateOutputType | null
+    _max: PositionMaxAggregateOutputType | null
+  }
+
+  type GetPositionGroupByPayload<T extends PositionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PositionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PositionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PositionGroupByOutputType[P]>
+            : GetScalarType<T[P], PositionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PositionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    botId?: boolean
+    symbol?: boolean
+    side?: boolean
+    entryPrice?: boolean
+    currentPrice?: boolean
+    amount?: boolean
+    leverage?: boolean
+    takeProfitPrice?: boolean
+    stopLossPrice?: boolean
+    status?: boolean
+    pnl?: boolean
+    openedAt?: boolean
+    closedAt?: boolean
+    metadata?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    bot?: boolean | Position$botArgs<ExtArgs>
+  }, ExtArgs["result"]["position"]>
+
+  export type PositionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    botId?: boolean
+    symbol?: boolean
+    side?: boolean
+    entryPrice?: boolean
+    currentPrice?: boolean
+    amount?: boolean
+    leverage?: boolean
+    takeProfitPrice?: boolean
+    stopLossPrice?: boolean
+    status?: boolean
+    pnl?: boolean
+    openedAt?: boolean
+    closedAt?: boolean
+    metadata?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    bot?: boolean | Position$botArgs<ExtArgs>
+  }, ExtArgs["result"]["position"]>
+
+  export type PositionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    botId?: boolean
+    symbol?: boolean
+    side?: boolean
+    entryPrice?: boolean
+    currentPrice?: boolean
+    amount?: boolean
+    leverage?: boolean
+    takeProfitPrice?: boolean
+    stopLossPrice?: boolean
+    status?: boolean
+    pnl?: boolean
+    openedAt?: boolean
+    closedAt?: boolean
+    metadata?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    bot?: boolean | Position$botArgs<ExtArgs>
+  }, ExtArgs["result"]["position"]>
+
+  export type PositionSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    botId?: boolean
+    symbol?: boolean
+    side?: boolean
+    entryPrice?: boolean
+    currentPrice?: boolean
+    amount?: boolean
+    leverage?: boolean
+    takeProfitPrice?: boolean
+    stopLossPrice?: boolean
+    status?: boolean
+    pnl?: boolean
+    openedAt?: boolean
+    closedAt?: boolean
+    metadata?: boolean
+  }
+
+  export type PositionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "botId" | "symbol" | "side" | "entryPrice" | "currentPrice" | "amount" | "leverage" | "takeProfitPrice" | "stopLossPrice" | "status" | "pnl" | "openedAt" | "closedAt" | "metadata", ExtArgs["result"]["position"]>
+  export type PositionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    bot?: boolean | Position$botArgs<ExtArgs>
+  }
+  export type PositionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    bot?: boolean | Position$botArgs<ExtArgs>
+  }
+  export type PositionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    bot?: boolean | Position$botArgs<ExtArgs>
+  }
+
+  export type $PositionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Position"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+      bot: Prisma.$BotPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      botId: string | null
+      symbol: string
+      side: string
+      entryPrice: number
+      currentPrice: number | null
+      amount: number
+      leverage: number
+      takeProfitPrice: number | null
+      stopLossPrice: number | null
+      status: string
+      pnl: number | null
+      openedAt: Date
+      closedAt: Date | null
+      metadata: Prisma.JsonValue | null
+    }, ExtArgs["result"]["position"]>
+    composites: {}
+  }
+
+  type PositionGetPayload<S extends boolean | null | undefined | PositionDefaultArgs> = $Result.GetResult<Prisma.$PositionPayload, S>
+
+  type PositionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PositionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PositionCountAggregateInputType | true
+    }
+
+  export interface PositionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Position'], meta: { name: 'Position' } }
+    /**
+     * Find zero or one Position that matches the filter.
+     * @param {PositionFindUniqueArgs} args - Arguments to find a Position
+     * @example
+     * // Get one Position
+     * const position = await prisma.position.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PositionFindUniqueArgs>(args: SelectSubset<T, PositionFindUniqueArgs<ExtArgs>>): Prisma__PositionClient<$Result.GetResult<Prisma.$PositionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Position that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PositionFindUniqueOrThrowArgs} args - Arguments to find a Position
+     * @example
+     * // Get one Position
+     * const position = await prisma.position.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PositionFindUniqueOrThrowArgs>(args: SelectSubset<T, PositionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PositionClient<$Result.GetResult<Prisma.$PositionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Position that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PositionFindFirstArgs} args - Arguments to find a Position
+     * @example
+     * // Get one Position
+     * const position = await prisma.position.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PositionFindFirstArgs>(args?: SelectSubset<T, PositionFindFirstArgs<ExtArgs>>): Prisma__PositionClient<$Result.GetResult<Prisma.$PositionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Position that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PositionFindFirstOrThrowArgs} args - Arguments to find a Position
+     * @example
+     * // Get one Position
+     * const position = await prisma.position.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PositionFindFirstOrThrowArgs>(args?: SelectSubset<T, PositionFindFirstOrThrowArgs<ExtArgs>>): Prisma__PositionClient<$Result.GetResult<Prisma.$PositionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Positions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PositionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Positions
+     * const positions = await prisma.position.findMany()
+     * 
+     * // Get first 10 Positions
+     * const positions = await prisma.position.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const positionWithIdOnly = await prisma.position.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends PositionFindManyArgs>(args?: SelectSubset<T, PositionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PositionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Position.
+     * @param {PositionCreateArgs} args - Arguments to create a Position.
+     * @example
+     * // Create one Position
+     * const Position = await prisma.position.create({
+     *   data: {
+     *     // ... data to create a Position
+     *   }
+     * })
+     * 
+     */
+    create<T extends PositionCreateArgs>(args: SelectSubset<T, PositionCreateArgs<ExtArgs>>): Prisma__PositionClient<$Result.GetResult<Prisma.$PositionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Positions.
+     * @param {PositionCreateManyArgs} args - Arguments to create many Positions.
+     * @example
+     * // Create many Positions
+     * const position = await prisma.position.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PositionCreateManyArgs>(args?: SelectSubset<T, PositionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Positions and returns the data saved in the database.
+     * @param {PositionCreateManyAndReturnArgs} args - Arguments to create many Positions.
+     * @example
+     * // Create many Positions
+     * const position = await prisma.position.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Positions and only return the `id`
+     * const positionWithIdOnly = await prisma.position.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends PositionCreateManyAndReturnArgs>(args?: SelectSubset<T, PositionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PositionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Position.
+     * @param {PositionDeleteArgs} args - Arguments to delete one Position.
+     * @example
+     * // Delete one Position
+     * const Position = await prisma.position.delete({
+     *   where: {
+     *     // ... filter to delete one Position
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PositionDeleteArgs>(args: SelectSubset<T, PositionDeleteArgs<ExtArgs>>): Prisma__PositionClient<$Result.GetResult<Prisma.$PositionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Position.
+     * @param {PositionUpdateArgs} args - Arguments to update one Position.
+     * @example
+     * // Update one Position
+     * const position = await prisma.position.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PositionUpdateArgs>(args: SelectSubset<T, PositionUpdateArgs<ExtArgs>>): Prisma__PositionClient<$Result.GetResult<Prisma.$PositionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Positions.
+     * @param {PositionDeleteManyArgs} args - Arguments to filter Positions to delete.
+     * @example
+     * // Delete a few Positions
+     * const { count } = await prisma.position.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PositionDeleteManyArgs>(args?: SelectSubset<T, PositionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Positions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PositionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Positions
+     * const position = await prisma.position.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PositionUpdateManyArgs>(args: SelectSubset<T, PositionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Positions and returns the data updated in the database.
+     * @param {PositionUpdateManyAndReturnArgs} args - Arguments to update many Positions.
+     * @example
+     * // Update many Positions
+     * const position = await prisma.position.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Positions and only return the `id`
+     * const positionWithIdOnly = await prisma.position.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends PositionUpdateManyAndReturnArgs>(args: SelectSubset<T, PositionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PositionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Position.
+     * @param {PositionUpsertArgs} args - Arguments to update or create a Position.
+     * @example
+     * // Update or create a Position
+     * const position = await prisma.position.upsert({
+     *   create: {
+     *     // ... data to create a Position
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Position we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PositionUpsertArgs>(args: SelectSubset<T, PositionUpsertArgs<ExtArgs>>): Prisma__PositionClient<$Result.GetResult<Prisma.$PositionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Positions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PositionCountArgs} args - Arguments to filter Positions to count.
+     * @example
+     * // Count the number of Positions
+     * const count = await prisma.position.count({
+     *   where: {
+     *     // ... the filter for the Positions we want to count
+     *   }
+     * })
+    **/
+    count<T extends PositionCountArgs>(
+      args?: Subset<T, PositionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PositionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Position.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PositionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PositionAggregateArgs>(args: Subset<T, PositionAggregateArgs>): Prisma.PrismaPromise<GetPositionAggregateType<T>>
+
+    /**
+     * Group by Position.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PositionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PositionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PositionGroupByArgs['orderBy'] }
+        : { orderBy?: PositionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PositionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPositionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Position model
+   */
+  readonly fields: PositionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Position.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PositionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    bot<T extends Position$botArgs<ExtArgs> = {}>(args?: Subset<T, Position$botArgs<ExtArgs>>): Prisma__BotClient<$Result.GetResult<Prisma.$BotPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Position model
+   */
+  interface PositionFieldRefs {
+    readonly id: FieldRef<"Position", 'String'>
+    readonly userId: FieldRef<"Position", 'String'>
+    readonly botId: FieldRef<"Position", 'String'>
+    readonly symbol: FieldRef<"Position", 'String'>
+    readonly side: FieldRef<"Position", 'String'>
+    readonly entryPrice: FieldRef<"Position", 'Float'>
+    readonly currentPrice: FieldRef<"Position", 'Float'>
+    readonly amount: FieldRef<"Position", 'Float'>
+    readonly leverage: FieldRef<"Position", 'Float'>
+    readonly takeProfitPrice: FieldRef<"Position", 'Float'>
+    readonly stopLossPrice: FieldRef<"Position", 'Float'>
+    readonly status: FieldRef<"Position", 'String'>
+    readonly pnl: FieldRef<"Position", 'Float'>
+    readonly openedAt: FieldRef<"Position", 'DateTime'>
+    readonly closedAt: FieldRef<"Position", 'DateTime'>
+    readonly metadata: FieldRef<"Position", 'Json'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Position findUnique
+   */
+  export type PositionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Position
+     */
+    select?: PositionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Position
+     */
+    omit?: PositionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PositionInclude<ExtArgs> | null
+    /**
+     * Filter, which Position to fetch.
+     */
+    where: PositionWhereUniqueInput
+  }
+
+  /**
+   * Position findUniqueOrThrow
+   */
+  export type PositionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Position
+     */
+    select?: PositionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Position
+     */
+    omit?: PositionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PositionInclude<ExtArgs> | null
+    /**
+     * Filter, which Position to fetch.
+     */
+    where: PositionWhereUniqueInput
+  }
+
+  /**
+   * Position findFirst
+   */
+  export type PositionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Position
+     */
+    select?: PositionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Position
+     */
+    omit?: PositionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PositionInclude<ExtArgs> | null
+    /**
+     * Filter, which Position to fetch.
+     */
+    where?: PositionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Positions to fetch.
+     */
+    orderBy?: PositionOrderByWithRelationInput | PositionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Positions.
+     */
+    cursor?: PositionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Positions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Positions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Positions.
+     */
+    distinct?: PositionScalarFieldEnum | PositionScalarFieldEnum[]
+  }
+
+  /**
+   * Position findFirstOrThrow
+   */
+  export type PositionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Position
+     */
+    select?: PositionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Position
+     */
+    omit?: PositionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PositionInclude<ExtArgs> | null
+    /**
+     * Filter, which Position to fetch.
+     */
+    where?: PositionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Positions to fetch.
+     */
+    orderBy?: PositionOrderByWithRelationInput | PositionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Positions.
+     */
+    cursor?: PositionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Positions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Positions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Positions.
+     */
+    distinct?: PositionScalarFieldEnum | PositionScalarFieldEnum[]
+  }
+
+  /**
+   * Position findMany
+   */
+  export type PositionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Position
+     */
+    select?: PositionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Position
+     */
+    omit?: PositionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PositionInclude<ExtArgs> | null
+    /**
+     * Filter, which Positions to fetch.
+     */
+    where?: PositionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Positions to fetch.
+     */
+    orderBy?: PositionOrderByWithRelationInput | PositionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Positions.
+     */
+    cursor?: PositionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Positions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Positions.
+     */
+    skip?: number
+    distinct?: PositionScalarFieldEnum | PositionScalarFieldEnum[]
+  }
+
+  /**
+   * Position create
+   */
+  export type PositionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Position
+     */
+    select?: PositionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Position
+     */
+    omit?: PositionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PositionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Position.
+     */
+    data: XOR<PositionCreateInput, PositionUncheckedCreateInput>
+  }
+
+  /**
+   * Position createMany
+   */
+  export type PositionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Positions.
+     */
+    data: PositionCreateManyInput | PositionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Position createManyAndReturn
+   */
+  export type PositionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Position
+     */
+    select?: PositionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Position
+     */
+    omit?: PositionOmit<ExtArgs> | null
+    /**
+     * The data used to create many Positions.
+     */
+    data: PositionCreateManyInput | PositionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PositionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Position update
+   */
+  export type PositionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Position
+     */
+    select?: PositionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Position
+     */
+    omit?: PositionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PositionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Position.
+     */
+    data: XOR<PositionUpdateInput, PositionUncheckedUpdateInput>
+    /**
+     * Choose, which Position to update.
+     */
+    where: PositionWhereUniqueInput
+  }
+
+  /**
+   * Position updateMany
+   */
+  export type PositionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Positions.
+     */
+    data: XOR<PositionUpdateManyMutationInput, PositionUncheckedUpdateManyInput>
+    /**
+     * Filter which Positions to update
+     */
+    where?: PositionWhereInput
+    /**
+     * Limit how many Positions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Position updateManyAndReturn
+   */
+  export type PositionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Position
+     */
+    select?: PositionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Position
+     */
+    omit?: PositionOmit<ExtArgs> | null
+    /**
+     * The data used to update Positions.
+     */
+    data: XOR<PositionUpdateManyMutationInput, PositionUncheckedUpdateManyInput>
+    /**
+     * Filter which Positions to update
+     */
+    where?: PositionWhereInput
+    /**
+     * Limit how many Positions to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PositionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Position upsert
+   */
+  export type PositionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Position
+     */
+    select?: PositionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Position
+     */
+    omit?: PositionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PositionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Position to update in case it exists.
+     */
+    where: PositionWhereUniqueInput
+    /**
+     * In case the Position found by the `where` argument doesn't exist, create a new Position with this data.
+     */
+    create: XOR<PositionCreateInput, PositionUncheckedCreateInput>
+    /**
+     * In case the Position was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PositionUpdateInput, PositionUncheckedUpdateInput>
+  }
+
+  /**
+   * Position delete
+   */
+  export type PositionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Position
+     */
+    select?: PositionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Position
+     */
+    omit?: PositionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PositionInclude<ExtArgs> | null
+    /**
+     * Filter which Position to delete.
+     */
+    where: PositionWhereUniqueInput
+  }
+
+  /**
+   * Position deleteMany
+   */
+  export type PositionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Positions to delete
+     */
+    where?: PositionWhereInput
+    /**
+     * Limit how many Positions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Position.bot
+   */
+  export type Position$botArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Bot
+     */
+    select?: BotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Bot
+     */
+    omit?: BotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BotInclude<ExtArgs> | null
+    where?: BotWhereInput
+  }
+
+  /**
+   * Position without action
+   */
+  export type PositionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Position
+     */
+    select?: PositionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Position
+     */
+    omit?: PositionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PositionInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model Metric
    */
 
@@ -4511,6 +7294,7 @@ export namespace Prisma {
     name: number
     value: number
     recordedAt: number
+    tags: number
     _all: number
   }
 
@@ -4542,6 +7326,7 @@ export namespace Prisma {
     name?: true
     value?: true
     recordedAt?: true
+    tags?: true
     _all?: true
   }
 
@@ -4636,6 +7421,7 @@ export namespace Prisma {
     name: string
     value: number
     recordedAt: Date
+    tags: JsonValue | null
     _count: MetricCountAggregateOutputType | null
     _avg: MetricAvgAggregateOutputType | null
     _sum: MetricSumAggregateOutputType | null
@@ -4662,6 +7448,7 @@ export namespace Prisma {
     name?: boolean
     value?: boolean
     recordedAt?: boolean
+    tags?: boolean
   }, ExtArgs["result"]["metric"]>
 
   export type MetricSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -4669,6 +7456,7 @@ export namespace Prisma {
     name?: boolean
     value?: boolean
     recordedAt?: boolean
+    tags?: boolean
   }, ExtArgs["result"]["metric"]>
 
   export type MetricSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -4676,6 +7464,7 @@ export namespace Prisma {
     name?: boolean
     value?: boolean
     recordedAt?: boolean
+    tags?: boolean
   }, ExtArgs["result"]["metric"]>
 
   export type MetricSelectScalar = {
@@ -4683,9 +7472,10 @@ export namespace Prisma {
     name?: boolean
     value?: boolean
     recordedAt?: boolean
+    tags?: boolean
   }
 
-  export type MetricOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "value" | "recordedAt", ExtArgs["result"]["metric"]>
+  export type MetricOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "value" | "recordedAt" | "tags", ExtArgs["result"]["metric"]>
 
   export type $MetricPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Metric"
@@ -4695,6 +7485,7 @@ export namespace Prisma {
       name: string
       value: number
       recordedAt: Date
+      tags: Prisma.JsonValue | null
     }, ExtArgs["result"]["metric"]>
     composites: {}
   }
@@ -5122,6 +7913,7 @@ export namespace Prisma {
     readonly name: FieldRef<"Metric", 'String'>
     readonly value: FieldRef<"Metric", 'Float'>
     readonly recordedAt: FieldRef<"Metric", 'DateTime'>
+    readonly tags: FieldRef<"Metric", 'Json'>
   }
     
 
@@ -5506,6 +8298,7 @@ export namespace Prisma {
     id: 'id',
     name: 'name',
     email: 'email',
+    password: 'password',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -5520,7 +8313,8 @@ export namespace Prisma {
     userId: 'userId',
     scopes: 'scopes',
     expiry: 'expiry',
-    createdAt: 'createdAt'
+    createdAt: 'createdAt',
+    isRevoked: 'isRevoked'
   };
 
   export type ApiKeyScalarFieldEnum = (typeof ApiKeyScalarFieldEnum)[keyof typeof ApiKeyScalarFieldEnum]
@@ -5532,17 +8326,59 @@ export namespace Prisma {
     instrument: 'instrument',
     amount: 'amount',
     price: 'price',
-    timestamp: 'timestamp'
+    timestamp: 'timestamp',
+    orderId: 'orderId',
+    type: 'type',
+    status: 'status'
   };
 
   export type TradeLogScalarFieldEnum = (typeof TradeLogScalarFieldEnum)[keyof typeof TradeLogScalarFieldEnum]
+
+
+  export const BotScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    name: 'name',
+    symbol: 'symbol',
+    strategy: 'strategy',
+    timeframe: 'timeframe',
+    parameters: 'parameters',
+    isActive: 'isActive',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type BotScalarFieldEnum = (typeof BotScalarFieldEnum)[keyof typeof BotScalarFieldEnum]
+
+
+  export const PositionScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    botId: 'botId',
+    symbol: 'symbol',
+    side: 'side',
+    entryPrice: 'entryPrice',
+    currentPrice: 'currentPrice',
+    amount: 'amount',
+    leverage: 'leverage',
+    takeProfitPrice: 'takeProfitPrice',
+    stopLossPrice: 'stopLossPrice',
+    status: 'status',
+    pnl: 'pnl',
+    openedAt: 'openedAt',
+    closedAt: 'closedAt',
+    metadata: 'metadata'
+  };
+
+  export type PositionScalarFieldEnum = (typeof PositionScalarFieldEnum)[keyof typeof PositionScalarFieldEnum]
 
 
   export const MetricScalarFieldEnum: {
     id: 'id',
     name: 'name',
     value: 'value',
-    recordedAt: 'recordedAt'
+    recordedAt: 'recordedAt',
+    tags: 'tags'
   };
 
   export type MetricScalarFieldEnum = (typeof MetricScalarFieldEnum)[keyof typeof MetricScalarFieldEnum]
@@ -5556,12 +8392,44 @@ export namespace Prisma {
   export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+  export const JsonNullValueInput: {
+    JsonNull: typeof JsonNull
+  };
+
+  export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+  export const NullableJsonNullValueInput: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull
+  };
+
+  export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
   export const QueryMode: {
     default: 'default',
     insensitive: 'insensitive'
   };
 
   export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+  export const NullsOrder: {
+    first: 'first',
+    last: 'last'
+  };
+
+  export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+  export const JsonNullValueFilter: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull,
+    AnyNull: typeof AnyNull
+  };
+
+  export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
   /**
@@ -5598,6 +8466,13 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Boolean'
+   */
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+  /**
    * Reference to a field of type 'Float'
    */
   export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -5608,6 +8483,20 @@ export namespace Prisma {
    * Reference to a field of type 'Float[]'
    */
   export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+  /**
+   * Reference to a field of type 'QueryMode'
+   */
+  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -5635,20 +8524,26 @@ export namespace Prisma {
     id?: StringFilter<"User"> | string
     name?: StringFilter<"User"> | string
     email?: StringFilter<"User"> | string
+    password?: StringFilter<"User"> | string
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     apiKeys?: ApiKeyListRelationFilter
     tradeLogs?: TradeLogListRelationFilter
+    bots?: BotListRelationFilter
+    positions?: PositionListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
     id?: SortOrder
     name?: SortOrder
     email?: SortOrder
+    password?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     apiKeys?: ApiKeyOrderByRelationAggregateInput
     tradeLogs?: TradeLogOrderByRelationAggregateInput
+    bots?: BotOrderByRelationAggregateInput
+    positions?: PositionOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -5658,16 +8553,20 @@ export namespace Prisma {
     OR?: UserWhereInput[]
     NOT?: UserWhereInput | UserWhereInput[]
     name?: StringFilter<"User"> | string
+    password?: StringFilter<"User"> | string
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     apiKeys?: ApiKeyListRelationFilter
     tradeLogs?: TradeLogListRelationFilter
+    bots?: BotListRelationFilter
+    positions?: PositionListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
     id?: SortOrder
     name?: SortOrder
     email?: SortOrder
+    password?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: UserCountOrderByAggregateInput
@@ -5682,6 +8581,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"User"> | string
     name?: StringWithAggregatesFilter<"User"> | string
     email?: StringWithAggregatesFilter<"User"> | string
+    password?: StringWithAggregatesFilter<"User"> | string
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
   }
@@ -5697,6 +8597,7 @@ export namespace Prisma {
     scopes?: StringFilter<"ApiKey"> | string
     expiry?: DateTimeFilter<"ApiKey"> | Date | string
     createdAt?: DateTimeFilter<"ApiKey"> | Date | string
+    isRevoked?: BoolFilter<"ApiKey"> | boolean
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }
 
@@ -5708,6 +8609,7 @@ export namespace Prisma {
     scopes?: SortOrder
     expiry?: SortOrder
     createdAt?: SortOrder
+    isRevoked?: SortOrder
     user?: UserOrderByWithRelationInput
   }
 
@@ -5722,6 +8624,7 @@ export namespace Prisma {
     scopes?: StringFilter<"ApiKey"> | string
     expiry?: DateTimeFilter<"ApiKey"> | Date | string
     createdAt?: DateTimeFilter<"ApiKey"> | Date | string
+    isRevoked?: BoolFilter<"ApiKey"> | boolean
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }, "id" | "key">
 
@@ -5733,6 +8636,7 @@ export namespace Prisma {
     scopes?: SortOrder
     expiry?: SortOrder
     createdAt?: SortOrder
+    isRevoked?: SortOrder
     _count?: ApiKeyCountOrderByAggregateInput
     _max?: ApiKeyMaxOrderByAggregateInput
     _min?: ApiKeyMinOrderByAggregateInput
@@ -5749,6 +8653,7 @@ export namespace Prisma {
     scopes?: StringWithAggregatesFilter<"ApiKey"> | string
     expiry?: DateTimeWithAggregatesFilter<"ApiKey"> | Date | string
     createdAt?: DateTimeWithAggregatesFilter<"ApiKey"> | Date | string
+    isRevoked?: BoolWithAggregatesFilter<"ApiKey"> | boolean
   }
 
   export type TradeLogWhereInput = {
@@ -5761,6 +8666,9 @@ export namespace Prisma {
     amount?: FloatFilter<"TradeLog"> | number
     price?: FloatFilter<"TradeLog"> | number
     timestamp?: DateTimeFilter<"TradeLog"> | Date | string
+    orderId?: StringNullableFilter<"TradeLog"> | string | null
+    type?: StringFilter<"TradeLog"> | string
+    status?: StringFilter<"TradeLog"> | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }
 
@@ -5771,6 +8679,9 @@ export namespace Prisma {
     amount?: SortOrder
     price?: SortOrder
     timestamp?: SortOrder
+    orderId?: SortOrderInput | SortOrder
+    type?: SortOrder
+    status?: SortOrder
     user?: UserOrderByWithRelationInput
   }
 
@@ -5784,6 +8695,9 @@ export namespace Prisma {
     amount?: FloatFilter<"TradeLog"> | number
     price?: FloatFilter<"TradeLog"> | number
     timestamp?: DateTimeFilter<"TradeLog"> | Date | string
+    orderId?: StringNullableFilter<"TradeLog"> | string | null
+    type?: StringFilter<"TradeLog"> | string
+    status?: StringFilter<"TradeLog"> | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }, "id">
 
@@ -5794,6 +8708,9 @@ export namespace Prisma {
     amount?: SortOrder
     price?: SortOrder
     timestamp?: SortOrder
+    orderId?: SortOrderInput | SortOrder
+    type?: SortOrder
+    status?: SortOrder
     _count?: TradeLogCountOrderByAggregateInput
     _avg?: TradeLogAvgOrderByAggregateInput
     _max?: TradeLogMaxOrderByAggregateInput
@@ -5811,6 +8728,207 @@ export namespace Prisma {
     amount?: FloatWithAggregatesFilter<"TradeLog"> | number
     price?: FloatWithAggregatesFilter<"TradeLog"> | number
     timestamp?: DateTimeWithAggregatesFilter<"TradeLog"> | Date | string
+    orderId?: StringNullableWithAggregatesFilter<"TradeLog"> | string | null
+    type?: StringWithAggregatesFilter<"TradeLog"> | string
+    status?: StringWithAggregatesFilter<"TradeLog"> | string
+  }
+
+  export type BotWhereInput = {
+    AND?: BotWhereInput | BotWhereInput[]
+    OR?: BotWhereInput[]
+    NOT?: BotWhereInput | BotWhereInput[]
+    id?: StringFilter<"Bot"> | string
+    userId?: StringFilter<"Bot"> | string
+    name?: StringFilter<"Bot"> | string
+    symbol?: StringFilter<"Bot"> | string
+    strategy?: StringFilter<"Bot"> | string
+    timeframe?: StringFilter<"Bot"> | string
+    parameters?: JsonFilter<"Bot">
+    isActive?: BoolFilter<"Bot"> | boolean
+    createdAt?: DateTimeFilter<"Bot"> | Date | string
+    updatedAt?: DateTimeFilter<"Bot"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    positions?: PositionListRelationFilter
+  }
+
+  export type BotOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    name?: SortOrder
+    symbol?: SortOrder
+    strategy?: SortOrder
+    timeframe?: SortOrder
+    parameters?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+    positions?: PositionOrderByRelationAggregateInput
+  }
+
+  export type BotWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: BotWhereInput | BotWhereInput[]
+    OR?: BotWhereInput[]
+    NOT?: BotWhereInput | BotWhereInput[]
+    userId?: StringFilter<"Bot"> | string
+    name?: StringFilter<"Bot"> | string
+    symbol?: StringFilter<"Bot"> | string
+    strategy?: StringFilter<"Bot"> | string
+    timeframe?: StringFilter<"Bot"> | string
+    parameters?: JsonFilter<"Bot">
+    isActive?: BoolFilter<"Bot"> | boolean
+    createdAt?: DateTimeFilter<"Bot"> | Date | string
+    updatedAt?: DateTimeFilter<"Bot"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    positions?: PositionListRelationFilter
+  }, "id">
+
+  export type BotOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    name?: SortOrder
+    symbol?: SortOrder
+    strategy?: SortOrder
+    timeframe?: SortOrder
+    parameters?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: BotCountOrderByAggregateInput
+    _max?: BotMaxOrderByAggregateInput
+    _min?: BotMinOrderByAggregateInput
+  }
+
+  export type BotScalarWhereWithAggregatesInput = {
+    AND?: BotScalarWhereWithAggregatesInput | BotScalarWhereWithAggregatesInput[]
+    OR?: BotScalarWhereWithAggregatesInput[]
+    NOT?: BotScalarWhereWithAggregatesInput | BotScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Bot"> | string
+    userId?: StringWithAggregatesFilter<"Bot"> | string
+    name?: StringWithAggregatesFilter<"Bot"> | string
+    symbol?: StringWithAggregatesFilter<"Bot"> | string
+    strategy?: StringWithAggregatesFilter<"Bot"> | string
+    timeframe?: StringWithAggregatesFilter<"Bot"> | string
+    parameters?: JsonWithAggregatesFilter<"Bot">
+    isActive?: BoolWithAggregatesFilter<"Bot"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"Bot"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Bot"> | Date | string
+  }
+
+  export type PositionWhereInput = {
+    AND?: PositionWhereInput | PositionWhereInput[]
+    OR?: PositionWhereInput[]
+    NOT?: PositionWhereInput | PositionWhereInput[]
+    id?: StringFilter<"Position"> | string
+    userId?: StringFilter<"Position"> | string
+    botId?: StringNullableFilter<"Position"> | string | null
+    symbol?: StringFilter<"Position"> | string
+    side?: StringFilter<"Position"> | string
+    entryPrice?: FloatFilter<"Position"> | number
+    currentPrice?: FloatNullableFilter<"Position"> | number | null
+    amount?: FloatFilter<"Position"> | number
+    leverage?: FloatFilter<"Position"> | number
+    takeProfitPrice?: FloatNullableFilter<"Position"> | number | null
+    stopLossPrice?: FloatNullableFilter<"Position"> | number | null
+    status?: StringFilter<"Position"> | string
+    pnl?: FloatNullableFilter<"Position"> | number | null
+    openedAt?: DateTimeFilter<"Position"> | Date | string
+    closedAt?: DateTimeNullableFilter<"Position"> | Date | string | null
+    metadata?: JsonNullableFilter<"Position">
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    bot?: XOR<BotNullableScalarRelationFilter, BotWhereInput> | null
+  }
+
+  export type PositionOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    botId?: SortOrderInput | SortOrder
+    symbol?: SortOrder
+    side?: SortOrder
+    entryPrice?: SortOrder
+    currentPrice?: SortOrderInput | SortOrder
+    amount?: SortOrder
+    leverage?: SortOrder
+    takeProfitPrice?: SortOrderInput | SortOrder
+    stopLossPrice?: SortOrderInput | SortOrder
+    status?: SortOrder
+    pnl?: SortOrderInput | SortOrder
+    openedAt?: SortOrder
+    closedAt?: SortOrderInput | SortOrder
+    metadata?: SortOrderInput | SortOrder
+    user?: UserOrderByWithRelationInput
+    bot?: BotOrderByWithRelationInput
+  }
+
+  export type PositionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: PositionWhereInput | PositionWhereInput[]
+    OR?: PositionWhereInput[]
+    NOT?: PositionWhereInput | PositionWhereInput[]
+    userId?: StringFilter<"Position"> | string
+    botId?: StringNullableFilter<"Position"> | string | null
+    symbol?: StringFilter<"Position"> | string
+    side?: StringFilter<"Position"> | string
+    entryPrice?: FloatFilter<"Position"> | number
+    currentPrice?: FloatNullableFilter<"Position"> | number | null
+    amount?: FloatFilter<"Position"> | number
+    leverage?: FloatFilter<"Position"> | number
+    takeProfitPrice?: FloatNullableFilter<"Position"> | number | null
+    stopLossPrice?: FloatNullableFilter<"Position"> | number | null
+    status?: StringFilter<"Position"> | string
+    pnl?: FloatNullableFilter<"Position"> | number | null
+    openedAt?: DateTimeFilter<"Position"> | Date | string
+    closedAt?: DateTimeNullableFilter<"Position"> | Date | string | null
+    metadata?: JsonNullableFilter<"Position">
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    bot?: XOR<BotNullableScalarRelationFilter, BotWhereInput> | null
+  }, "id">
+
+  export type PositionOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    botId?: SortOrderInput | SortOrder
+    symbol?: SortOrder
+    side?: SortOrder
+    entryPrice?: SortOrder
+    currentPrice?: SortOrderInput | SortOrder
+    amount?: SortOrder
+    leverage?: SortOrder
+    takeProfitPrice?: SortOrderInput | SortOrder
+    stopLossPrice?: SortOrderInput | SortOrder
+    status?: SortOrder
+    pnl?: SortOrderInput | SortOrder
+    openedAt?: SortOrder
+    closedAt?: SortOrderInput | SortOrder
+    metadata?: SortOrderInput | SortOrder
+    _count?: PositionCountOrderByAggregateInput
+    _avg?: PositionAvgOrderByAggregateInput
+    _max?: PositionMaxOrderByAggregateInput
+    _min?: PositionMinOrderByAggregateInput
+    _sum?: PositionSumOrderByAggregateInput
+  }
+
+  export type PositionScalarWhereWithAggregatesInput = {
+    AND?: PositionScalarWhereWithAggregatesInput | PositionScalarWhereWithAggregatesInput[]
+    OR?: PositionScalarWhereWithAggregatesInput[]
+    NOT?: PositionScalarWhereWithAggregatesInput | PositionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Position"> | string
+    userId?: StringWithAggregatesFilter<"Position"> | string
+    botId?: StringNullableWithAggregatesFilter<"Position"> | string | null
+    symbol?: StringWithAggregatesFilter<"Position"> | string
+    side?: StringWithAggregatesFilter<"Position"> | string
+    entryPrice?: FloatWithAggregatesFilter<"Position"> | number
+    currentPrice?: FloatNullableWithAggregatesFilter<"Position"> | number | null
+    amount?: FloatWithAggregatesFilter<"Position"> | number
+    leverage?: FloatWithAggregatesFilter<"Position"> | number
+    takeProfitPrice?: FloatNullableWithAggregatesFilter<"Position"> | number | null
+    stopLossPrice?: FloatNullableWithAggregatesFilter<"Position"> | number | null
+    status?: StringWithAggregatesFilter<"Position"> | string
+    pnl?: FloatNullableWithAggregatesFilter<"Position"> | number | null
+    openedAt?: DateTimeWithAggregatesFilter<"Position"> | Date | string
+    closedAt?: DateTimeNullableWithAggregatesFilter<"Position"> | Date | string | null
+    metadata?: JsonNullableWithAggregatesFilter<"Position">
   }
 
   export type MetricWhereInput = {
@@ -5821,6 +8939,7 @@ export namespace Prisma {
     name?: StringFilter<"Metric"> | string
     value?: FloatFilter<"Metric"> | number
     recordedAt?: DateTimeFilter<"Metric"> | Date | string
+    tags?: JsonNullableFilter<"Metric">
   }
 
   export type MetricOrderByWithRelationInput = {
@@ -5828,6 +8947,7 @@ export namespace Prisma {
     name?: SortOrder
     value?: SortOrder
     recordedAt?: SortOrder
+    tags?: SortOrderInput | SortOrder
   }
 
   export type MetricWhereUniqueInput = Prisma.AtLeast<{
@@ -5838,6 +8958,7 @@ export namespace Prisma {
     name?: StringFilter<"Metric"> | string
     value?: FloatFilter<"Metric"> | number
     recordedAt?: DateTimeFilter<"Metric"> | Date | string
+    tags?: JsonNullableFilter<"Metric">
   }, "id">
 
   export type MetricOrderByWithAggregationInput = {
@@ -5845,6 +8966,7 @@ export namespace Prisma {
     name?: SortOrder
     value?: SortOrder
     recordedAt?: SortOrder
+    tags?: SortOrderInput | SortOrder
     _count?: MetricCountOrderByAggregateInput
     _avg?: MetricAvgOrderByAggregateInput
     _max?: MetricMaxOrderByAggregateInput
@@ -5860,52 +8982,66 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"Metric"> | string
     value?: FloatWithAggregatesFilter<"Metric"> | number
     recordedAt?: DateTimeWithAggregatesFilter<"Metric"> | Date | string
+    tags?: JsonNullableWithAggregatesFilter<"Metric">
   }
 
   export type UserCreateInput = {
     id?: string
     name: string
     email: string
+    password: string
     createdAt?: Date | string
     updatedAt?: Date | string
     apiKeys?: ApiKeyCreateNestedManyWithoutUserInput
     tradeLogs?: TradeLogCreateNestedManyWithoutUserInput
+    bots?: BotCreateNestedManyWithoutUserInput
+    positions?: PositionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
     id?: string
     name: string
     email: string
+    password: string
     createdAt?: Date | string
     updatedAt?: Date | string
     apiKeys?: ApiKeyUncheckedCreateNestedManyWithoutUserInput
     tradeLogs?: TradeLogUncheckedCreateNestedManyWithoutUserInput
+    bots?: BotUncheckedCreateNestedManyWithoutUserInput
+    positions?: PositionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     apiKeys?: ApiKeyUpdateManyWithoutUserNestedInput
     tradeLogs?: TradeLogUpdateManyWithoutUserNestedInput
+    bots?: BotUpdateManyWithoutUserNestedInput
+    positions?: PositionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     apiKeys?: ApiKeyUncheckedUpdateManyWithoutUserNestedInput
     tradeLogs?: TradeLogUncheckedUpdateManyWithoutUserNestedInput
+    bots?: BotUncheckedUpdateManyWithoutUserNestedInput
+    positions?: PositionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
     id?: string
     name: string
     email: string
+    password: string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -5914,6 +9050,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -5922,6 +9059,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -5933,6 +9071,7 @@ export namespace Prisma {
     scopes: string
     expiry: Date | string
     createdAt?: Date | string
+    isRevoked?: boolean
     user: UserCreateNestedOneWithoutApiKeysInput
   }
 
@@ -5944,6 +9083,7 @@ export namespace Prisma {
     scopes: string
     expiry: Date | string
     createdAt?: Date | string
+    isRevoked?: boolean
   }
 
   export type ApiKeyUpdateInput = {
@@ -5953,6 +9093,7 @@ export namespace Prisma {
     scopes?: StringFieldUpdateOperationsInput | string
     expiry?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isRevoked?: BoolFieldUpdateOperationsInput | boolean
     user?: UserUpdateOneRequiredWithoutApiKeysNestedInput
   }
 
@@ -5964,6 +9105,7 @@ export namespace Prisma {
     scopes?: StringFieldUpdateOperationsInput | string
     expiry?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isRevoked?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type ApiKeyCreateManyInput = {
@@ -5974,6 +9116,7 @@ export namespace Prisma {
     scopes: string
     expiry: Date | string
     createdAt?: Date | string
+    isRevoked?: boolean
   }
 
   export type ApiKeyUpdateManyMutationInput = {
@@ -5983,6 +9126,7 @@ export namespace Prisma {
     scopes?: StringFieldUpdateOperationsInput | string
     expiry?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isRevoked?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type ApiKeyUncheckedUpdateManyInput = {
@@ -5993,6 +9137,7 @@ export namespace Prisma {
     scopes?: StringFieldUpdateOperationsInput | string
     expiry?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isRevoked?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type TradeLogCreateInput = {
@@ -6001,6 +9146,9 @@ export namespace Prisma {
     amount: number
     price: number
     timestamp?: Date | string
+    orderId?: string | null
+    type: string
+    status: string
     user: UserCreateNestedOneWithoutTradeLogsInput
   }
 
@@ -6011,6 +9159,9 @@ export namespace Prisma {
     amount: number
     price: number
     timestamp?: Date | string
+    orderId?: string | null
+    type: string
+    status: string
   }
 
   export type TradeLogUpdateInput = {
@@ -6019,6 +9170,9 @@ export namespace Prisma {
     amount?: FloatFieldUpdateOperationsInput | number
     price?: FloatFieldUpdateOperationsInput | number
     timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    orderId?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
     user?: UserUpdateOneRequiredWithoutTradeLogsNestedInput
   }
 
@@ -6029,6 +9183,9 @@ export namespace Prisma {
     amount?: FloatFieldUpdateOperationsInput | number
     price?: FloatFieldUpdateOperationsInput | number
     timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    orderId?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
   }
 
   export type TradeLogCreateManyInput = {
@@ -6038,6 +9195,9 @@ export namespace Prisma {
     amount: number
     price: number
     timestamp?: Date | string
+    orderId?: string | null
+    type: string
+    status: string
   }
 
   export type TradeLogUpdateManyMutationInput = {
@@ -6046,6 +9206,9 @@ export namespace Prisma {
     amount?: FloatFieldUpdateOperationsInput | number
     price?: FloatFieldUpdateOperationsInput | number
     timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    orderId?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
   }
 
   export type TradeLogUncheckedUpdateManyInput = {
@@ -6055,6 +9218,234 @@ export namespace Prisma {
     amount?: FloatFieldUpdateOperationsInput | number
     price?: FloatFieldUpdateOperationsInput | number
     timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    orderId?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type BotCreateInput = {
+    id?: string
+    name: string
+    symbol: string
+    strategy: string
+    timeframe: string
+    parameters?: JsonNullValueInput | InputJsonValue
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutBotsInput
+    positions?: PositionCreateNestedManyWithoutBotInput
+  }
+
+  export type BotUncheckedCreateInput = {
+    id?: string
+    userId: string
+    name: string
+    symbol: string
+    strategy: string
+    timeframe: string
+    parameters?: JsonNullValueInput | InputJsonValue
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    positions?: PositionUncheckedCreateNestedManyWithoutBotInput
+  }
+
+  export type BotUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    symbol?: StringFieldUpdateOperationsInput | string
+    strategy?: StringFieldUpdateOperationsInput | string
+    timeframe?: StringFieldUpdateOperationsInput | string
+    parameters?: JsonNullValueInput | InputJsonValue
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutBotsNestedInput
+    positions?: PositionUpdateManyWithoutBotNestedInput
+  }
+
+  export type BotUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    symbol?: StringFieldUpdateOperationsInput | string
+    strategy?: StringFieldUpdateOperationsInput | string
+    timeframe?: StringFieldUpdateOperationsInput | string
+    parameters?: JsonNullValueInput | InputJsonValue
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    positions?: PositionUncheckedUpdateManyWithoutBotNestedInput
+  }
+
+  export type BotCreateManyInput = {
+    id?: string
+    userId: string
+    name: string
+    symbol: string
+    strategy: string
+    timeframe: string
+    parameters?: JsonNullValueInput | InputJsonValue
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BotUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    symbol?: StringFieldUpdateOperationsInput | string
+    strategy?: StringFieldUpdateOperationsInput | string
+    timeframe?: StringFieldUpdateOperationsInput | string
+    parameters?: JsonNullValueInput | InputJsonValue
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BotUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    symbol?: StringFieldUpdateOperationsInput | string
+    strategy?: StringFieldUpdateOperationsInput | string
+    timeframe?: StringFieldUpdateOperationsInput | string
+    parameters?: JsonNullValueInput | InputJsonValue
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PositionCreateInput = {
+    id?: string
+    symbol: string
+    side: string
+    entryPrice: number
+    currentPrice?: number | null
+    amount: number
+    leverage?: number
+    takeProfitPrice?: number | null
+    stopLossPrice?: number | null
+    status: string
+    pnl?: number | null
+    openedAt?: Date | string
+    closedAt?: Date | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    user: UserCreateNestedOneWithoutPositionsInput
+    bot?: BotCreateNestedOneWithoutPositionsInput
+  }
+
+  export type PositionUncheckedCreateInput = {
+    id?: string
+    userId: string
+    botId?: string | null
+    symbol: string
+    side: string
+    entryPrice: number
+    currentPrice?: number | null
+    amount: number
+    leverage?: number
+    takeProfitPrice?: number | null
+    stopLossPrice?: number | null
+    status: string
+    pnl?: number | null
+    openedAt?: Date | string
+    closedAt?: Date | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type PositionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    symbol?: StringFieldUpdateOperationsInput | string
+    side?: StringFieldUpdateOperationsInput | string
+    entryPrice?: FloatFieldUpdateOperationsInput | number
+    currentPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    amount?: FloatFieldUpdateOperationsInput | number
+    leverage?: FloatFieldUpdateOperationsInput | number
+    takeProfitPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    stopLossPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: StringFieldUpdateOperationsInput | string
+    pnl?: NullableFloatFieldUpdateOperationsInput | number | null
+    openedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    user?: UserUpdateOneRequiredWithoutPositionsNestedInput
+    bot?: BotUpdateOneWithoutPositionsNestedInput
+  }
+
+  export type PositionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    botId?: NullableStringFieldUpdateOperationsInput | string | null
+    symbol?: StringFieldUpdateOperationsInput | string
+    side?: StringFieldUpdateOperationsInput | string
+    entryPrice?: FloatFieldUpdateOperationsInput | number
+    currentPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    amount?: FloatFieldUpdateOperationsInput | number
+    leverage?: FloatFieldUpdateOperationsInput | number
+    takeProfitPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    stopLossPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: StringFieldUpdateOperationsInput | string
+    pnl?: NullableFloatFieldUpdateOperationsInput | number | null
+    openedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type PositionCreateManyInput = {
+    id?: string
+    userId: string
+    botId?: string | null
+    symbol: string
+    side: string
+    entryPrice: number
+    currentPrice?: number | null
+    amount: number
+    leverage?: number
+    takeProfitPrice?: number | null
+    stopLossPrice?: number | null
+    status: string
+    pnl?: number | null
+    openedAt?: Date | string
+    closedAt?: Date | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type PositionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    symbol?: StringFieldUpdateOperationsInput | string
+    side?: StringFieldUpdateOperationsInput | string
+    entryPrice?: FloatFieldUpdateOperationsInput | number
+    currentPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    amount?: FloatFieldUpdateOperationsInput | number
+    leverage?: FloatFieldUpdateOperationsInput | number
+    takeProfitPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    stopLossPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: StringFieldUpdateOperationsInput | string
+    pnl?: NullableFloatFieldUpdateOperationsInput | number | null
+    openedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type PositionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    botId?: NullableStringFieldUpdateOperationsInput | string | null
+    symbol?: StringFieldUpdateOperationsInput | string
+    side?: StringFieldUpdateOperationsInput | string
+    entryPrice?: FloatFieldUpdateOperationsInput | number
+    currentPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    amount?: FloatFieldUpdateOperationsInput | number
+    leverage?: FloatFieldUpdateOperationsInput | number
+    takeProfitPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    stopLossPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: StringFieldUpdateOperationsInput | string
+    pnl?: NullableFloatFieldUpdateOperationsInput | number | null
+    openedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type MetricCreateInput = {
@@ -6062,6 +9453,7 @@ export namespace Prisma {
     name: string
     value: number
     recordedAt?: Date | string
+    tags?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type MetricUncheckedCreateInput = {
@@ -6069,6 +9461,7 @@ export namespace Prisma {
     name: string
     value: number
     recordedAt?: Date | string
+    tags?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type MetricUpdateInput = {
@@ -6076,6 +9469,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     value?: FloatFieldUpdateOperationsInput | number
     recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tags?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type MetricUncheckedUpdateInput = {
@@ -6083,6 +9477,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     value?: FloatFieldUpdateOperationsInput | number
     recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tags?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type MetricCreateManyInput = {
@@ -6090,6 +9485,7 @@ export namespace Prisma {
     name: string
     value: number
     recordedAt?: Date | string
+    tags?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type MetricUpdateManyMutationInput = {
@@ -6097,6 +9493,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     value?: FloatFieldUpdateOperationsInput | number
     recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tags?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type MetricUncheckedUpdateManyInput = {
@@ -6104,6 +9501,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     value?: FloatFieldUpdateOperationsInput | number
     recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tags?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -6144,6 +9542,18 @@ export namespace Prisma {
     none?: TradeLogWhereInput
   }
 
+  export type BotListRelationFilter = {
+    every?: BotWhereInput
+    some?: BotWhereInput
+    none?: BotWhereInput
+  }
+
+  export type PositionListRelationFilter = {
+    every?: PositionWhereInput
+    some?: PositionWhereInput
+    none?: PositionWhereInput
+  }
+
   export type ApiKeyOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -6152,10 +9562,19 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type BotOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type PositionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type UserCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
     email?: SortOrder
+    password?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -6164,6 +9583,7 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     email?: SortOrder
+    password?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -6172,6 +9592,7 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     email?: SortOrder
+    password?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -6208,6 +9629,11 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
   export type UserScalarRelationFilter = {
     is?: UserWhereInput
     isNot?: UserWhereInput
@@ -6221,6 +9647,7 @@ export namespace Prisma {
     scopes?: SortOrder
     expiry?: SortOrder
     createdAt?: SortOrder
+    isRevoked?: SortOrder
   }
 
   export type ApiKeyMaxOrderByAggregateInput = {
@@ -6231,6 +9658,7 @@ export namespace Prisma {
     scopes?: SortOrder
     expiry?: SortOrder
     createdAt?: SortOrder
+    isRevoked?: SortOrder
   }
 
   export type ApiKeyMinOrderByAggregateInput = {
@@ -6241,6 +9669,15 @@ export namespace Prisma {
     scopes?: SortOrder
     expiry?: SortOrder
     createdAt?: SortOrder
+    isRevoked?: SortOrder
+  }
+
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type FloatFilter<$PrismaModel = never> = {
@@ -6254,6 +9691,26 @@ export namespace Prisma {
     not?: NestedFloatFilter<$PrismaModel> | number
   }
 
+  export type StringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type SortOrderInput = {
+    sort: SortOrder
+    nulls?: NullsOrder
+  }
+
   export type TradeLogCountOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
@@ -6261,6 +9718,9 @@ export namespace Prisma {
     amount?: SortOrder
     price?: SortOrder
     timestamp?: SortOrder
+    orderId?: SortOrder
+    type?: SortOrder
+    status?: SortOrder
   }
 
   export type TradeLogAvgOrderByAggregateInput = {
@@ -6275,6 +9735,9 @@ export namespace Prisma {
     amount?: SortOrder
     price?: SortOrder
     timestamp?: SortOrder
+    orderId?: SortOrder
+    type?: SortOrder
+    status?: SortOrder
   }
 
   export type TradeLogMinOrderByAggregateInput = {
@@ -6284,6 +9747,9 @@ export namespace Prisma {
     amount?: SortOrder
     price?: SortOrder
     timestamp?: SortOrder
+    orderId?: SortOrder
+    type?: SortOrder
+    status?: SortOrder
   }
 
   export type TradeLogSumOrderByAggregateInput = {
@@ -6307,11 +9773,297 @@ export namespace Prisma {
     _max?: NestedFloatFilter<$PrismaModel>
   }
 
+  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+  export type JsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type BotCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    name?: SortOrder
+    symbol?: SortOrder
+    strategy?: SortOrder
+    timeframe?: SortOrder
+    parameters?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BotMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    name?: SortOrder
+    symbol?: SortOrder
+    strategy?: SortOrder
+    timeframe?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BotMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    name?: SortOrder
+    symbol?: SortOrder
+    strategy?: SortOrder
+    timeframe?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+  export type JsonWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedJsonFilter<$PrismaModel>
+    _max?: NestedJsonFilter<$PrismaModel>
+  }
+
+  export type FloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+  export type JsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type BotNullableScalarRelationFilter = {
+    is?: BotWhereInput | null
+    isNot?: BotWhereInput | null
+  }
+
+  export type PositionCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    botId?: SortOrder
+    symbol?: SortOrder
+    side?: SortOrder
+    entryPrice?: SortOrder
+    currentPrice?: SortOrder
+    amount?: SortOrder
+    leverage?: SortOrder
+    takeProfitPrice?: SortOrder
+    stopLossPrice?: SortOrder
+    status?: SortOrder
+    pnl?: SortOrder
+    openedAt?: SortOrder
+    closedAt?: SortOrder
+    metadata?: SortOrder
+  }
+
+  export type PositionAvgOrderByAggregateInput = {
+    entryPrice?: SortOrder
+    currentPrice?: SortOrder
+    amount?: SortOrder
+    leverage?: SortOrder
+    takeProfitPrice?: SortOrder
+    stopLossPrice?: SortOrder
+    pnl?: SortOrder
+  }
+
+  export type PositionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    botId?: SortOrder
+    symbol?: SortOrder
+    side?: SortOrder
+    entryPrice?: SortOrder
+    currentPrice?: SortOrder
+    amount?: SortOrder
+    leverage?: SortOrder
+    takeProfitPrice?: SortOrder
+    stopLossPrice?: SortOrder
+    status?: SortOrder
+    pnl?: SortOrder
+    openedAt?: SortOrder
+    closedAt?: SortOrder
+  }
+
+  export type PositionMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    botId?: SortOrder
+    symbol?: SortOrder
+    side?: SortOrder
+    entryPrice?: SortOrder
+    currentPrice?: SortOrder
+    amount?: SortOrder
+    leverage?: SortOrder
+    takeProfitPrice?: SortOrder
+    stopLossPrice?: SortOrder
+    status?: SortOrder
+    pnl?: SortOrder
+    openedAt?: SortOrder
+    closedAt?: SortOrder
+  }
+
+  export type PositionSumOrderByAggregateInput = {
+    entryPrice?: SortOrder
+    currentPrice?: SortOrder
+    amount?: SortOrder
+    leverage?: SortOrder
+    takeProfitPrice?: SortOrder
+    stopLossPrice?: SortOrder
+    pnl?: SortOrder
+  }
+
+  export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
+  }
+
   export type MetricCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
     value?: SortOrder
     recordedAt?: SortOrder
+    tags?: SortOrder
   }
 
   export type MetricAvgOrderByAggregateInput = {
@@ -6350,6 +10102,20 @@ export namespace Prisma {
     connect?: TradeLogWhereUniqueInput | TradeLogWhereUniqueInput[]
   }
 
+  export type BotCreateNestedManyWithoutUserInput = {
+    create?: XOR<BotCreateWithoutUserInput, BotUncheckedCreateWithoutUserInput> | BotCreateWithoutUserInput[] | BotUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: BotCreateOrConnectWithoutUserInput | BotCreateOrConnectWithoutUserInput[]
+    createMany?: BotCreateManyUserInputEnvelope
+    connect?: BotWhereUniqueInput | BotWhereUniqueInput[]
+  }
+
+  export type PositionCreateNestedManyWithoutUserInput = {
+    create?: XOR<PositionCreateWithoutUserInput, PositionUncheckedCreateWithoutUserInput> | PositionCreateWithoutUserInput[] | PositionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: PositionCreateOrConnectWithoutUserInput | PositionCreateOrConnectWithoutUserInput[]
+    createMany?: PositionCreateManyUserInputEnvelope
+    connect?: PositionWhereUniqueInput | PositionWhereUniqueInput[]
+  }
+
   export type ApiKeyUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<ApiKeyCreateWithoutUserInput, ApiKeyUncheckedCreateWithoutUserInput> | ApiKeyCreateWithoutUserInput[] | ApiKeyUncheckedCreateWithoutUserInput[]
     connectOrCreate?: ApiKeyCreateOrConnectWithoutUserInput | ApiKeyCreateOrConnectWithoutUserInput[]
@@ -6362,6 +10128,20 @@ export namespace Prisma {
     connectOrCreate?: TradeLogCreateOrConnectWithoutUserInput | TradeLogCreateOrConnectWithoutUserInput[]
     createMany?: TradeLogCreateManyUserInputEnvelope
     connect?: TradeLogWhereUniqueInput | TradeLogWhereUniqueInput[]
+  }
+
+  export type BotUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<BotCreateWithoutUserInput, BotUncheckedCreateWithoutUserInput> | BotCreateWithoutUserInput[] | BotUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: BotCreateOrConnectWithoutUserInput | BotCreateOrConnectWithoutUserInput[]
+    createMany?: BotCreateManyUserInputEnvelope
+    connect?: BotWhereUniqueInput | BotWhereUniqueInput[]
+  }
+
+  export type PositionUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<PositionCreateWithoutUserInput, PositionUncheckedCreateWithoutUserInput> | PositionCreateWithoutUserInput[] | PositionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: PositionCreateOrConnectWithoutUserInput | PositionCreateOrConnectWithoutUserInput[]
+    createMany?: PositionCreateManyUserInputEnvelope
+    connect?: PositionWhereUniqueInput | PositionWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -6400,6 +10180,34 @@ export namespace Prisma {
     deleteMany?: TradeLogScalarWhereInput | TradeLogScalarWhereInput[]
   }
 
+  export type BotUpdateManyWithoutUserNestedInput = {
+    create?: XOR<BotCreateWithoutUserInput, BotUncheckedCreateWithoutUserInput> | BotCreateWithoutUserInput[] | BotUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: BotCreateOrConnectWithoutUserInput | BotCreateOrConnectWithoutUserInput[]
+    upsert?: BotUpsertWithWhereUniqueWithoutUserInput | BotUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: BotCreateManyUserInputEnvelope
+    set?: BotWhereUniqueInput | BotWhereUniqueInput[]
+    disconnect?: BotWhereUniqueInput | BotWhereUniqueInput[]
+    delete?: BotWhereUniqueInput | BotWhereUniqueInput[]
+    connect?: BotWhereUniqueInput | BotWhereUniqueInput[]
+    update?: BotUpdateWithWhereUniqueWithoutUserInput | BotUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: BotUpdateManyWithWhereWithoutUserInput | BotUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: BotScalarWhereInput | BotScalarWhereInput[]
+  }
+
+  export type PositionUpdateManyWithoutUserNestedInput = {
+    create?: XOR<PositionCreateWithoutUserInput, PositionUncheckedCreateWithoutUserInput> | PositionCreateWithoutUserInput[] | PositionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: PositionCreateOrConnectWithoutUserInput | PositionCreateOrConnectWithoutUserInput[]
+    upsert?: PositionUpsertWithWhereUniqueWithoutUserInput | PositionUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: PositionCreateManyUserInputEnvelope
+    set?: PositionWhereUniqueInput | PositionWhereUniqueInput[]
+    disconnect?: PositionWhereUniqueInput | PositionWhereUniqueInput[]
+    delete?: PositionWhereUniqueInput | PositionWhereUniqueInput[]
+    connect?: PositionWhereUniqueInput | PositionWhereUniqueInput[]
+    update?: PositionUpdateWithWhereUniqueWithoutUserInput | PositionUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: PositionUpdateManyWithWhereWithoutUserInput | PositionUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: PositionScalarWhereInput | PositionScalarWhereInput[]
+  }
+
   export type ApiKeyUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<ApiKeyCreateWithoutUserInput, ApiKeyUncheckedCreateWithoutUserInput> | ApiKeyCreateWithoutUserInput[] | ApiKeyUncheckedCreateWithoutUserInput[]
     connectOrCreate?: ApiKeyCreateOrConnectWithoutUserInput | ApiKeyCreateOrConnectWithoutUserInput[]
@@ -6428,10 +10236,42 @@ export namespace Prisma {
     deleteMany?: TradeLogScalarWhereInput | TradeLogScalarWhereInput[]
   }
 
+  export type BotUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<BotCreateWithoutUserInput, BotUncheckedCreateWithoutUserInput> | BotCreateWithoutUserInput[] | BotUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: BotCreateOrConnectWithoutUserInput | BotCreateOrConnectWithoutUserInput[]
+    upsert?: BotUpsertWithWhereUniqueWithoutUserInput | BotUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: BotCreateManyUserInputEnvelope
+    set?: BotWhereUniqueInput | BotWhereUniqueInput[]
+    disconnect?: BotWhereUniqueInput | BotWhereUniqueInput[]
+    delete?: BotWhereUniqueInput | BotWhereUniqueInput[]
+    connect?: BotWhereUniqueInput | BotWhereUniqueInput[]
+    update?: BotUpdateWithWhereUniqueWithoutUserInput | BotUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: BotUpdateManyWithWhereWithoutUserInput | BotUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: BotScalarWhereInput | BotScalarWhereInput[]
+  }
+
+  export type PositionUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<PositionCreateWithoutUserInput, PositionUncheckedCreateWithoutUserInput> | PositionCreateWithoutUserInput[] | PositionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: PositionCreateOrConnectWithoutUserInput | PositionCreateOrConnectWithoutUserInput[]
+    upsert?: PositionUpsertWithWhereUniqueWithoutUserInput | PositionUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: PositionCreateManyUserInputEnvelope
+    set?: PositionWhereUniqueInput | PositionWhereUniqueInput[]
+    disconnect?: PositionWhereUniqueInput | PositionWhereUniqueInput[]
+    delete?: PositionWhereUniqueInput | PositionWhereUniqueInput[]
+    connect?: PositionWhereUniqueInput | PositionWhereUniqueInput[]
+    update?: PositionUpdateWithWhereUniqueWithoutUserInput | PositionUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: PositionUpdateManyWithWhereWithoutUserInput | PositionUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: PositionScalarWhereInput | PositionScalarWhereInput[]
+  }
+
   export type UserCreateNestedOneWithoutApiKeysInput = {
     create?: XOR<UserCreateWithoutApiKeysInput, UserUncheckedCreateWithoutApiKeysInput>
     connectOrCreate?: UserCreateOrConnectWithoutApiKeysInput
     connect?: UserWhereUniqueInput
+  }
+
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
   }
 
   export type UserUpdateOneRequiredWithoutApiKeysNestedInput = {
@@ -6456,12 +10296,114 @@ export namespace Prisma {
     divide?: number
   }
 
+  export type NullableStringFieldUpdateOperationsInput = {
+    set?: string | null
+  }
+
   export type UserUpdateOneRequiredWithoutTradeLogsNestedInput = {
     create?: XOR<UserCreateWithoutTradeLogsInput, UserUncheckedCreateWithoutTradeLogsInput>
     connectOrCreate?: UserCreateOrConnectWithoutTradeLogsInput
     upsert?: UserUpsertWithoutTradeLogsInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutTradeLogsInput, UserUpdateWithoutTradeLogsInput>, UserUncheckedUpdateWithoutTradeLogsInput>
+  }
+
+  export type UserCreateNestedOneWithoutBotsInput = {
+    create?: XOR<UserCreateWithoutBotsInput, UserUncheckedCreateWithoutBotsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutBotsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type PositionCreateNestedManyWithoutBotInput = {
+    create?: XOR<PositionCreateWithoutBotInput, PositionUncheckedCreateWithoutBotInput> | PositionCreateWithoutBotInput[] | PositionUncheckedCreateWithoutBotInput[]
+    connectOrCreate?: PositionCreateOrConnectWithoutBotInput | PositionCreateOrConnectWithoutBotInput[]
+    createMany?: PositionCreateManyBotInputEnvelope
+    connect?: PositionWhereUniqueInput | PositionWhereUniqueInput[]
+  }
+
+  export type PositionUncheckedCreateNestedManyWithoutBotInput = {
+    create?: XOR<PositionCreateWithoutBotInput, PositionUncheckedCreateWithoutBotInput> | PositionCreateWithoutBotInput[] | PositionUncheckedCreateWithoutBotInput[]
+    connectOrCreate?: PositionCreateOrConnectWithoutBotInput | PositionCreateOrConnectWithoutBotInput[]
+    createMany?: PositionCreateManyBotInputEnvelope
+    connect?: PositionWhereUniqueInput | PositionWhereUniqueInput[]
+  }
+
+  export type UserUpdateOneRequiredWithoutBotsNestedInput = {
+    create?: XOR<UserCreateWithoutBotsInput, UserUncheckedCreateWithoutBotsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutBotsInput
+    upsert?: UserUpsertWithoutBotsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutBotsInput, UserUpdateWithoutBotsInput>, UserUncheckedUpdateWithoutBotsInput>
+  }
+
+  export type PositionUpdateManyWithoutBotNestedInput = {
+    create?: XOR<PositionCreateWithoutBotInput, PositionUncheckedCreateWithoutBotInput> | PositionCreateWithoutBotInput[] | PositionUncheckedCreateWithoutBotInput[]
+    connectOrCreate?: PositionCreateOrConnectWithoutBotInput | PositionCreateOrConnectWithoutBotInput[]
+    upsert?: PositionUpsertWithWhereUniqueWithoutBotInput | PositionUpsertWithWhereUniqueWithoutBotInput[]
+    createMany?: PositionCreateManyBotInputEnvelope
+    set?: PositionWhereUniqueInput | PositionWhereUniqueInput[]
+    disconnect?: PositionWhereUniqueInput | PositionWhereUniqueInput[]
+    delete?: PositionWhereUniqueInput | PositionWhereUniqueInput[]
+    connect?: PositionWhereUniqueInput | PositionWhereUniqueInput[]
+    update?: PositionUpdateWithWhereUniqueWithoutBotInput | PositionUpdateWithWhereUniqueWithoutBotInput[]
+    updateMany?: PositionUpdateManyWithWhereWithoutBotInput | PositionUpdateManyWithWhereWithoutBotInput[]
+    deleteMany?: PositionScalarWhereInput | PositionScalarWhereInput[]
+  }
+
+  export type PositionUncheckedUpdateManyWithoutBotNestedInput = {
+    create?: XOR<PositionCreateWithoutBotInput, PositionUncheckedCreateWithoutBotInput> | PositionCreateWithoutBotInput[] | PositionUncheckedCreateWithoutBotInput[]
+    connectOrCreate?: PositionCreateOrConnectWithoutBotInput | PositionCreateOrConnectWithoutBotInput[]
+    upsert?: PositionUpsertWithWhereUniqueWithoutBotInput | PositionUpsertWithWhereUniqueWithoutBotInput[]
+    createMany?: PositionCreateManyBotInputEnvelope
+    set?: PositionWhereUniqueInput | PositionWhereUniqueInput[]
+    disconnect?: PositionWhereUniqueInput | PositionWhereUniqueInput[]
+    delete?: PositionWhereUniqueInput | PositionWhereUniqueInput[]
+    connect?: PositionWhereUniqueInput | PositionWhereUniqueInput[]
+    update?: PositionUpdateWithWhereUniqueWithoutBotInput | PositionUpdateWithWhereUniqueWithoutBotInput[]
+    updateMany?: PositionUpdateManyWithWhereWithoutBotInput | PositionUpdateManyWithWhereWithoutBotInput[]
+    deleteMany?: PositionScalarWhereInput | PositionScalarWhereInput[]
+  }
+
+  export type UserCreateNestedOneWithoutPositionsInput = {
+    create?: XOR<UserCreateWithoutPositionsInput, UserUncheckedCreateWithoutPositionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutPositionsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type BotCreateNestedOneWithoutPositionsInput = {
+    create?: XOR<BotCreateWithoutPositionsInput, BotUncheckedCreateWithoutPositionsInput>
+    connectOrCreate?: BotCreateOrConnectWithoutPositionsInput
+    connect?: BotWhereUniqueInput
+  }
+
+  export type NullableFloatFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
+  export type UserUpdateOneRequiredWithoutPositionsNestedInput = {
+    create?: XOR<UserCreateWithoutPositionsInput, UserUncheckedCreateWithoutPositionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutPositionsInput
+    upsert?: UserUpsertWithoutPositionsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutPositionsInput, UserUpdateWithoutPositionsInput>, UserUncheckedUpdateWithoutPositionsInput>
+  }
+
+  export type BotUpdateOneWithoutPositionsNestedInput = {
+    create?: XOR<BotCreateWithoutPositionsInput, BotUncheckedCreateWithoutPositionsInput>
+    connectOrCreate?: BotCreateOrConnectWithoutPositionsInput
+    upsert?: BotUpsertWithoutPositionsInput
+    disconnect?: BotWhereInput | boolean
+    delete?: BotWhereInput | boolean
+    connect?: BotWhereUniqueInput
+    update?: XOR<XOR<BotUpdateToOneWithWhereWithoutPositionsInput, BotUpdateWithoutPositionsInput>, BotUncheckedUpdateWithoutPositionsInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -6531,6 +10473,19 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
   export type NestedFloatFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel>
     in?: number[] | ListFloatFieldRefInput<$PrismaModel>
@@ -6540,6 +10495,20 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type NestedStringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
   export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
@@ -6558,6 +10527,132 @@ export namespace Prisma {
     _max?: NestedFloatFilter<$PrismaModel>
   }
 
+  export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type NestedIntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+  export type NestedJsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
+  }
+
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+  export type NestedJsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
   export type ApiKeyCreateWithoutUserInput = {
     id?: string
     key: string
@@ -6565,6 +10660,7 @@ export namespace Prisma {
     scopes: string
     expiry: Date | string
     createdAt?: Date | string
+    isRevoked?: boolean
   }
 
   export type ApiKeyUncheckedCreateWithoutUserInput = {
@@ -6574,6 +10670,7 @@ export namespace Prisma {
     scopes: string
     expiry: Date | string
     createdAt?: Date | string
+    isRevoked?: boolean
   }
 
   export type ApiKeyCreateOrConnectWithoutUserInput = {
@@ -6592,6 +10689,9 @@ export namespace Prisma {
     amount: number
     price: number
     timestamp?: Date | string
+    orderId?: string | null
+    type: string
+    status: string
   }
 
   export type TradeLogUncheckedCreateWithoutUserInput = {
@@ -6600,6 +10700,9 @@ export namespace Prisma {
     amount: number
     price: number
     timestamp?: Date | string
+    orderId?: string | null
+    type: string
+    status: string
   }
 
   export type TradeLogCreateOrConnectWithoutUserInput = {
@@ -6609,6 +10712,88 @@ export namespace Prisma {
 
   export type TradeLogCreateManyUserInputEnvelope = {
     data: TradeLogCreateManyUserInput | TradeLogCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type BotCreateWithoutUserInput = {
+    id?: string
+    name: string
+    symbol: string
+    strategy: string
+    timeframe: string
+    parameters?: JsonNullValueInput | InputJsonValue
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    positions?: PositionCreateNestedManyWithoutBotInput
+  }
+
+  export type BotUncheckedCreateWithoutUserInput = {
+    id?: string
+    name: string
+    symbol: string
+    strategy: string
+    timeframe: string
+    parameters?: JsonNullValueInput | InputJsonValue
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    positions?: PositionUncheckedCreateNestedManyWithoutBotInput
+  }
+
+  export type BotCreateOrConnectWithoutUserInput = {
+    where: BotWhereUniqueInput
+    create: XOR<BotCreateWithoutUserInput, BotUncheckedCreateWithoutUserInput>
+  }
+
+  export type BotCreateManyUserInputEnvelope = {
+    data: BotCreateManyUserInput | BotCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type PositionCreateWithoutUserInput = {
+    id?: string
+    symbol: string
+    side: string
+    entryPrice: number
+    currentPrice?: number | null
+    amount: number
+    leverage?: number
+    takeProfitPrice?: number | null
+    stopLossPrice?: number | null
+    status: string
+    pnl?: number | null
+    openedAt?: Date | string
+    closedAt?: Date | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    bot?: BotCreateNestedOneWithoutPositionsInput
+  }
+
+  export type PositionUncheckedCreateWithoutUserInput = {
+    id?: string
+    botId?: string | null
+    symbol: string
+    side: string
+    entryPrice: number
+    currentPrice?: number | null
+    amount: number
+    leverage?: number
+    takeProfitPrice?: number | null
+    stopLossPrice?: number | null
+    status: string
+    pnl?: number | null
+    openedAt?: Date | string
+    closedAt?: Date | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type PositionCreateOrConnectWithoutUserInput = {
+    where: PositionWhereUniqueInput
+    create: XOR<PositionCreateWithoutUserInput, PositionUncheckedCreateWithoutUserInput>
+  }
+
+  export type PositionCreateManyUserInputEnvelope = {
+    data: PositionCreateManyUserInput | PositionCreateManyUserInput[]
     skipDuplicates?: boolean
   }
 
@@ -6639,6 +10824,7 @@ export namespace Prisma {
     scopes?: StringFilter<"ApiKey"> | string
     expiry?: DateTimeFilter<"ApiKey"> | Date | string
     createdAt?: DateTimeFilter<"ApiKey"> | Date | string
+    isRevoked?: BoolFilter<"ApiKey"> | boolean
   }
 
   export type TradeLogUpsertWithWhereUniqueWithoutUserInput = {
@@ -6667,24 +10853,103 @@ export namespace Prisma {
     amount?: FloatFilter<"TradeLog"> | number
     price?: FloatFilter<"TradeLog"> | number
     timestamp?: DateTimeFilter<"TradeLog"> | Date | string
+    orderId?: StringNullableFilter<"TradeLog"> | string | null
+    type?: StringFilter<"TradeLog"> | string
+    status?: StringFilter<"TradeLog"> | string
+  }
+
+  export type BotUpsertWithWhereUniqueWithoutUserInput = {
+    where: BotWhereUniqueInput
+    update: XOR<BotUpdateWithoutUserInput, BotUncheckedUpdateWithoutUserInput>
+    create: XOR<BotCreateWithoutUserInput, BotUncheckedCreateWithoutUserInput>
+  }
+
+  export type BotUpdateWithWhereUniqueWithoutUserInput = {
+    where: BotWhereUniqueInput
+    data: XOR<BotUpdateWithoutUserInput, BotUncheckedUpdateWithoutUserInput>
+  }
+
+  export type BotUpdateManyWithWhereWithoutUserInput = {
+    where: BotScalarWhereInput
+    data: XOR<BotUpdateManyMutationInput, BotUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type BotScalarWhereInput = {
+    AND?: BotScalarWhereInput | BotScalarWhereInput[]
+    OR?: BotScalarWhereInput[]
+    NOT?: BotScalarWhereInput | BotScalarWhereInput[]
+    id?: StringFilter<"Bot"> | string
+    userId?: StringFilter<"Bot"> | string
+    name?: StringFilter<"Bot"> | string
+    symbol?: StringFilter<"Bot"> | string
+    strategy?: StringFilter<"Bot"> | string
+    timeframe?: StringFilter<"Bot"> | string
+    parameters?: JsonFilter<"Bot">
+    isActive?: BoolFilter<"Bot"> | boolean
+    createdAt?: DateTimeFilter<"Bot"> | Date | string
+    updatedAt?: DateTimeFilter<"Bot"> | Date | string
+  }
+
+  export type PositionUpsertWithWhereUniqueWithoutUserInput = {
+    where: PositionWhereUniqueInput
+    update: XOR<PositionUpdateWithoutUserInput, PositionUncheckedUpdateWithoutUserInput>
+    create: XOR<PositionCreateWithoutUserInput, PositionUncheckedCreateWithoutUserInput>
+  }
+
+  export type PositionUpdateWithWhereUniqueWithoutUserInput = {
+    where: PositionWhereUniqueInput
+    data: XOR<PositionUpdateWithoutUserInput, PositionUncheckedUpdateWithoutUserInput>
+  }
+
+  export type PositionUpdateManyWithWhereWithoutUserInput = {
+    where: PositionScalarWhereInput
+    data: XOR<PositionUpdateManyMutationInput, PositionUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type PositionScalarWhereInput = {
+    AND?: PositionScalarWhereInput | PositionScalarWhereInput[]
+    OR?: PositionScalarWhereInput[]
+    NOT?: PositionScalarWhereInput | PositionScalarWhereInput[]
+    id?: StringFilter<"Position"> | string
+    userId?: StringFilter<"Position"> | string
+    botId?: StringNullableFilter<"Position"> | string | null
+    symbol?: StringFilter<"Position"> | string
+    side?: StringFilter<"Position"> | string
+    entryPrice?: FloatFilter<"Position"> | number
+    currentPrice?: FloatNullableFilter<"Position"> | number | null
+    amount?: FloatFilter<"Position"> | number
+    leverage?: FloatFilter<"Position"> | number
+    takeProfitPrice?: FloatNullableFilter<"Position"> | number | null
+    stopLossPrice?: FloatNullableFilter<"Position"> | number | null
+    status?: StringFilter<"Position"> | string
+    pnl?: FloatNullableFilter<"Position"> | number | null
+    openedAt?: DateTimeFilter<"Position"> | Date | string
+    closedAt?: DateTimeNullableFilter<"Position"> | Date | string | null
+    metadata?: JsonNullableFilter<"Position">
   }
 
   export type UserCreateWithoutApiKeysInput = {
     id?: string
     name: string
     email: string
+    password: string
     createdAt?: Date | string
     updatedAt?: Date | string
     tradeLogs?: TradeLogCreateNestedManyWithoutUserInput
+    bots?: BotCreateNestedManyWithoutUserInput
+    positions?: PositionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutApiKeysInput = {
     id?: string
     name: string
     email: string
+    password: string
     createdAt?: Date | string
     updatedAt?: Date | string
     tradeLogs?: TradeLogUncheckedCreateNestedManyWithoutUserInput
+    bots?: BotUncheckedCreateNestedManyWithoutUserInput
+    positions?: PositionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutApiKeysInput = {
@@ -6707,36 +10972,48 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tradeLogs?: TradeLogUpdateManyWithoutUserNestedInput
+    bots?: BotUpdateManyWithoutUserNestedInput
+    positions?: PositionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutApiKeysInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tradeLogs?: TradeLogUncheckedUpdateManyWithoutUserNestedInput
+    bots?: BotUncheckedUpdateManyWithoutUserNestedInput
+    positions?: PositionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutTradeLogsInput = {
     id?: string
     name: string
     email: string
+    password: string
     createdAt?: Date | string
     updatedAt?: Date | string
     apiKeys?: ApiKeyCreateNestedManyWithoutUserInput
+    bots?: BotCreateNestedManyWithoutUserInput
+    positions?: PositionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutTradeLogsInput = {
     id?: string
     name: string
     email: string
+    password: string
     createdAt?: Date | string
     updatedAt?: Date | string
     apiKeys?: ApiKeyUncheckedCreateNestedManyWithoutUserInput
+    bots?: BotUncheckedCreateNestedManyWithoutUserInput
+    positions?: PositionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutTradeLogsInput = {
@@ -6759,18 +11036,282 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     apiKeys?: ApiKeyUpdateManyWithoutUserNestedInput
+    bots?: BotUpdateManyWithoutUserNestedInput
+    positions?: PositionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTradeLogsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     apiKeys?: ApiKeyUncheckedUpdateManyWithoutUserNestedInput
+    bots?: BotUncheckedUpdateManyWithoutUserNestedInput
+    positions?: PositionUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutBotsInput = {
+    id?: string
+    name: string
+    email: string
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    apiKeys?: ApiKeyCreateNestedManyWithoutUserInput
+    tradeLogs?: TradeLogCreateNestedManyWithoutUserInput
+    positions?: PositionCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutBotsInput = {
+    id?: string
+    name: string
+    email: string
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    apiKeys?: ApiKeyUncheckedCreateNestedManyWithoutUserInput
+    tradeLogs?: TradeLogUncheckedCreateNestedManyWithoutUserInput
+    positions?: PositionUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutBotsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutBotsInput, UserUncheckedCreateWithoutBotsInput>
+  }
+
+  export type PositionCreateWithoutBotInput = {
+    id?: string
+    symbol: string
+    side: string
+    entryPrice: number
+    currentPrice?: number | null
+    amount: number
+    leverage?: number
+    takeProfitPrice?: number | null
+    stopLossPrice?: number | null
+    status: string
+    pnl?: number | null
+    openedAt?: Date | string
+    closedAt?: Date | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    user: UserCreateNestedOneWithoutPositionsInput
+  }
+
+  export type PositionUncheckedCreateWithoutBotInput = {
+    id?: string
+    userId: string
+    symbol: string
+    side: string
+    entryPrice: number
+    currentPrice?: number | null
+    amount: number
+    leverage?: number
+    takeProfitPrice?: number | null
+    stopLossPrice?: number | null
+    status: string
+    pnl?: number | null
+    openedAt?: Date | string
+    closedAt?: Date | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type PositionCreateOrConnectWithoutBotInput = {
+    where: PositionWhereUniqueInput
+    create: XOR<PositionCreateWithoutBotInput, PositionUncheckedCreateWithoutBotInput>
+  }
+
+  export type PositionCreateManyBotInputEnvelope = {
+    data: PositionCreateManyBotInput | PositionCreateManyBotInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type UserUpsertWithoutBotsInput = {
+    update: XOR<UserUpdateWithoutBotsInput, UserUncheckedUpdateWithoutBotsInput>
+    create: XOR<UserCreateWithoutBotsInput, UserUncheckedCreateWithoutBotsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutBotsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutBotsInput, UserUncheckedUpdateWithoutBotsInput>
+  }
+
+  export type UserUpdateWithoutBotsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    apiKeys?: ApiKeyUpdateManyWithoutUserNestedInput
+    tradeLogs?: TradeLogUpdateManyWithoutUserNestedInput
+    positions?: PositionUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutBotsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    apiKeys?: ApiKeyUncheckedUpdateManyWithoutUserNestedInput
+    tradeLogs?: TradeLogUncheckedUpdateManyWithoutUserNestedInput
+    positions?: PositionUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type PositionUpsertWithWhereUniqueWithoutBotInput = {
+    where: PositionWhereUniqueInput
+    update: XOR<PositionUpdateWithoutBotInput, PositionUncheckedUpdateWithoutBotInput>
+    create: XOR<PositionCreateWithoutBotInput, PositionUncheckedCreateWithoutBotInput>
+  }
+
+  export type PositionUpdateWithWhereUniqueWithoutBotInput = {
+    where: PositionWhereUniqueInput
+    data: XOR<PositionUpdateWithoutBotInput, PositionUncheckedUpdateWithoutBotInput>
+  }
+
+  export type PositionUpdateManyWithWhereWithoutBotInput = {
+    where: PositionScalarWhereInput
+    data: XOR<PositionUpdateManyMutationInput, PositionUncheckedUpdateManyWithoutBotInput>
+  }
+
+  export type UserCreateWithoutPositionsInput = {
+    id?: string
+    name: string
+    email: string
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    apiKeys?: ApiKeyCreateNestedManyWithoutUserInput
+    tradeLogs?: TradeLogCreateNestedManyWithoutUserInput
+    bots?: BotCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutPositionsInput = {
+    id?: string
+    name: string
+    email: string
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    apiKeys?: ApiKeyUncheckedCreateNestedManyWithoutUserInput
+    tradeLogs?: TradeLogUncheckedCreateNestedManyWithoutUserInput
+    bots?: BotUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutPositionsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutPositionsInput, UserUncheckedCreateWithoutPositionsInput>
+  }
+
+  export type BotCreateWithoutPositionsInput = {
+    id?: string
+    name: string
+    symbol: string
+    strategy: string
+    timeframe: string
+    parameters?: JsonNullValueInput | InputJsonValue
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutBotsInput
+  }
+
+  export type BotUncheckedCreateWithoutPositionsInput = {
+    id?: string
+    userId: string
+    name: string
+    symbol: string
+    strategy: string
+    timeframe: string
+    parameters?: JsonNullValueInput | InputJsonValue
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BotCreateOrConnectWithoutPositionsInput = {
+    where: BotWhereUniqueInput
+    create: XOR<BotCreateWithoutPositionsInput, BotUncheckedCreateWithoutPositionsInput>
+  }
+
+  export type UserUpsertWithoutPositionsInput = {
+    update: XOR<UserUpdateWithoutPositionsInput, UserUncheckedUpdateWithoutPositionsInput>
+    create: XOR<UserCreateWithoutPositionsInput, UserUncheckedCreateWithoutPositionsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutPositionsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutPositionsInput, UserUncheckedUpdateWithoutPositionsInput>
+  }
+
+  export type UserUpdateWithoutPositionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    apiKeys?: ApiKeyUpdateManyWithoutUserNestedInput
+    tradeLogs?: TradeLogUpdateManyWithoutUserNestedInput
+    bots?: BotUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutPositionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    apiKeys?: ApiKeyUncheckedUpdateManyWithoutUserNestedInput
+    tradeLogs?: TradeLogUncheckedUpdateManyWithoutUserNestedInput
+    bots?: BotUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type BotUpsertWithoutPositionsInput = {
+    update: XOR<BotUpdateWithoutPositionsInput, BotUncheckedUpdateWithoutPositionsInput>
+    create: XOR<BotCreateWithoutPositionsInput, BotUncheckedCreateWithoutPositionsInput>
+    where?: BotWhereInput
+  }
+
+  export type BotUpdateToOneWithWhereWithoutPositionsInput = {
+    where?: BotWhereInput
+    data: XOR<BotUpdateWithoutPositionsInput, BotUncheckedUpdateWithoutPositionsInput>
+  }
+
+  export type BotUpdateWithoutPositionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    symbol?: StringFieldUpdateOperationsInput | string
+    strategy?: StringFieldUpdateOperationsInput | string
+    timeframe?: StringFieldUpdateOperationsInput | string
+    parameters?: JsonNullValueInput | InputJsonValue
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutBotsNestedInput
+  }
+
+  export type BotUncheckedUpdateWithoutPositionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    symbol?: StringFieldUpdateOperationsInput | string
+    strategy?: StringFieldUpdateOperationsInput | string
+    timeframe?: StringFieldUpdateOperationsInput | string
+    parameters?: JsonNullValueInput | InputJsonValue
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ApiKeyCreateManyUserInput = {
@@ -6780,6 +11321,7 @@ export namespace Prisma {
     scopes: string
     expiry: Date | string
     createdAt?: Date | string
+    isRevoked?: boolean
   }
 
   export type TradeLogCreateManyUserInput = {
@@ -6788,6 +11330,39 @@ export namespace Prisma {
     amount: number
     price: number
     timestamp?: Date | string
+    orderId?: string | null
+    type: string
+    status: string
+  }
+
+  export type BotCreateManyUserInput = {
+    id?: string
+    name: string
+    symbol: string
+    strategy: string
+    timeframe: string
+    parameters?: JsonNullValueInput | InputJsonValue
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PositionCreateManyUserInput = {
+    id?: string
+    botId?: string | null
+    symbol: string
+    side: string
+    entryPrice: number
+    currentPrice?: number | null
+    amount: number
+    leverage?: number
+    takeProfitPrice?: number | null
+    stopLossPrice?: number | null
+    status: string
+    pnl?: number | null
+    openedAt?: Date | string
+    closedAt?: Date | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type ApiKeyUpdateWithoutUserInput = {
@@ -6797,6 +11372,7 @@ export namespace Prisma {
     scopes?: StringFieldUpdateOperationsInput | string
     expiry?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isRevoked?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type ApiKeyUncheckedUpdateWithoutUserInput = {
@@ -6806,6 +11382,7 @@ export namespace Prisma {
     scopes?: StringFieldUpdateOperationsInput | string
     expiry?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isRevoked?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type ApiKeyUncheckedUpdateManyWithoutUserInput = {
@@ -6815,6 +11392,7 @@ export namespace Prisma {
     scopes?: StringFieldUpdateOperationsInput | string
     expiry?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isRevoked?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type TradeLogUpdateWithoutUserInput = {
@@ -6823,6 +11401,9 @@ export namespace Prisma {
     amount?: FloatFieldUpdateOperationsInput | number
     price?: FloatFieldUpdateOperationsInput | number
     timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    orderId?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
   }
 
   export type TradeLogUncheckedUpdateWithoutUserInput = {
@@ -6831,6 +11412,9 @@ export namespace Prisma {
     amount?: FloatFieldUpdateOperationsInput | number
     price?: FloatFieldUpdateOperationsInput | number
     timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    orderId?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
   }
 
   export type TradeLogUncheckedUpdateManyWithoutUserInput = {
@@ -6839,6 +11423,173 @@ export namespace Prisma {
     amount?: FloatFieldUpdateOperationsInput | number
     price?: FloatFieldUpdateOperationsInput | number
     timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    orderId?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type BotUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    symbol?: StringFieldUpdateOperationsInput | string
+    strategy?: StringFieldUpdateOperationsInput | string
+    timeframe?: StringFieldUpdateOperationsInput | string
+    parameters?: JsonNullValueInput | InputJsonValue
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    positions?: PositionUpdateManyWithoutBotNestedInput
+  }
+
+  export type BotUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    symbol?: StringFieldUpdateOperationsInput | string
+    strategy?: StringFieldUpdateOperationsInput | string
+    timeframe?: StringFieldUpdateOperationsInput | string
+    parameters?: JsonNullValueInput | InputJsonValue
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    positions?: PositionUncheckedUpdateManyWithoutBotNestedInput
+  }
+
+  export type BotUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    symbol?: StringFieldUpdateOperationsInput | string
+    strategy?: StringFieldUpdateOperationsInput | string
+    timeframe?: StringFieldUpdateOperationsInput | string
+    parameters?: JsonNullValueInput | InputJsonValue
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PositionUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    symbol?: StringFieldUpdateOperationsInput | string
+    side?: StringFieldUpdateOperationsInput | string
+    entryPrice?: FloatFieldUpdateOperationsInput | number
+    currentPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    amount?: FloatFieldUpdateOperationsInput | number
+    leverage?: FloatFieldUpdateOperationsInput | number
+    takeProfitPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    stopLossPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: StringFieldUpdateOperationsInput | string
+    pnl?: NullableFloatFieldUpdateOperationsInput | number | null
+    openedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    bot?: BotUpdateOneWithoutPositionsNestedInput
+  }
+
+  export type PositionUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    botId?: NullableStringFieldUpdateOperationsInput | string | null
+    symbol?: StringFieldUpdateOperationsInput | string
+    side?: StringFieldUpdateOperationsInput | string
+    entryPrice?: FloatFieldUpdateOperationsInput | number
+    currentPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    amount?: FloatFieldUpdateOperationsInput | number
+    leverage?: FloatFieldUpdateOperationsInput | number
+    takeProfitPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    stopLossPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: StringFieldUpdateOperationsInput | string
+    pnl?: NullableFloatFieldUpdateOperationsInput | number | null
+    openedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type PositionUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    botId?: NullableStringFieldUpdateOperationsInput | string | null
+    symbol?: StringFieldUpdateOperationsInput | string
+    side?: StringFieldUpdateOperationsInput | string
+    entryPrice?: FloatFieldUpdateOperationsInput | number
+    currentPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    amount?: FloatFieldUpdateOperationsInput | number
+    leverage?: FloatFieldUpdateOperationsInput | number
+    takeProfitPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    stopLossPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: StringFieldUpdateOperationsInput | string
+    pnl?: NullableFloatFieldUpdateOperationsInput | number | null
+    openedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type PositionCreateManyBotInput = {
+    id?: string
+    userId: string
+    symbol: string
+    side: string
+    entryPrice: number
+    currentPrice?: number | null
+    amount: number
+    leverage?: number
+    takeProfitPrice?: number | null
+    stopLossPrice?: number | null
+    status: string
+    pnl?: number | null
+    openedAt?: Date | string
+    closedAt?: Date | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type PositionUpdateWithoutBotInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    symbol?: StringFieldUpdateOperationsInput | string
+    side?: StringFieldUpdateOperationsInput | string
+    entryPrice?: FloatFieldUpdateOperationsInput | number
+    currentPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    amount?: FloatFieldUpdateOperationsInput | number
+    leverage?: FloatFieldUpdateOperationsInput | number
+    takeProfitPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    stopLossPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: StringFieldUpdateOperationsInput | string
+    pnl?: NullableFloatFieldUpdateOperationsInput | number | null
+    openedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    user?: UserUpdateOneRequiredWithoutPositionsNestedInput
+  }
+
+  export type PositionUncheckedUpdateWithoutBotInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    symbol?: StringFieldUpdateOperationsInput | string
+    side?: StringFieldUpdateOperationsInput | string
+    entryPrice?: FloatFieldUpdateOperationsInput | number
+    currentPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    amount?: FloatFieldUpdateOperationsInput | number
+    leverage?: FloatFieldUpdateOperationsInput | number
+    takeProfitPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    stopLossPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: StringFieldUpdateOperationsInput | string
+    pnl?: NullableFloatFieldUpdateOperationsInput | number | null
+    openedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type PositionUncheckedUpdateManyWithoutBotInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    symbol?: StringFieldUpdateOperationsInput | string
+    side?: StringFieldUpdateOperationsInput | string
+    entryPrice?: FloatFieldUpdateOperationsInput | number
+    currentPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    amount?: FloatFieldUpdateOperationsInput | number
+    leverage?: FloatFieldUpdateOperationsInput | number
+    takeProfitPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    stopLossPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: StringFieldUpdateOperationsInput | string
+    pnl?: NullableFloatFieldUpdateOperationsInput | number | null
+    openedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
   }
 
 

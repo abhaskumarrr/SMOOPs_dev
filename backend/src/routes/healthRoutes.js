@@ -1,36 +1,60 @@
+/**
+ * Health Check Routes
+ * Endpoints for system monitoring and health status
+ */
+
 const express = require('express');
 const router = express.Router();
-const { performHealthCheck } = require('../utils/dbHealthCheck');
+const { checkDbConnection } = require('../utils/dbHealthCheck');
 
-/**
- * @route GET /health
- * @description Basic health check endpoint
- * @access Public
- */
+// Basic health check
 router.get('/', (req, res) => {
-  res.status(200).json({ status: 'ok', service: 'SMOOPs API' });
+  res.status(200).json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
 });
 
-/**
- * @route GET /health/db
- * @description Database health check endpoint
- * @access Public
- */
+// Database connection health check
 router.get('/db', async (req, res) => {
   try {
-    const healthResult = await performHealthCheck();
+    const dbStatus = await checkDbConnection();
     
-    // Set appropriate status code based on health check result
-    const statusCode = healthResult.isHealthy ? 200 : 503;
-    
-    res.status(statusCode).json(healthResult);
+    res.status(200).json({
+      status: dbStatus.success ? 'healthy' : 'unhealthy',
+      timestamp: new Date().toISOString(),
+      database: dbStatus
+    });
   } catch (error) {
     res.status(500).json({
-      isHealthy: false,
-      message: 'Health check failed',
+      status: 'unhealthy',
+      timestamp: new Date().toISOString(),
       error: error.message
     });
   }
+});
+
+// Detailed system health check
+router.get('/system', (req, res) => {
+  const memoryUsage = process.memoryUsage();
+  
+  res.status(200).json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    system: {
+      uptime: process.uptime(),
+      nodeVersion: process.version,
+      platform: process.platform,
+      memory: {
+        rss: `${Math.round(memoryUsage.rss / 1024 / 1024)}MB`,
+        heapTotal: `${Math.round(memoryUsage.heapTotal / 1024 / 1024)}MB`,
+        heapUsed: `${Math.round(memoryUsage.heapUsed / 1024 / 1024)}MB`,
+        external: `${Math.round(memoryUsage.external / 1024 / 1024)}MB`
+      },
+      cpu: process.cpuUsage()
+    }
+  });
 });
 
 module.exports = router; 

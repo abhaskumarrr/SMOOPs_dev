@@ -1,31 +1,39 @@
 /**
  * Delta Exchange API Routes
- * Defines routes for Delta Exchange API operations
+ * Endpoints for interacting with the Delta Exchange API
  */
 
 const express = require('express');
-const deltaApiController = require('../controllers/deltaApiController');
-const { authenticate } = require('../middleware/auth');
-
 const router = express.Router();
+const { 
+  getProducts,
+  getOrderBook,
+  getRecentTrades,
+  getAccountBalance,
+  getPositions,
+  createOrder,
+  cancelOrder,
+  getOrders,
+  getMarketData
+} = require('../controllers/deltaApiController');
+const { protect } = require('../middleware/auth');
 
-// Public endpoints (no authentication required)
-// Get all markets
-router.get('/markets', deltaApiController.getMarkets);
+// All routes require authentication
+router.use(protect);
 
-// Authentication required for the following routes
-router.use(authenticate);
+// Market data endpoints
+router.get('/products', getProducts);
+router.get('/products/:id/orderbook', getOrderBook);
+router.get('/products/:id/trades', getRecentTrades);
+router.get('/market-data', getMarketData);
 
-// Market data
-router.get('/markets/:symbol', deltaApiController.getMarketData);
+// Account endpoints
+router.get('/balance', getAccountBalance);
+router.get('/positions', getPositions);
 
-// Order management
-router.post('/orders', deltaApiController.placeOrder);
-router.get('/orders', deltaApiController.getActiveOrders);
-router.delete('/orders/:orderId', deltaApiController.cancelOrder);
-
-// Account and wallet
-router.get('/wallet/balances', deltaApiController.getWalletBalances);
-router.get('/positions', deltaApiController.getPositions);
+// Order endpoints
+router.get('/orders', getOrders);
+router.post('/orders', createOrder);
+router.delete('/orders/:id', cancelOrder);
 
 module.exports = router; 

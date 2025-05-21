@@ -1,4 +1,4 @@
-# SMOOPs: Smart Money Order Blocks Trading Bot
+# SMOOPs: SmartMarketOOPs
 
 ## Overview
 This project is an institutional-grade crypto trading bot that leverages advanced machine learning (ML) models to identify Smart Money Order Blocks and execute trades on Delta Exchange. The system uses Smart Money Concepts (SMC), Fair Value Gaps (FVGs), and liquidity analysis for generating high-probability trading signals. Optimized for the Apple MacBook Air M2, the system ensures efficient resource usage and high performance on consumer-grade hardware.

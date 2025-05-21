@@ -1,27 +1,35 @@
 /**
  * API Key Routes
- * Defines routes for API key management
+ * Endpoints for managing Delta Exchange API keys
  */
 
 const express = require('express');
-const apiKeyController = require('../controllers/apiKeyController');
-const { authenticate } = require('../middleware/auth'); // This will be implemented later
-
 const router = express.Router();
+const { 
+  createApiKey, 
+  getApiKeys, 
+  getApiKey, 
+  deleteApiKey,
+  validateApiKey
+} = require('../controllers/apiKeyController');
+const { protect } = require('../middleware/auth');
 
-// Apply authentication middleware to all routes
-router.use(authenticate);
+// All routes require authentication
+router.use(protect);
 
-// Route to add a new API key
-router.post('/', apiKeyController.addApiKey);
+// Create a new API key
+router.post('/', createApiKey);
 
-// Route to get all API keys (masked) for the authenticated user
-router.get('/', apiKeyController.getApiKeys);
+// Get all API keys for current user
+router.get('/', getApiKeys);
 
-// Route to revoke (delete) an API key
-router.delete('/:keyId', apiKeyController.revokeApiKey);
+// Get a specific API key
+router.get('/:id', getApiKey);
 
-// Route to validate an API key (for testing purposes)
-router.get('/validate', apiKeyController.validateApiKey);
+// Delete an API key
+router.delete('/:id', deleteApiKey);
+
+// Validate an API key with Delta Exchange
+router.post('/validate', validateApiKey);
 
 module.exports = router; 

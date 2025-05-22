@@ -13,8 +13,8 @@
       "temperature": 0.1
     },
     "fallback": {
-      "provider": "openrouter",
-      "modelId": "deepseek/deepseek-chat-v3-0324:free",
+      "provider": "ollama",
+      "modelId": "ollama/mistral-small3.1",
       "maxTokens": 8192,
       "temperature": 0.1
     }

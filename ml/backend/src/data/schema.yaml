@@ -1,12 +1,6 @@
 timestamp:
   type: string
   format: datetime
-price:
-  type: number
-  description: 'Asset price at the given timestamp'
-volume:
-  type: number
-  description: 'Trade volume at the given timestamp'
 open:
   type: number
   description: 'Open price'
@@ -19,6 +13,6 @@ low:
 close:
   type: number
   description: 'Close price'
-features:
-  type: object
-  description: 'Additional engineered features (e.g., indicators)' 
+volume:
+  type: number
+  description: 'Trade volume at the given timestamp'

@@ -11,6 +11,7 @@ from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from dotenv import load_dotenv
+from ml.backend.src.strategy.pipeline import main as run_pipeline
 
 # Add the project root to the sys.path
 project_root = Path(__file__).parent.parent.parent.parent.parent
@@ -55,46 +56,11 @@ async def health():
 @app.get("/api/predict/{symbol}")
 async def predict(symbol: str):
     """
-    Get predictions for a trading symbol
-    
-    This is a placeholder endpoint. In a real implementation, it would:
-    1. Load the appropriate model for the symbol
-    2. Get market data from the database or API
-    3. Preprocess the data
-    4. Run inference using the model
-    5. Return predictions with confidence scores
-    
-    Args:
-        symbol: Trading symbol (e.g., "BTC-USDT")
-        
-    Returns:
-        dict: Prediction results with direction, confidence, and technical indicators
+    Get predictions for a trading symbol using the orchestrator pipeline
     """
-    # This is dummy data for now
-    return {
-        "symbol": symbol,
-        "prediction": {
-            "direction": "bullish",
-            "confidence": 0.85,
-            "price_target": 45000.0,
-            "stop_loss": 42500.0,
-            "time_frame": "4h"
-        },
-        "smart_money_indicators": {
-            "order_blocks": [
-                {"price": 43200.0, "type": "bullish", "strength": 0.9},
-                {"price": 41800.0, "type": "bullish", "strength": 0.75}
-            ],
-            "fair_value_gaps": [
-                {"high": 44100.0, "low": 43800.0, "type": "bullish"}
-            ],
-            "liquidity_levels": [
-                {"price": 45500.0, "type": "buy_side", "volume": "high"},
-                {"price": 42000.0, "type": "sell_side", "volume": "medium"}
-            ]
-        },
-        "timestamp": "2023-05-21T12:34:56Z"
-    }
+    # For demo, just run the pipeline (should be adapted for real symbol input)
+    result = run_pipeline(symbol)
+    return result
 
 @app.get("/api/models")
 async def list_models():

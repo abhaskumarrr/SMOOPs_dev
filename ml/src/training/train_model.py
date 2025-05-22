@@ -11,10 +11,12 @@ from pathlib import Path
 import torch
 import numpy as np
 from typing import Dict, Any, Optional, Union, Tuple
+from datetime import datetime, timedelta
 
-from ..data.data_loader import load_data
+from ..data.data_loader import MarketDataLoader
 from ..models.model_registry import ModelRegistry
 from ..utils.metrics import calculate_metrics
+from ..models.base_model import ModelFactory
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -57,63 +59,99 @@ def train_model(
     """
     logger.info(f"Training {model_type} model for {symbol}")
     
-    # Load data
-    train_dataloader, val_dataloader, test_dataloader = load_data(
-        symbol=symbol,
-        data_path=data_path,
-        train_ratio=train_ratio,
-        val_ratio=val_ratio,
-        test_ratio=test_ratio,
-        sequence_length=sequence_length,
-        forecast_horizon=forecast_horizon,
-        batch_size=batch_size
-    )
-    
-    # Initialize model based on type
-    registry = ModelRegistry()
-    model = registry.create_model(
+    # Load data (raw DataFrame and feature engineering)
+    loader = MarketDataLoader(timeframe='1h', symbols=[symbol.replace('USD', '/USDT')])
+    try:
+        df = loader.load_from_csv(symbol=symbol.replace('USD', '/USDT'), file_path=data_path)
+    except Exception as e:
+        logger.warning(f"Could not load from CSV: {e}. Fetching from exchange instead.")
+        df_dict = loader.fetch_historical_data(start_date=(datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d'), end_date=datetime.now().strftime('%Y-%m-%d'))
+        df = df_dict.get(symbol.replace('USD', '/USDT'))
+    if df is None:
+        raise ValueError(f"No data found for symbol {symbol}")
+    df_proc = loader.preprocess_for_smc(df)
+    X, y = loader.create_features(df_proc)
+
+    # Create trainer
+    from .trainer import ModelTrainer
+    input_dim = X.shape[1]
+    trainer = ModelTrainer(
         model_type=model_type,
-        input_dim=train_dataloader.dataset.features_dim,
+        input_shape=(sequence_length, input_dim),
+        output_units=forecast_horizon,
+        batch_size=batch_size,
+        epochs=num_epochs,
+        patience=early_stopping_patience,
+        learning_rate=learning_rate,
+        model_dir="models",
+        log_dir="logs",
+        experiment_name=None,
+        random_state=42
+    )
+    # Preprocess and split data using ModelTrainer
+    # Reshape X to (samples, sequence_length, features) for LSTM/GRU
+    X_seq = []
+    y_seq = []
+    for i in range(len(X) - sequence_length):
+        X_seq.append(X[i:i+sequence_length])
+        y_seq.append(y[i+sequence_length])
+    X_seq = np.array(X_seq)
+    y_seq = np.array(y_seq)
+    X_train, X_val, y_train, y_val = trainer.preprocess_data(X_seq, y_seq, scaling_method='standard', target_scaling=False)
+    # Create DataLoaders
+    from torch.utils.data import TensorDataset, DataLoader
+    train_dataset = TensorDataset(torch.tensor(X_train, dtype=torch.float32), torch.tensor(y_train, dtype=torch.float32))
+    val_dataset = TensorDataset(torch.tensor(X_val, dtype=torch.float32), torch.tensor(y_val, dtype=torch.float32))
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+    # For test set, use the remaining data
+    X_test = X_seq[-len(X_val):]
+    y_test = y_seq[-len(y_val):]
+    test_dataset = TensorDataset(torch.tensor(X_test, dtype=torch.float32), torch.tensor(y_test, dtype=torch.float32))
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+    trainer.model = ModelFactory.create_model(
+        model_type=model_type,
+        input_dim=input_dim,
         output_dim=forecast_horizon,
+        seq_len=sequence_length,
+        forecast_horizon=forecast_horizon,
         **kwargs
     )
-    
-    # Create trainer
-    from .trainer import Trainer
-    trainer = Trainer(
-        model=model,
-        train_dataloader=train_dataloader,
-        val_dataloader=val_dataloader,
-        learning_rate=learning_rate,
-        device=torch.device("mps" if torch.backends.mps.is_available() else 
-                            "cuda" if torch.cuda.is_available() else "cpu")
-    )
-    
     # Train the model
-    trainer.train(
-        num_epochs=num_epochs,
-        early_stopping_patience=early_stopping_patience
-    )
-    
+    trainer.fit(train_loader, val_loader)
     # Evaluate on test set
-    test_metrics = trainer.evaluate(test_dataloader)
+    test_metrics = trainer.evaluate(test_loader)
     
-    # Save the model
-    model_info = registry.save_model(
-        model=model,
+    # Collect fitted preprocessors if available
+    preprocessor = None
+    if hasattr(trainer, 'feature_scaler') and hasattr(trainer, 'target_scaler'):
+        if getattr(trainer, 'feature_scaler', None) is not None and getattr(trainer, 'target_scaler', None) is not None:
+            preprocessor = {
+                'feature_scaler': trainer.feature_scaler,
+                'target_scaler': trainer.target_scaler
+            }
+        elif getattr(trainer, 'feature_scaler', None) is not None:
+            preprocessor = trainer.feature_scaler
+        elif getattr(trainer, 'target_scaler', None) is not None:
+            preprocessor = trainer.target_scaler
+    elif hasattr(trainer, 'feature_scaler') and getattr(trainer, 'feature_scaler', None) is not None:
+        preprocessor = trainer.feature_scaler
+    elif hasattr(trainer, 'target_scaler') and getattr(trainer, 'target_scaler', None) is not None:
+        preprocessor = trainer.target_scaler
+
+    # Save the model and preprocessor
+    version = ModelRegistry().save_model(
+        model=trainer.model,
         symbol=symbol,
-        model_type=model_type,
         metrics=test_metrics,
-        params={
+        metadata={
             "sequence_length": sequence_length,
             "forecast_horizon": forecast_horizon,
-            "train_params": {
-                "batch_size": batch_size,
-                "learning_rate": learning_rate,
-                "num_epochs": trainer.current_epoch
-            },
+            "batch_size": batch_size,
+            "learning_rate": learning_rate,
+            "num_epochs": num_epochs,
             **kwargs
-        }
+        },
+        preprocessor=preprocessor
     )
-    
-    return model_info 
+    return {"version": version, "metrics": test_metrics} 

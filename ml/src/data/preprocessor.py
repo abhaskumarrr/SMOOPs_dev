@@ -11,7 +11,7 @@ import pandas as pd
 from typing import Dict, List, Optional, Union, Tuple, Any
 import logging
 from sklearn.preprocessing import StandardScaler, RobustScaler
-from .data_loader import CryptoDataLoader
+from .data_loader import MarketDataLoader
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -21,14 +21,14 @@ logger = logging.getLogger(__name__)
 class EnhancedPreprocessor:
     """Extended preprocessing functionality for crypto market data"""
     
-    def __init__(self, data_loader: Optional[CryptoDataLoader] = None):
+    def __init__(self, data_loader: Optional[MarketDataLoader] = None):
         """
         Initialize the enhanced preprocessor
         
         Args:
             data_loader: Crypto data loader instance (creates new one if None)
         """
-        self.data_loader = data_loader or CryptoDataLoader()
+        self.data_loader = data_loader or MarketDataLoader()
     
     def add_advanced_features(self, df: pd.DataFrame) -> pd.DataFrame:
         """
@@ -389,7 +389,7 @@ def preprocess_with_enhanced_features(
     Returns:
         Preprocessed data dictionary
     """
-    loader = CryptoDataLoader()
+    loader = MarketDataLoader()
     preprocessor = EnhancedPreprocessor(loader)
     
     # Load data

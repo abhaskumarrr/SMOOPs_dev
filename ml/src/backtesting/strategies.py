@@ -10,6 +10,8 @@ import numpy as np
 from typing import Dict, List, Any, Optional, Union, Callable
 from abc import ABC, abstractmethod
 import logging
+import torch
+import joblib
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -857,4 +859,81 @@ class SmcBasedStrategy(BaseStrategy):
                     'reason': f"Hit bullish Order Block at {ob['top']}"
                 }
         
-        return None 
+        return None
+
+
+class MLModelStrategy(BaseStrategy):
+    """
+    MLModelStrategy integrates any trained ML model (PyTorch) as a backtest strategy.
+    It loads a model checkpoint and optional preprocessor, and generates signals from model predictions.
+    """
+    def __init__(self, model_class, model_kwargs, model_checkpoint, preprocessor_path=None, device='cpu', threshold=0.5, name="MLModelStrategy", params=None):
+        super().__init__(name=name, params=params)
+        self.model = model_class(**model_kwargs)
+        checkpoint = torch.load(model_checkpoint, map_location=device)
+        if isinstance(checkpoint, dict) and 'model_state_dict' in checkpoint:
+            self.model.load_state_dict(checkpoint['model_state_dict'])
+        else:
+            self.model.load_state_dict(checkpoint)
+        self.model.to(device)
+        self.model.eval()
+        self.device = device
+        self.threshold = threshold
+        self.preprocessor = joblib.load(preprocessor_path) if preprocessor_path else None
+
+    def initialize(self, data: pd.DataFrame, symbol: str):
+        self.data = data
+        self.symbol = symbol
+        self.current_index = 0
+        # No indicators needed for ML model
+
+    def generate_signals(self, candle: Dict[str, Any], index: int) -> List[Dict[str, Any]]:
+        # Prepare features for the model
+        X = pd.DataFrame([candle])
+        # Drop 'timestamp' column if present
+        if 'timestamp' in X.columns:
+            X = X.drop(columns=['timestamp'])
+        # Align columns to preprocessor's expected order if possible
+        if self.preprocessor:
+            expected_cols = None
+            # Try to get feature names from preprocessor (sklearn >=1.0)
+            if hasattr(self.preprocessor, 'feature_names_in_'):
+                expected_cols = list(self.preprocessor.feature_names_in_)
+            elif isinstance(self.preprocessor, dict) and 'feature_scaler' in self.preprocessor and hasattr(self.preprocessor['feature_scaler'], 'feature_names_in_'):
+                expected_cols = list(self.preprocessor['feature_scaler'].feature_names_in_)
+            if expected_cols is not None:
+                # Check for missing or extra columns
+                missing = [col for col in expected_cols if col not in X.columns]
+                extra = [col for col in X.columns if col not in expected_cols]
+                if missing or extra:
+                    logger.error(f"Feature column mismatch in MLModelStrategy.\nExpected: {expected_cols}\nActual: {list(X.columns)}\nMissing: {missing}\nExtra: {extra}")
+                    raise ValueError(f"Feature column mismatch. See logs for details.")
+                # Reorder columns
+                X = X[expected_cols]
+            X = self.preprocessor.transform(X)
+        else:
+            raise RuntimeError("MLModelStrategy requires a preprocessor to ensure feature engineering matches training. Please provide the preprocessor used during training (e.g., --preprocessor path/to/preprocessor.joblib). This prevents input_dim mismatches. See https://discuss.pytorch.org/t/time-series-lstm-size-mismatch-beginner-question/4704 for details.")
+        X_tensor = torch.tensor(np.array(X), dtype=torch.float32).to(self.device)
+        with torch.no_grad():
+            preds = self.model(X_tensor).cpu().numpy()
+        signals = []
+        # Binary classification: output shape (batch, 1)
+        if preds.ndim == 2 and preds.shape[1] == 1:
+            if preds[0, 0] > self.threshold:
+                signals.append({'action': 'enter', 'direction': 'long', 'symbol': self.symbol, 'reason': f"MLModel > threshold ({preds[0,0]:.3f})"})
+            elif preds[0, 0] < 1 - self.threshold:
+                signals.append({'action': 'enter', 'direction': 'short', 'symbol': self.symbol, 'reason': f"MLModel < 1-threshold ({preds[0,0]:.3f})"})
+        # Multi-class: output shape (batch, n_classes)
+        elif preds.ndim == 2 and preds.shape[1] > 1:
+            direction = np.argmax(preds[0])
+            if direction == 1:
+                signals.append({'action': 'enter', 'direction': 'long', 'symbol': self.symbol, 'reason': f"MLModel class=long"})
+            elif direction == 2:
+                signals.append({'action': 'enter', 'direction': 'short', 'symbol': self.symbol, 'reason': f"MLModel class=short"})
+        # Regression: output shape (batch,)
+        elif preds.ndim == 1:
+            if preds[0] > self.threshold:
+                signals.append({'action': 'enter', 'direction': 'long', 'symbol': self.symbol, 'reason': f"MLModel regression > threshold ({preds[0]:.3f})"})
+            elif preds[0] < -self.threshold:
+                signals.append({'action': 'enter', 'direction': 'short', 'symbol': self.symbol, 'reason': f"MLModel regression < -threshold ({preds[0]:.3f})"})
+        return signals 

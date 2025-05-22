@@ -271,10 +271,27 @@ class ModelRegistry:
         
         # Get model config and type
         model_config = checkpoint.get('model_config', {})
-        model_type = checkpoint.get('model_type', '').lower()
+        model_type = checkpoint.get('model_type', '')
+        # Normalize model_type to match ModelFactory keys
+        model_type_map = {
+            'lstm': 'lstm',
+            'lstmmodel': 'lstm',
+            'LSTMModel': 'lstm',
+            'gru': 'gru',
+            'grumodel': 'gru',
+            'GRUModel': 'gru',
+            'transformer': 'transformer',
+            'transformermodel': 'transformer',
+            'TransformerModel': 'transformer',
+            'cnn_lstm': 'cnn_lstm',
+            'cnnlstmmodel': 'cnn_lstm',
+            'CNNLSTMModel': 'cnn_lstm',
+        }
+        model_type_key = str(model_type).lower()
+        model_type = model_type_map.get(model_type_key, model_type_key)
         if not model_type and 'model_type' in model_config:
             model_type = model_config['model_type'].lower()
-        
+            model_type = model_type_map.get(model_type, model_type)
         # Default to LSTM if type not found
         if not model_type:
             model_type = 'lstm'

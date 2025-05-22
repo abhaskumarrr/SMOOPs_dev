@@ -1,17 +1,53 @@
-# SMOOPs: SmartMarketOOPs
+# SMOOPs: Automated Crypto ML Trading Pipeline
 
 ## Overview
-This project is an institutional-grade crypto trading bot that leverages advanced machine learning (ML) models to identify Smart Money Order Blocks and execute trades on Delta Exchange. The system uses Smart Money Concepts (SMC), Fair Value Gaps (FVGs), and liquidity analysis for generating high-probability trading signals. Optimized for the Apple MacBook Air M2, the system ensures efficient resource usage and high performance on consumer-grade hardware.
+SMOOPs is a production-grade, fully automated machine learning pipeline for cryptocurrency trading. It features robust model training, strict preprocessor and feature alignment, reproducible inference, and a powerful backtesting engine. The system is managed and documented using Taskmaster for maximum reproducibility and team collaboration.
 
 ## Key Features
-- **Smart Money Concepts Trading:** Implements Order Blocks, Fair Value Gaps, Break of Structure, and liquidity analysis
-- **Machine Learning Predictions:** Utilizes PyTorch for building, training, and deploying ML models optimized for Apple Silicon
-- **Delta Exchange API:** Supports both testnet and real net trading environments
-- **Real-time Dashboard:** TradingView-style charts with live indicators, signals, and trade execution
-- **Institutional-Grade Risk Management:** Advanced position sizing, drawdown protection, and performance monitoring
-- **Secure API Key Management:** Advanced encryption system for safely storing and retrieving exchange API credentials
-- **Real-Time Trading Analytics:** Computes and stores trading metrics (PnL, Sharpe ratio, drawdown, win rate, etc.) on trade/position events.
-- **Automated Compliance Reporting:** Automated script generates compliance reports, aggregating audit logs, erasure/export requests, and encryption status.
+- **End-to-end ML pipeline**: Data ingestion, feature engineering, model training, evaluation, prediction, and backtesting.
+- **Strict feature alignment**: Ensures that features used in training, prediction, and backtesting are always identical in name and order, preventing silent bugs.
+- **Preprocessor persistence**: The exact fitted preprocessor (e.g., StandardScaler) is saved and loaded with each model checkpoint.
+- **Robust backtesting**: Automated backtest engine with ML model integration, strict input dimension checks, and clear error reporting.
+- **Taskmaster integration**: All tasks, subtasks, and workflow documentation are managed with Taskmaster for transparency and reproducibility.
+
+## Workflow
+1. **Train a Model**
+   ```bash
+   python3 -m ml.src.cli train --symbol BTCUSD --model-type lstm --data-path sample_data/BTCUSD_15m.csv --num-epochs 100 --batch-size 32 --sequence-length 60 --forecast-horizon 1
+   ```
+   - Saves model, preprocessor, and metadata in `models/registry/<SYMBOL>/<VERSION>/`.
+
+2. **Make Predictions**
+   ```bash
+   python3 -m ml.src.cli predict --symbol BTCUSD --data-file sample_data/BTCUSD_15m.csv --output-file predictions.csv
+   ```
+   - Loads the latest model and preprocessor, applies exact feature engineering, and outputs predictions.
+
+3. **Run Backtest**
+   ```bash
+   python3 -m ml.src.cli backtest --data-file sample_data/BTCUSD_15m.csv --strategy ml_model --symbol BTCUSD --model-type lstm --model-checkpoint models/registry/BTCUSD/<VERSION>/model.pt --preprocessor models/registry/BTCUSD/<VERSION>/preprocessor.pkl --output-dir runs/backtest/
+   ```
+   - Ensures feature and preprocessor alignment, outputs robust backtest results.
+
+## Troubleshooting
+- **Input Dimension Errors**: If you see errors like `size mismatch for lstm.weight_ih_l0`, check that your feature engineering and preprocessor match exactly between training and inference. See [PyTorch LSTM size mismatch discussion](https://discuss.pytorch.org/t/time-series-lstm-size-mismatch-beginner-question/4704).
+- **Feature Mismatch**: The pipeline will log expected vs. actual feature columns and raise a clear error if they do not match.
+
+## Taskmaster Usage
+- All project tasks, subtasks, and workflow documentation are managed with Taskmaster.
+- To regenerate markdown documentation and task files:
+  ```bash
+  task-master generate
+  ```
+- For more, see `.taskmasterconfig` and the `tasks/` directory.
+
+## References
+- [PyTorch LSTM: Size mismatch and feature alignment](https://discuss.pytorch.org/t/time-series-lstm-size-mismatch-beginner-question/4704)
+- [Best practices for ML pipeline automation](https://www.markovml.com/blog/machine-learning-pipeline)
+- [Taskmaster documentation](./.taskmasterconfig)
+
+---
+For questions or contributions, see the `docs/` directory or open an issue.
 
 ## Documentation
 
@@ -132,61 +168,4 @@ The backend provides several API endpoints:
 
 ### ML Service
 The ML service exposes endpoints for model training and prediction:
-- `POST /ml/train` - Train a new model or update existing one
-- `GET /ml/predict/:symbol` - Get prediction for a symbol
-- `GET /ml/models` - List available models and their performance
-
-### Real-Time Analytics
-
-- **Backend**: Emits `analytics_update` events via Socket.IO when trades are executed.
-- **Frontend**: Subscribe to `analytics_update` events to display live trading metrics and alerts.
-- **Example**: Emit a `trade_executed` event to the backend to trigger analytics computation.
-
-### Compliance Automation
-
-- **Generate Compliance Report**:
-  - Run: `npm run compliance:report`
-  - Output: `compliance_report.json` (includes access logs, erasure requests, encryption status)
-  - Schedule with cron for regular reporting.
-
-- **GDPR Endpoints**:
-  - `POST /api/compliance/export` with `{ userId }` to export user data.
-  - `POST /api/compliance/erase` with `{ userId }` to soft-delete user data.
-
-- **Checklist**: See `backend/prisma/SECURITY_COMPLIANCE.md` for compliance automation status and best practices.
-
-## System Architecture
-
-### Backend (Node.js/Express)
-- RESTful API for trading operations and data access
-- WebSocket server for real-time market data and signals
-- Secure API key management with encryption
-- Database access via Prisma ORM
-
-### Frontend (Next.js)
-- React-based dashboard with TradingView-style charts
-- Real-time data visualization and order management
-- Mobile-responsive design
-
-### ML Services (Python/PyTorch)
-- PyTorch models optimized for Apple Silicon
-- Smart Money Concepts detection algorithms
-- Backtesting framework for strategy validation
-- Performance monitoring and reporting
-
-## ML Models and Strategies
-
-The system implements several trading strategies based on Smart Money Concepts:
-
-- **Order Block Detection:** Identifies institutional buying and selling zones
-- **Fair Value Gap Analysis:** Detects imbalances between supply and demand
-- **Break of Structure & Change of Character:** Identifies trend changes
-- **Liquidity Engineering Analysis:** Detects liquidity sweeps and stop hunts
-
-These strategies are enhanced with machine learning models that optimize entry and exit points, position sizing, and risk management.
-
-## Contributing
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## License
-This project is licensed under the MIT License - see the LICENSE file for details. 
+- `

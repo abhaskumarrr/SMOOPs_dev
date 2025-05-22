@@ -8,6 +8,8 @@ const { instrument } = require('@socket.io/admin-ui');
 const { PrismaClient } = require('@prisma/client');
 const { verify } = require('jsonwebtoken');
 const { decrypt } = require('../utils/encryption');
+const express = require('express');
+const bodyParser = require('body-parser');
 
 const prisma = new PrismaClient();
 
@@ -16,6 +18,34 @@ const activeConnections = new Map();
 
 // Store market data subscriptions
 const marketDataSubscriptions = new Map();
+
+// --- Real-time Data Ingestion from ML Backend ---
+const realTimeRouter = express.Router();
+
+realTimeRouter.use(bodyParser.json());
+
+// POST /realtime/market-data
+realTimeRouter.post('/market-data', async (req, res) => {
+  try {
+    const { symbol, data } = req.body;
+    if (!symbol || !data) {
+      return res.status(400).json({ error: 'Missing symbol or data' });
+    }
+    // Broadcast to all clients subscribed to this symbol
+    if (marketDataSubscriptions.has(symbol)) {
+      for (const socketId of marketDataSubscriptions.get(symbol)) {
+        const userConnection = activeConnections.get(socketId);
+        if (userConnection) {
+          userConnection.socket.emit('market:data', { symbol, data });
+        }
+      }
+    }
+    res.status(200).json({ status: 'ok' });
+  } catch (error) {
+    console.error('Error broadcasting real-time market data:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 /**
  * Initialize WebSocket server
@@ -314,5 +344,6 @@ module.exports = {
   initializeWebsocketServer,
   broadcastMarketData,
   broadcastBotUpdate,
-  broadcastSignal
+  broadcastSignal,
+  realTimeRouter
 }; 

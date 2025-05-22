@@ -15,6 +15,8 @@ from typing import Dict, List, Optional, Union, Tuple, Any
 import logging
 from pathlib import Path
 import ccxt
+import torch
+from torch.utils.data import TensorDataset, DataLoader
 
 from ..api.delta_client import get_delta_client, DeltaExchangeClient
 from ..utils.config import DATA_CONFIG
@@ -55,8 +57,8 @@ class MarketDataLoader:
         self.exchange_handlers = {
             'binance': ccxt.binance,
             'kucoin': ccxt.kucoin,
-            'coinbase': ccxt.coinbasepro,
-            'ftx': ccxt.ftx,
+            'coinbase': ccxt.coinbase,
+            # 'ftx': ccxt.ftx,  # FTX is no longer supported in ccxt
         }
     
     def fetch_historical_data(self, 
@@ -295,7 +297,7 @@ class MarketDataLoader:
         # Create lag features (last n values)
         for col in ['close', 'volume', 'rsi', 'macd']:
             for lag in range(1, 6):
-                df_ml[f'{col}_lag_{lag}'] = df_ml[col].shift(lag)
+                df_ml.loc[:, f'{col}_lag_{lag}'] = df_ml[col].shift(lag)
                 feature_columns.append(f'{col}_lag_{lag}')
         
         # Drop rows with NaN features
@@ -419,29 +421,97 @@ def load_data(
     days_back: int = 30,
     use_cache: bool = True,
     preprocess: bool = True,
+    batch_size: int = 32,
+    sequence_length: int = 60,
     **preprocess_kwargs
-) -> Union[pd.DataFrame, Dict]:
+) -> Tuple[DataLoader, DataLoader, DataLoader]:
     """
-    Convenience function to load and optionally preprocess data
-    
-    Args:
-        symbol: Trading symbol
-        interval: Timeframe
-        days_back: Number of days to look back
-        use_cache: Whether to use cached data
-        preprocess: Whether to preprocess the data
-        **preprocess_kwargs: Additional arguments for preprocessing
-        
-    Returns:
-        Raw DataFrame or preprocessed data dictionary
+    Loads and preprocesses data, returning train/val/test DataLoaders for PyTorch models.
     """
-    loader = CryptoDataLoader()
-    df = loader.get_data(symbol, interval, days_back, use_cache)
-    
-    if preprocess:
-        return loader.preprocess_data(df, **preprocess_kwargs)
-    
-    return df
+    loader = MarketDataLoader(timeframe=interval, symbols=[symbol.replace('USD', '/USDT')])
+    if use_cache:
+        try:
+            df = loader.load_from_csv(symbol=symbol.replace('USD', '/USDT'))
+        except Exception as e:
+            logger.warning(f"Could not load from CSV: {e}. Fetching from exchange instead.")
+            df_dict = loader.fetch_historical_data(start_date=(datetime.now() - timedelta(days=days_back)).strftime('%Y-%m-%d'), end_date=datetime.now().strftime('%Y-%m-%d'))
+            df = df_dict.get(symbol.replace('USD', '/USDT'))
+    else:
+        df_dict = loader.fetch_historical_data(start_date=(datetime.now() - timedelta(days=days_back)).strftime('%Y-%m-%d'), end_date=datetime.now().strftime('%Y-%m-%d'))
+        df = df_dict.get(symbol.replace('USD', '/USDT'))
+    if df is None:
+        raise ValueError(f"No data found for symbol {symbol}")
+    # Only pass supported kwargs to preprocess_for_smc
+    supported_keys = ['window_size']
+    filtered_kwargs = {k: v for k, v in preprocess_kwargs.items() if k in supported_keys}
+    df_proc = loader.preprocess_for_smc(df, **filtered_kwargs)
+    X, y = loader.create_features(df_proc)
+    X_train, X_val, X_test, y_train, y_val, y_test = loader.split_data(X, y)
+    # Convert to torch tensors
+    X_train_t = torch.tensor(X_train, dtype=torch.float32)
+    y_train_t = torch.tensor(y_train, dtype=torch.float32)
+    X_val_t = torch.tensor(X_val, dtype=torch.float32)
+    y_val_t = torch.tensor(y_val, dtype=torch.float32)
+    X_test_t = torch.tensor(X_test, dtype=torch.float32)
+    y_test_t = torch.tensor(y_test, dtype=torch.float32)
+    # Create TensorDatasets
+    train_dataset = TensorDataset(X_train_t, y_train_t)
+    val_dataset = TensorDataset(X_val_t, y_val_t)
+    test_dataset = TensorDataset(X_test_t, y_test_t)
+    # Create DataLoaders
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+    return train_loader, val_loader, test_loader
+
+
+class RealTimeDataNormalizer:
+    """
+    Normalizes raw WebSocket data from Delta Exchange into a standard format for downstream processing.
+    Handles trades, order book, and ticker data. Robust to missing/erroneous fields.
+    """
+    def __init__(self):
+        pass
+
+    def normalize(self, raw_data):
+        # Determine message type
+        msg_type = raw_data.get('type')
+        payload = raw_data.get('data') or raw_data.get('payload') or raw_data
+        result = []
+
+        if msg_type == 'trade' or (isinstance(payload, dict) and 'trades' in payload):
+            trades = payload.get('trades', []) if isinstance(payload, dict) else []
+            for trade in trades:
+                result.append({
+                    'timestamp': int(trade.get('timestamp', trade.get('time', 0))),
+                    'price': float(trade.get('price', 0)),
+                    'volume': float(trade.get('size', trade.get('volume', 0))),
+                    'symbol': trade.get('symbol', payload.get('symbol', '')),
+                    'type': 'trade',
+                    'side': trade.get('side', None),
+                    'id': trade.get('id', None)
+                })
+        elif msg_type == 'orderbook' or (isinstance(payload, dict) and ('bids' in payload or 'asks' in payload)):
+            # Order book snapshot or update
+            result.append({
+                'timestamp': int(payload.get('timestamp', payload.get('time', 0))),
+                'symbol': payload.get('symbol', ''),
+                'type': 'orderbook',
+                'bids': payload.get('bids', []),
+                'asks': payload.get('asks', [])
+            })
+        elif msg_type == 'ticker' or (isinstance(payload, dict) and 'mark_price' in payload):
+            result.append({
+                'timestamp': int(payload.get('timestamp', payload.get('time', 0))),
+                'symbol': payload.get('symbol', ''),
+                'type': 'ticker',
+                'price': float(payload.get('mark_price', payload.get('price', 0))),
+                'volume': float(payload.get('volume', 0))
+            })
+        else:
+            # Unknown or unhandled type, pass through for logging/debug
+            result.append({'raw': raw_data, 'type': 'unknown'})
+        return result
 
 
 if __name__ == "__main__":

@@ -1,20 +1,20 @@
 {
   "models": {
     "main": {
-      "provider": "openrouter",
-      "modelId": "mistralai/mistral-small-3.1-24b-instruct:free",
+      "provider": "ollama",
+      "modelId": "phi4",
       "maxTokens": 120000,
       "temperature": 0.2
     },
     "research": {
-      "provider": "openrouter",
-      "modelId": "deepseek/deepseek-chat-v3-0324:free",
+      "provider": "ollama",
+      "modelId": "phi4",
       "maxTokens": 8700,
       "temperature": 0.1
     },
     "fallback": {
       "provider": "ollama",
-      "modelId": "ollama/mistral-small3.1",
+      "modelId": "phi4",
       "maxTokens": 8192,
       "temperature": 0.1
     }

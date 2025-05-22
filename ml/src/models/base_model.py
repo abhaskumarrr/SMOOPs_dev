@@ -7,6 +7,8 @@ from abc import ABC, abstractmethod
 import logging
 from typing import Dict, Any, Optional, Tuple, List, Union
 import numpy as np
+import torch
+import torch.nn as nn
 
 logger = logging.getLogger(__name__)
 
@@ -34,34 +36,17 @@ class BaseModel(ABC):
         pass
     
     @abstractmethod
-    def train(
+    def fit_model(
         self,
-        X_train: np.ndarray,
-        y_train: np.ndarray,
-        X_val: np.ndarray,
-        y_val: np.ndarray,
-        batch_size: int,
-        epochs: int,
-        patience: int,
-        log_dir: Optional[str],
-        checkpoint_dir: Optional[str],
-    ) -> Dict[str, Any]:
+        train_loader,
+        val_loader,
+        num_epochs=100,
+        lr=0.001,
+        early_stopping_patience=10,
+        checkpoint_dir=None
+    ):
         """
         Train the model.
-        
-        Args:
-            X_train: Training data
-            y_train: Training labels
-            X_val: Validation data
-            y_val: Validation labels
-            batch_size: Batch size for training
-            epochs: Maximum number of epochs
-            patience: Patience for early stopping
-            log_dir: Directory for TensorBoard logs
-            checkpoint_dir: Directory for model checkpoints
-            
-        Returns:
-            Dictionary with training history
         """
         pass
     

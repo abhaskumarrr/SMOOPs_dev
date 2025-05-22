@@ -10,12 +10,9 @@ import json
 import time
 import datetime
 from typing import Dict, List, Tuple, Optional, Union, Any, Type
-import tensorflow as tf
-from tensorflow.keras.callbacks import (
-    EarlyStopping, ModelCheckpoint, ReduceLROnPlateau, TensorBoard,
-    CSVLogger, LambdaCallback
-)
-import matplotlib.pyplot as plt
+import torch
+import torch.nn as nn
+import torch.optim as optim
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
@@ -31,17 +28,9 @@ logger = logging.getLogger(__name__)
 
 class ModelTrainer:
     """
-    Comprehensive model trainer for Smart Money Concepts trading models.
-    
-    This class handles the complete training process including:
-    - Data preprocessing
-    - Model initialization
-    - Training with callbacks
-    - Evaluation metrics
-    - Model saving and experiment tracking
-    - Visualization of results
+    PyTorch-based model trainer for Smart Money Concepts trading models.
+    Handles data preprocessing, model initialization, training, evaluation, saving, and experiment tracking.
     """
-    
     def __init__(
         self,
         model_type: str,
@@ -58,24 +47,6 @@ class ModelTrainer:
         random_state: int = 42,
         **model_params
     ):
-        """
-        Initialize the trainer.
-        
-        Args:
-            model_type: Type of model ('lstm', 'gru', 'transformer', 'cnn_lstm')
-            input_shape: Shape of input data (sequence_length, features)
-            output_units: Number of output units (1 for binary classification)
-            batch_size: Batch size for training
-            epochs: Maximum number of training epochs
-            patience: Patience for early stopping
-            learning_rate: Learning rate for optimizer
-            validation_split: Fraction of data to use for validation
-            model_dir: Directory to save models
-            log_dir: Directory to save logs
-            experiment_name: Name of the experiment (if None, generate automatically)
-            random_state: Random seed for reproducibility
-            **model_params: Additional parameters for model initialization
-        """
         self.model_type = model_type.lower()
         self.input_shape = input_shape
         self.output_units = output_units
@@ -84,74 +55,75 @@ class ModelTrainer:
         self.patience = patience
         self.learning_rate = learning_rate
         self.validation_split = validation_split
-        self.model_params = model_params
+        self.model_dir = model_dir
+        self.log_dir = log_dir
+        self.experiment_name = experiment_name or f"{model_type}_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
         self.random_state = random_state
-        
-        # Set random seeds for reproducibility
-        np.random.seed(random_state)
-        tf.random.set_seed(random_state)
-        
-        # Generate experiment name if not provided
-        if experiment_name is None:
-            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-            self.experiment_name = f"{self.model_type}_{timestamp}"
-        else:
-            self.experiment_name = experiment_name
-        
-        # Create directories
-        self.model_dir = os.path.join(model_dir, self.experiment_name)
-        self.log_dir = os.path.join(log_dir, self.experiment_name)
-        self.checkpoint_dir = os.path.join(self.model_dir, 'checkpoints')
-        
-        os.makedirs(self.model_dir, exist_ok=True)
-        os.makedirs(self.log_dir, exist_ok=True)
-        os.makedirs(self.checkpoint_dir, exist_ok=True)
-        
-        # Initialize metrics tracking
-        self.history = None
-        self.metrics = {}
-        self.best_epoch = 0
-        
-        # Initialize data preprocessors
-        self.feature_scaler = None
-        self.target_scaler = None
-        
-        # Initialize model
-        self.model = self._create_model()
-        
-        # Log initialization
-        logger.info(f"Initialized {self.model_type.upper()} trainer - Experiment: {self.experiment_name}")
-        logger.info(f"Input shape: {input_shape}, Output units: {output_units}")
-    
+        self.model_params = model_params
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.model = self._create_model().to(self.device)
+
     def _create_model(self) -> BaseModel:
-        """
-        Create model based on specified type.
-        
-        Returns:
-            Initialized model
-        """
-        # Common parameters
         common_params = {
-            'input_shape': self.input_shape,
-            'output_units': self.output_units,
-            'learning_rate': self.learning_rate,
+            'input_dim': self.input_shape[1],
+            'output_dim': self.output_units,
+            'seq_len': self.input_shape[0],
+            'forecast_horizon': 1,
+            'device': self.device,
             **self.model_params
         }
-        
-        # Create model based on type
         if self.model_type == 'lstm':
-            model = LSTMModel(**common_params)
+            return LSTMModel(**common_params)
         elif self.model_type == 'gru':
-            model = GRUModel(**common_params)
+            return GRUModel(**common_params)
         elif self.model_type == 'transformer':
-            model = TransformerModel(**common_params)
+            return TransformerModel(**common_params)
         elif self.model_type == 'cnn_lstm':
-            model = CNNLSTMModel(**common_params)
+            return CNNLSTMModel(**common_params)
         else:
             raise ValueError(f"Unsupported model type: {self.model_type}")
-        
-        return model
-    
+
+    def fit(self, train_loader, val_loader):
+        logger.info(f"Training {self.model_type} model on device {self.device}")
+        history = self.model.fit_model(
+            train_loader=train_loader,
+            val_loader=val_loader,
+            num_epochs=self.epochs,
+            lr=self.learning_rate,
+            early_stopping_patience=self.patience,
+            checkpoint_dir=self.model_dir
+        )
+        return history
+
+    def evaluate(self, test_loader):
+        self.model.eval()
+        y_true, y_pred = [], []
+        with torch.no_grad():
+            for X, y in test_loader:
+                X = X.to(self.device).float()
+                y = y.cpu().numpy()
+                outputs = self.model(X)
+                if self.output_units == 1:
+                    preds = torch.sigmoid(outputs).cpu().numpy().flatten()
+                    preds = (preds > 0.5).astype(int)
+                else:
+                    preds = torch.argmax(outputs, dim=1).cpu().numpy()
+                y_true.extend(y.flatten())
+                y_pred.extend(preds)
+        from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+        metrics = {
+            'accuracy': accuracy_score(y_true, y_pred),
+            'precision': precision_score(y_true, y_pred, average='macro'),
+            'recall': recall_score(y_true, y_pred, average='macro'),
+            'f1_score': f1_score(y_true, y_pred, average='macro')
+        }
+        logger.info(f"Evaluation metrics: {metrics}")
+        return metrics
+
+    def save(self, model_path: str):
+        self.model.save(model_path)
+        logger.info(f"Model saved to {model_path}")
+
     def preprocess_data(
         self,
         X: np.ndarray,
@@ -227,12 +199,12 @@ class ModelTrainer:
         
         return X_train, X_val, y_train, y_val
     
-    def create_callbacks(self) -> List[tf.keras.callbacks.Callback]:
+    def create_callbacks(self) -> List[torch.nn.Module]:
         """
         Create callbacks for training.
         
         Returns:
-            List of Keras callbacks
+            List of PyTorch callbacks
         """
         callbacks = []
         
@@ -257,8 +229,8 @@ class ModelTrainer:
         
         # Model checkpoints
         checkpoint_path = os.path.join(
-            self.checkpoint_dir, 
-            f"{self.model_type}_" + "{epoch:02d}_{val_loss:.4f}.h5"
+            self.model_dir, 
+            f"{self.model_type}_" + "{epoch:02d}_{val_loss:.4f}.pt"
         )
         checkpoint = ModelCheckpoint(
             checkpoint_path,
@@ -335,7 +307,7 @@ class ModelTrainer:
         # Set up optimizer with default parameters if not provided
         if optimizer_kwargs is None:
             optimizer_kwargs = {"lr": 0.001, "weight_decay": 1e-5}
-        self.optimizer = optimizer_cls(model.parameters(), **optimizer_kwargs)
+        self.optimizer = optimizer_cls(self.model.parameters(), **optimizer_kwargs)
         
         # Set up loss function
         self.loss_fn = loss_fn if loss_fn is not None else DirectionalLoss(alpha=0.7, beta=2.0)
@@ -345,7 +317,7 @@ class ModelTrainer:
         if lr_scheduler_cls is not None:
             if lr_scheduler_kwargs is None:
                 lr_scheduler_kwargs = {}
-            self.lr_scheduler = lr_scheduler_cls(self.optimizer, **lr_scheduler_kwargs)
+            self.lr_scheduler = lr_scheduler_cls(self.optimizer)
         
         # Set up experiment name and directories
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -380,7 +352,7 @@ class ModelTrainer:
         # Log model architecture and hyperparameters
         self._log_model_info()
         
-        logger.info(f"Trainer initialized with {model.__class__.__name__} on {model.device}")
+        logger.info(f"Trainer initialized with {model.__class__.__name__} on {self.device}")
         logger.info(f"TensorBoard logs will be saved to {self.log_dir}")
         logger.info(f"Checkpoints will be saved to {self.checkpoints_dir}")
     
@@ -433,8 +405,8 @@ class ModelTrainer:
         
         for batch_idx, (X_batch, y_batch) in enumerate(self.train_dataloader):
             # Move data to the appropriate device
-            X_batch = X_batch.to(self.model.device)
-            y_batch = y_batch.to(self.model.device)
+            X_batch = X_batch.to(self.device)
+            y_batch = y_batch.to(self.device)
             
             # Zero the parameter gradients
             self.optimizer.zero_grad()
@@ -504,8 +476,8 @@ class ModelTrainer:
         with torch.no_grad():
             for X_batch, y_batch in self.val_dataloader:
                 # Move data to the appropriate device
-                X_batch = X_batch.to(self.model.device)
-                y_batch = y_batch.to(self.model.device)
+                X_batch = X_batch.to(self.device)
+                y_batch = y_batch.to(self.device)
                 
                 # Forward pass
                 outputs = self.model(X_batch)
@@ -547,8 +519,8 @@ class ModelTrainer:
         with torch.no_grad():
             for X_batch, y_batch in self.val_dataloader:
                 # Move data to the appropriate device
-                X_batch = X_batch.to(self.model.device)
-                y_batch = y_batch.to(self.model.device)
+                X_batch = X_batch.to(self.device)
+                y_batch = y_batch.to(self.device)
                 
                 # Forward pass
                 outputs = self.model(X_batch)
@@ -622,7 +594,7 @@ class ModelTrainer:
             return
         
         # Load checkpoint
-        checkpoint = torch.load(checkpoint_path, map_location=self.model.device)
+        checkpoint = torch.load(checkpoint_path, map_location=self.device)
         
         # Restore model and optimizer states
         self.model.load_state_dict(checkpoint['model_state_dict'])

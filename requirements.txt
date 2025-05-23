@@ -13,4 +13,5 @@ ta>=0.10.2
 scikit-image>=0.20.0
 optuna>=3.0.0
 scipy>=1.10.0
-mplfinance>=0.12.9b7 
+mplfinance>=0.12.9b7
+joblib>=1.2.0 

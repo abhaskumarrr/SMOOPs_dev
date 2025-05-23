@@ -140,13 +140,30 @@ npm run dev:tasks help
 
 ## Usage
 
+### Real-Time Delta Exchange Integration
+
+- The backend securely stores your Delta Exchange API credentials (testnet or mainnet) and streams real-time market data and ML signals via WebSocket.
+- The frontend dashboard connects to the backend WebSocket using `socket.io-client` and updates the TradingView-style chart in real time.
+- To use your own credentials, add them via the dashboard or backend API (see API Key Management below).
+- By default, the frontend connects to the backend WebSocket at `http://localhost:3001`. You can override this with the environment variable:
+  ```env
+  NEXT_PUBLIC_WS_URL=http://localhost:3001
+  ```
+  Add this to your `.env` file in the `frontend/` directory if needed.
+
+#### How to Test Live Chart
+1. Start all services (backend, frontend, ML, database) as described above.
+2. Log in to the dashboard at `http://localhost:3000`.
+3. The main chart will update in real time as new market data arrives from Delta Exchange testnet.
+4. You can subscribe to different symbols or intervals as you build out the dashboard UI.
+
 ### Trading Dashboard
 Access the trading dashboard at `http://localhost:3000` to:
-- View real-time market data with SMC indicators
+- View real-time market data with SMC indicators (live chart updates via WebSocket)
 - Monitor trading signals and executed trades
 - Analyze performance metrics
 - Configure trading strategies
-- Manage API keys securely
+- Manage API keys securely (testnet/mainnet)
 
 ### API Endpoints
 The backend provides several API endpoints:

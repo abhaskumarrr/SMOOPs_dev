@@ -1,9 +1,6 @@
 {
   "root": true,
-  "extends": [
-    "next/core-web-vitals",
-    "plugin:prettier/recommended"
-  ],
+  "extends": ["next/core-web-vitals", "plugin:prettier/recommended"],
   "plugins": ["@typescript-eslint"],
   "parserOptions": {
     "project": "./tsconfig.json"
@@ -13,4 +10,4 @@
     "@typescript-eslint/no-unused-vars": ["warn"],
     "prettier/prettier": ["error"]
   }
-} 
+}

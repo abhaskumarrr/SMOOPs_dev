@@ -1,8 +1,8 @@
 /**
  * Environment configuration for SMOOPs frontend
- * 
+ *
  * This module exposes environment variables to the frontend application.
- * 
+ *
  * IMPORTANT: Only include variables that are safe to expose to the client.
  * Any sensitive information should be kept server-side only.
  */
@@ -20,10 +20,10 @@ export const IS_TESTNET = process.env.NEXT_PUBLIC_DELTA_EXCHANGE_TESTNET !== 'fa
 export const FEATURES = {
   // Enable/disable real trading features
   REAL_TRADING: process.env.NEXT_PUBLIC_FEATURE_REAL_TRADING === 'true',
-  
+
   // Enable/disable backtesting feature
   BACKTESTING: process.env.NEXT_PUBLIC_FEATURE_BACKTESTING !== 'false',
-  
+
   // Enable/disable advanced analytics
   ADVANCED_ANALYTICS: process.env.NEXT_PUBLIC_FEATURE_ADVANCED_ANALYTICS !== 'false',
 };
@@ -32,10 +32,10 @@ export const FEATURES = {
 export const UI_CONFIG = {
   // Default theme (light, dark, system)
   DEFAULT_THEME: process.env.NEXT_PUBLIC_DEFAULT_THEME || 'system',
-  
+
   // Default chart timeframe
   DEFAULT_TIMEFRAME: process.env.NEXT_PUBLIC_DEFAULT_TIMEFRAME || '4h',
-  
+
   // Default trading pair
   DEFAULT_PAIR: process.env.NEXT_PUBLIC_DEFAULT_PAIR || 'BTC-USDT',
 };
@@ -50,15 +50,17 @@ export const APP_META = {
 // Validate environment (client-side)
 export const validateEnvironment = () => {
   const warnings = [];
-  
+
   if (!API_URL) {
     warnings.push('API_URL is not configured. The application may not function correctly.');
   }
-  
+
   if (FEATURES.REAL_TRADING && IS_TESTNET) {
-    warnings.push('Real trading is enabled but testnet mode is also enabled. This may cause confusion.');
+    warnings.push(
+      'Real trading is enabled but testnet mode is also enabled. This may cause confusion.',
+    );
   }
-  
+
   return {
     isValid: warnings.length === 0,
     warnings,
@@ -73,4 +75,4 @@ export default {
   UI_CONFIG,
   APP_META,
   validateEnvironment,
-}; 
+};
